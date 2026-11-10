@@ -1,0 +1,36 @@
+/* HT Neon — user dashboard: brand colours on the sidebar, stat cards and buttons. Content stays light for readability. */
+body.htn #wrapper.lp-dashboard-new #sidebar-wrapper{background:#170d24 !important;border-right:1px solid rgba(226,160,255,.14)}
+body.htn #wrapper.lp-dashboard-new #sidebar_menu{background:linear-gradient(135deg,#e21a93 0%,#8b3fe0 100%) !important}
+body.htn #wrapper.lp-dashboard-new #sidebar_menu a,body.htn #wrapper.lp-dashboard-new #menu-toggle{color:#fff}
+body.htn #wrapper.lp-dashboard-new ul.sidebar-nav{background:transparent !important}
+body.htn #wrapper.lp-dashboard-new ul.sidebar-nav li{border-color:rgba(226,160,255,.08)}
+body.htn #wrapper.lp-dashboard-new ul.sidebar-nav li a{font-family:"Cabin","Helvetica Neue",Arial,sans-serif;font-size:16px;font-weight:500;color:#e3d8ea !important;background:transparent;transition:background-color .15s ease,color .15s ease,box-shadow .15s ease}
+body.htn #wrapper.lp-dashboard-new ul.sidebar-nav li a i,body.htn #wrapper.lp-dashboard-new ul.sidebar-nav li a .fa{color:#ff7fd0}
+body.htn #wrapper.lp-dashboard-new ul.sidebar-nav li a:hover,
+body.htn #wrapper.lp-dashboard-new ul.sidebar-nav li a.active-dash-menu,
+body.htn #wrapper.lp-dashboard-new ul.sidebar-nav li.active > a{background:rgba(255,79,190,.16) !important;color:#fff !important;box-shadow:inset 3px 0 0 #ff4fbe}
+body.htn #wrapper.lp-dashboard-new ul.sidebar-nav li ul{background:#110a1b !important}
+body.htn #wrapper.lp-dashboard-new ul.sidebar-nav li ul li a{font-size:15px;color:#cfc2d8 !important}
+
+body.htn .lp-dashboard-new .aliceblue,body.htn section.aliceblue{background-color:#f7f3fb}
+body.htn .lp-user-header{border-bottom:1px solid #e7ddef}
+body.htn .lp-dashboard-panel-outer .section-title{background:#f1e9f7;border-radius:10px 10px 0 0}
+body.htn .lp-dashboard-panel-outer .section-title > h3{font-family:"Cabin","Helvetica Neue",Arial,sans-serif;color:#6b5b7a;letter-spacing:.08em}
+
+body.htn .panel-dash-views .count-box{border-radius:0}
+body.htn .panel-dash-views .col-md-4:first-child .count-box{border-radius:16px 0 0 16px}
+body.htn .panel-dash-views .col-md-4:last-child .count-box{border-radius:0 16px 16px 0}
+body.htn .panel-dash-views .count-box.blue-box{background:linear-gradient(135deg,#e21a93 0%,#b02bd0 100%) !important}
+body.htn .panel-dash-views .count-box.orange-box{background:linear-gradient(135deg,#8b3fe0 0%,#5a35c9 100%) !important}
+body.htn .panel-dash-views .count-box.green-box{background:linear-gradient(135deg,#3a1857 0%,#1e1230 100%) !important}
+body.htn .lp-dashboard-new .count-box.active{background:#fff !important;box-shadow:inset 0 0 0 2px #e21a93}
+body.htn .panel-dash-views .count-box p.views{font-family:"Cabin","Helvetica Neue",Arial,sans-serif;font-weight:600}
+
+body.htn .lp-dashboard-new .notices-area .notice.info .notice-icon{background-color:#e21a93 !important}
+body.htn .lp-dashboard-panel-outer .notices-area .notice.info a.close{color:#e21a93}
+body.htn .lp-dashboard-new .notices-area .notice .notice-text{border-radius:0 12px 12px 0}
+body.htn .panel-recent-activity > ul{border-radius:0 0 12px 12px}
+body.htn .panel-recent-activity span a:hover{color:#d6168b}
+body.htn .panel-recent-activity i.reaction,body.htn .panel-recent-activity span strong.reaction{color:#8b3fe0}
+body.htn .lp-dashboard-new h1,body.htn .lp-dashboard-new h2,body.htn .lp-dashboard-new h3,body.htn .lp-dashboard-new h4{font-family:"Cabin","Helvetica Neue",Arial,sans-serif;font-weight:600;letter-spacing:0}
+body.htn .lp-dashboard-new .btn-primary,body.htn .lp-dashboard-new .lp-review-btn,body.htn .lp-dashboard-new .add-btn-v2{border-radius:999px}

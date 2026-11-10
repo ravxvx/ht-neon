@@ -49,3 +49,6 @@ body.htn-dark .widget-box,body.htn-dark .sidebar-post,body.htn-dark .lp-blog-gri
 body.htn-dark .page-heading{background-color:#170d24}
 body.htn-dark .dropdown-menu,body.htn-dark .chosen-container .chosen-drop,body.htn-dark .select2-dropdown{box-shadow:0 18px 44px rgba(0,0,0,.55)}
 body.htn-dark .md-modal .md-content,body.htn-dark .modal-content{background-color:#1e1230;color:#ddd2e4;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+
+/* Page-builder sections: drop light colour fills on dark pages (background images stay). */
+body.htn-dark .elementor-section,body.htn-dark .elementor-top-section,body.htn-dark .e-con,body.htn-dark .e-con-inner,body.htn-dark .elementor-column > .elementor-widget-wrap,body.htn-dark .elementor-column > .elementor-column-wrap,body.htn-dark .vc_row,body.htn-dark .vc_column-inner{background-color:transparent !important}
