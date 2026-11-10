@@ -2,6 +2,24 @@
 
 Wtyczka WordPress, która nakłada ciemny, fioletowo-różowy wygląd na motyw **ListingPro** na stronie holistictherapists.ie. Nie zmienia plików motywu, wizytówek ani treści stron. Po wyłączeniu wtyczki strona wraca do poprzedniego wyglądu.
 
+## Zrzuty ekranu
+
+Wyrenderowane lokalnie na stylach ListingPro z przykładowymi danymi.
+
+**Strona główna**
+
+![Strona główna](screenshots/home.jpg)
+
+**Podstrona**
+
+![Podstrona](screenshots/inner-page.jpg)
+
+**Telefon**
+
+<img src="screenshots/mobile.jpg" alt="Widok na telefonie" width="320">
+
+Cała strona główna: [screenshots/home-full.jpg](screenshots/home-full.jpg)
+
 ## Co robi
 
 - **Nagłówek z logo** (lotos + „Holistic Therapists — Ireland —"), menu, „Log In" i przycisk „Join as a Therapist". Zastępuje nagłówek motywu.
