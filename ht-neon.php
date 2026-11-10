@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 2.1.0
+ * Version: 2.1.1
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '2.1.0' );
+define( 'HTN_VERSION', '2.1.1' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -31,6 +31,7 @@ function htn_defaults() {
 		'footer'     => 1,
 		'dark'       => 1,
 		'events'     => 1,
+		'favicon'    => 1,
 		'cta_band'   => 1,
 		'cta_bar'    => 0,
 		'stats'      => 1,
@@ -217,6 +218,43 @@ function htn_icon( $name ) {
 		return '';
 	}
 	return '<svg class="htn-ico htn-ico--' . esc_attr( $name ) . '" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' . $paths[ $name ] . '</svg>';
+}
+
+/* ------------------------------------------------------------------ *
+ * Site icon (favicon)
+ * ------------------------------------------------------------------ */
+
+function htn_use_favicon() {
+	$s = htn_settings();
+	return ! empty( $s['favicon'] ) && 'off' !== $s['mode'];
+}
+
+function htn_icon_file( $size ) {
+	$size = (int) $size;
+	foreach ( array( 32, 180, 192, 270, 512 ) as $available ) {
+		if ( $size <= $available ) {
+			return HTN_URL . 'assets/img/icon-' . $available . '.png?v=' . HTN_VERSION;
+		}
+	}
+	return HTN_URL . 'assets/img/icon-512.png?v=' . HTN_VERSION;
+}
+
+add_filter( 'get_site_icon_url', 'htn_site_icon_url', 20, 2 );
+function htn_site_icon_url( $url, $size ) {
+	return htn_use_favicon() ? htn_icon_file( $size ) : $url;
+}
+
+// Print the icon tags ourselves when no site icon is set in WordPress.
+add_action( 'wp_head', 'htn_favicon_tags', 99 );
+add_action( 'admin_head', 'htn_favicon_tags', 99 );
+add_action( 'login_head', 'htn_favicon_tags', 99 );
+function htn_favicon_tags() {
+	if ( ! htn_use_favicon() || get_option( 'site_icon' ) ) {
+		return;
+	}
+	echo '<link rel="icon" href="' . esc_url( htn_icon_file( 32 ) ) . '" sizes="32x32">' . "\n";
+	echo '<link rel="icon" href="' . esc_url( htn_icon_file( 192 ) ) . '" sizes="192x192">' . "\n";
+	echo '<link rel="apple-touch-icon" href="' . esc_url( htn_icon_file( 180 ) ) . '">' . "\n";
 }
 
 /* ------------------------------------------------------------------ *
@@ -667,7 +705,7 @@ function htn_sanitize( $in ) {
 	if ( isset( $in['mode'] ) && in_array( $in['mode'], array( 'off', 'preview', 'live' ), true ) ) {
 		$out['mode'] = $in['mode'];
 	}
-	foreach ( array( 'home', 'header', 'footer', 'dark', 'events', 'cta_band', 'cta_bar', 'stats' ) as $k ) {
+	foreach ( array( 'home', 'header', 'footer', 'dark', 'events', 'favicon', 'cta_band', 'cta_bar', 'stats' ) as $k ) {
 		$out[ $k ] = empty( $in[ $k ] ) ? 0 : 1;
 	}
 	if ( isset( $in['join_label'] ) ) {
@@ -719,6 +757,7 @@ function htn_render_page() {
 						<label><input type="checkbox" name="<?php echo esc_attr( $o ); ?>[footer]" value="1" <?php checked( ! empty( $s['footer'] ) ); ?>> Nowa stopka z logo i linkami (zastępuje stopkę motywu)</label><br>
 						<label><input type="checkbox" name="<?php echo esc_attr( $o ); ?>[dark]" value="1" <?php checked( ! empty( $s['dark'] ) ); ?>> Ciemny wygląd podstron (odznacz, jeśli gdzieś tekst jest nieczytelny — podstrony wrócą do jasnego tła)</label><br>
 						<label><input type="checkbox" name="<?php echo esc_attr( $o ); ?>[events]" value="1" <?php checked( ! empty( $s['events'] ) ); ?>> Nadchodzące wydarzenia na stronie głównej</label><br>
+						<label><input type="checkbox" name="<?php echo esc_attr( $o ); ?>[favicon]" value="1" <?php checked( ! empty( $s['favicon'] ) ); ?>> Ikona strony z lotosem (karta przeglądarki, pasek administratora)</label><br>
 						<label><input type="checkbox" name="<?php echo esc_attr( $o ); ?>[stats]" value="1" <?php checked( ! empty( $s['stats'] ) ); ?>> Liczniki na stronie głównej (prawdziwe liczby wizytówek i kategorii)</label><br>
 						<label><input type="checkbox" name="<?php echo esc_attr( $o ); ?>[cta_band]" value="1" <?php checked( ! empty( $s['cta_band'] ) ); ?>> Baner „Are You a Holistic Therapist?” przed stopką na podstronach</label><br>
 						<label><input type="checkbox" name="<?php echo esc_attr( $o ); ?>[cta_bar]" value="1" <?php checked( ! empty( $s['cta_bar'] ) ); ?>> Pasek z zachętą do rejestracji na dole ekranu</label>
