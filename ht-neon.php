@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 2.0.0
+ * Version: 2.1.0
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '2.0.0' );
+define( 'HTN_VERSION', '2.1.0' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -28,6 +28,9 @@ function htn_defaults() {
 		'mode'       => 'preview', // off | preview | live
 		'home'       => 1,
 		'header'     => 1,
+		'footer'     => 1,
+		'dark'       => 1,
+		'events'     => 1,
 		'cta_band'   => 1,
 		'cta_bar'    => 0,
 		'stats'      => 1,
@@ -81,6 +84,31 @@ function htn_use_home() {
 	return htn_is_active() && ! empty( $s['home'] ) && is_front_page();
 }
 
+function htn_use_footer() {
+	$s = htn_settings();
+	if ( ! htn_is_active() || empty( $s['footer'] ) || htn_is_dashboard() ) {
+		return false;
+	}
+	return ! htn_is_map_archive();
+}
+
+/** ListingPro drops its footer on half-map archive layouts; follow the same rule. */
+function htn_is_map_archive() {
+	if ( is_tax( array( 'location', 'listing-category', 'list-tags', 'features' ) ) || is_search() ) {
+		$style = function_exists( 'lp_theme_option' ) ? (string) lp_theme_option( 'listing_style' ) : '';
+		if ( isset( $_GET['list-style'] ) && '' !== $_GET['list-style'] ) { // phpcs:ignore WordPress.Security.NonceVerification
+			$style = sanitize_text_field( wp_unslash( $_GET['list-style'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
+		}
+		return in_array( $style, array( '2', '3', '5', '6' ), true );
+	}
+	return false;
+}
+
+function htn_use_dark() {
+	$s = htn_settings();
+	return htn_is_active() && ! empty( $s['dark'] ) && ! htn_is_dashboard();
+}
+
 function htn_url( $path ) {
 	$path = (string) $path;
 	return ( 0 === strpos( $path, '/' ) ) ? home_url( $path ) : $path;
@@ -112,7 +140,15 @@ function htn_enqueue() {
 	}
 	wp_enqueue_style( 'htn-fonts', 'https://fonts.googleapis.com/css2?family=Cabin:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap', array(), null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters
 	wp_enqueue_style( 'htn-colors', HTN_URL . 'assets/css/colors.css', array(), HTN_VERSION );
-	wp_enqueue_style( 'htn-skin', HTN_URL . 'assets/css/skin.css', array( 'htn-colors' ), HTN_VERSION );
+	$skin_deps = array( 'htn-colors' );
+	if ( htn_use_dark() ) {
+		wp_enqueue_style( 'htn-dark-auto', HTN_URL . 'assets/css/dark-auto.css', array( 'htn-colors' ), HTN_VERSION );
+		$skin_deps[] = 'htn-dark-auto';
+	}
+	wp_enqueue_style( 'htn-skin', HTN_URL . 'assets/css/skin.css', $skin_deps, HTN_VERSION );
+	if ( htn_use_dark() ) {
+		wp_enqueue_style( 'htn-dark', HTN_URL . 'assets/css/dark.css', array( 'htn-skin' ), HTN_VERSION );
+	}
 	wp_enqueue_style( 'htn-neon', HTN_URL . 'assets/css/neon.css', array( 'htn-skin' ), HTN_VERSION );
 	wp_enqueue_script( 'htn-neon', HTN_URL . 'assets/js/neon.js', array(), HTN_VERSION, true );
 }
@@ -126,6 +162,12 @@ function htn_body_class( $classes ) {
 		}
 		if ( htn_use_home() ) {
 			$classes[] = 'htn-home';
+		}
+		if ( htn_use_footer() ) {
+			$classes[] = 'htn-has-footer';
+		}
+		if ( htn_use_dark() ) {
+			$classes[] = 'htn-dark';
 		}
 	}
 	return $classes;
@@ -252,14 +294,47 @@ function htn_default_nav() {
 	return $html;
 }
 
-add_action( 'wp_body_open', 'htn_render_header', 5 );
-function htn_render_header() {
+/*
+ * The header is placed right after the opening <body> tag by filtering the page output.
+ * The wp_body_open hook is not used: on this site it runs at the end of the page.
+ */
+add_action( 'template_redirect', 'htn_start_buffer', 0 );
+function htn_start_buffer() {
+	if ( htn_use_header() && ! is_feed() && ! is_robots() ) {
+		ob_start( 'htn_inject_header' );
+	}
+}
+
+add_action( 'wp_head', 'htn_prepare_header', 1 );
+function htn_prepare_header() {
 	if ( ! htn_use_header() ) {
 		return;
 	}
+	ob_start();
+	htn_render_header();
+	$GLOBALS['htn_header_html'] = ob_get_clean();
+}
+
+function htn_inject_header( $html ) {
+	if ( empty( $GLOBALS['htn_header_html'] ) || false !== strpos( $html, 'id="htn-header"' ) ) {
+		return $html;
+	}
+	$header = $GLOBALS['htn_header_html'];
+	$out    = preg_replace_callback(
+		'/<body\b[^>]*>/i',
+		function ( $m ) use ( $header ) {
+			return $m[0] . "\n" . $header;
+		},
+		$html,
+		1
+	);
+	return null === $out ? $html : $out;
+}
+
+function htn_render_header() {
 	$s = htn_settings();
 	?>
-	<header class="htn-header" id="htn-header">
+	<div class="htn-header" id="htn-header" role="banner">
 		<div class="htn-header__inner">
 			<?php echo htn_logo(); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<button type="button" class="htn-burger" id="htn-burger" aria-expanded="false" aria-controls="htn-nav" aria-label="Menu">
@@ -295,7 +370,7 @@ function htn_render_header() {
 				</div>
 			</nav>
 		</div>
-	</header>
+	</div>
 	<?php
 }
 
@@ -363,11 +438,165 @@ function htn_stats() {
 }
 
 /* ------------------------------------------------------------------ *
+ * Upcoming events (ListingPro "events" post type)
+ * ------------------------------------------------------------------ */
+
+function htn_upcoming_events( $limit = 4 ) {
+	if ( ! post_type_exists( 'events' ) ) {
+		return array();
+	}
+	$since = strtotime( '-1 day' );
+	$q     = new WP_Query(
+		array(
+			'post_type'           => 'events',
+			'post_status'         => 'publish',
+			'posts_per_page'      => (int) $limit,
+			'ignore_sticky_posts' => true,
+			'no_found_rows'       => true,
+			'meta_key'            => 'event-date', // phpcs:ignore WordPress.DB.SlowDBQuery
+			'orderby'             => 'meta_value_num',
+			'order'               => 'ASC',
+			'meta_query'          => array( // phpcs:ignore WordPress.DB.SlowDBQuery
+				'relation' => 'OR',
+				array(
+					'key'     => 'event-date',
+					'value'   => $since,
+					'compare' => '>',
+					'type'    => 'NUMERIC',
+				),
+				array(
+					'key'     => 'event-date-e',
+					'value'   => $since,
+					'compare' => '>',
+					'type'    => 'NUMERIC',
+				),
+			),
+		)
+	);
+	$out = array();
+	foreach ( $q->posts as $p ) {
+		$start = get_post_meta( $p->ID, 'event-date', true );
+		$img   = get_the_post_thumbnail_url( $p->ID, 'medium_large' );
+		if ( ! $img ) {
+			$img = get_post_meta( $p->ID, 'event-img', true );
+		}
+		$out[] = array(
+			'title' => get_the_title( $p ),
+			'link'  => get_permalink( $p ),
+			'date'  => is_numeric( $start ) ? (int) $start : 0,
+			'time'  => (string) get_post_meta( $p->ID, 'event-time', true ),
+			'loc'   => (string) get_post_meta( $p->ID, 'event-loc', true ),
+			'img'   => is_string( $img ) ? $img : '',
+		);
+	}
+	return $out;
+}
+
+/* ------------------------------------------------------------------ *
+ * Footer
+ * ------------------------------------------------------------------ */
+
+function htn_theme_option( $key ) {
+	if ( function_exists( 'lp_theme_option' ) ) {
+		$v = lp_theme_option( $key );
+		return is_string( $v ) ? trim( $v ) : '';
+	}
+	return '';
+}
+
+function htn_page_link( $slug, $label ) {
+	$p = get_page_by_path( $slug );
+	if ( ! $p || 'publish' !== $p->post_status ) {
+		return '';
+	}
+	return '<li><a href="' . esc_url( get_permalink( $p ) ) . '">' . esc_html( $label ) . '</a></li>';
+}
+
+add_action( 'get_footer', 'htn_render_footer', 20 );
+function htn_render_footer() {
+	static $done = false;
+	if ( $done || ! htn_use_footer() ) {
+		return;
+	}
+	$done = true;
+	$s    = htn_settings();
+
+	$social = array(
+		'fb'           => 'Facebook',
+		'tw'           => 'X',
+		'insta'        => 'Instagram',
+		'f-yout'       => 'YouTube',
+		'f-linked'     => 'LinkedIn',
+		'f-pintereset' => 'Pinterest',
+		'tumb'         => 'Tumblr',
+	);
+	$blog   = (int) get_option( 'page_for_posts' );
+	$addr   = htn_theme_option( 'footer_address' );
+	$phone  = htn_theme_option( 'phone_number' );
+	?>
+	<div class="htn-footer" role="contentinfo">
+		<div class="htn-footer__inner">
+			<div class="htn-footer__brand">
+				<?php echo htn_logo(); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+				<p>Ireland's holistic wellness directory. Find therapists, practitioners and wellbeing events near you.</p>
+				<ul class="htn-footer__social">
+					<?php foreach ( $social as $key => $label ) : ?>
+						<?php $url = htn_theme_option( $key ); ?>
+						<?php if ( $url && '#' !== $url ) : ?>
+							<li><a href="<?php echo esc_url( $url ); ?>" target="_blank" rel="noopener"><?php echo esc_html( $label ); ?></a></li>
+						<?php endif; ?>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+			<div class="htn-footer__col">
+				<h2>Explore</h2>
+				<ul>
+					<li><a href="<?php echo esc_url( htn_search_url() ); ?>">Find a Therapist</a></li>
+					<?php echo htn_page_link( 'events', 'Events' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+					<?php if ( $blog ) : ?>
+						<li><a href="<?php echo esc_url( get_permalink( $blog ) ); ?>">Blog</a></li>
+					<?php endif; ?>
+					<?php echo htn_page_link( 'newsletter-signup', 'Newsletter' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+					<?php echo htn_page_link( 'contact', 'Contact' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+				</ul>
+			</div>
+			<div class="htn-footer__col">
+				<h2>Popular Therapies</h2>
+				<ul>
+					<?php foreach ( htn_top_categories( 5 ) as $t ) : ?>
+						<?php $link = get_term_link( $t ); ?>
+						<?php if ( ! is_wp_error( $link ) ) : ?>
+							<li><a href="<?php echo esc_url( $link ); ?>"><?php echo esc_html( $t->name ); ?></a></li>
+						<?php endif; ?>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+			<div class="htn-footer__col">
+				<h2>For Therapists</h2>
+				<ul>
+					<li><a href="<?php echo esc_url( htn_join_url() ); ?>"><?php echo esc_html( $s['join_label'] ); ?></a></li>
+					<?php echo htn_page_link( 'submit-listing', 'Add a Listing' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+					<?php echo htn_page_link( 'submit-your-articles', 'Submit an Article' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+					<?php echo htn_page_link( 'affiliate-area', 'Affiliate Area' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+				</ul>
+			</div>
+		</div>
+		<div class="htn-footer__bottom">
+			<p>&copy; <?php echo esc_html( gmdate( 'Y' ) ); ?> <?php echo esc_html( get_bloginfo( 'name' ) ); ?><?php echo $addr ? ' &middot; ' . esc_html( wp_strip_all_tags( $addr ) ) : ''; ?><?php echo $phone ? ' &middot; ' . esc_html( wp_strip_all_tags( $phone ) ) : ''; ?></p>
+			<ul>
+				<?php echo htn_page_link( 'privacy-policy', 'Privacy Policy' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+			</ul>
+		</div>
+	</div>
+	<?php
+}
+
+/* ------------------------------------------------------------------ *
  * Registration prompts on inner pages
  * ------------------------------------------------------------------ */
 
 function htn_show_cta() {
-	if ( ! htn_is_active() || htn_is_dashboard() ) {
+	if ( ! htn_is_active() || htn_is_dashboard() || htn_is_map_archive() ) {
 		return false;
 	}
 	if ( is_user_logged_in() && ! current_user_can( 'manage_options' ) ) {
@@ -438,7 +667,7 @@ function htn_sanitize( $in ) {
 	if ( isset( $in['mode'] ) && in_array( $in['mode'], array( 'off', 'preview', 'live' ), true ) ) {
 		$out['mode'] = $in['mode'];
 	}
-	foreach ( array( 'home', 'header', 'cta_band', 'cta_bar', 'stats' ) as $k ) {
+	foreach ( array( 'home', 'header', 'footer', 'dark', 'events', 'cta_band', 'cta_bar', 'stats' ) as $k ) {
 		$out[ $k ] = empty( $in[ $k ] ) ? 0 : 1;
 	}
 	if ( isset( $in['join_label'] ) ) {
@@ -487,6 +716,9 @@ function htn_render_page() {
 					<td>
 						<label><input type="checkbox" name="<?php echo esc_attr( $o ); ?>[header]" value="1" <?php checked( ! empty( $s['header'] ) ); ?>> Nowy nagłówek z logo (zastępuje nagłówek motywu)</label><br>
 						<label><input type="checkbox" name="<?php echo esc_attr( $o ); ?>[home]" value="1" <?php checked( ! empty( $s['home'] ) ); ?>> Nowa strona główna (obecna strona z Elementora zostaje nietknięta i wraca po odznaczeniu)</label><br>
+						<label><input type="checkbox" name="<?php echo esc_attr( $o ); ?>[footer]" value="1" <?php checked( ! empty( $s['footer'] ) ); ?>> Nowa stopka z logo i linkami (zastępuje stopkę motywu)</label><br>
+						<label><input type="checkbox" name="<?php echo esc_attr( $o ); ?>[dark]" value="1" <?php checked( ! empty( $s['dark'] ) ); ?>> Ciemny wygląd podstron (odznacz, jeśli gdzieś tekst jest nieczytelny — podstrony wrócą do jasnego tła)</label><br>
+						<label><input type="checkbox" name="<?php echo esc_attr( $o ); ?>[events]" value="1" <?php checked( ! empty( $s['events'] ) ); ?>> Nadchodzące wydarzenia na stronie głównej</label><br>
 						<label><input type="checkbox" name="<?php echo esc_attr( $o ); ?>[stats]" value="1" <?php checked( ! empty( $s['stats'] ) ); ?>> Liczniki na stronie głównej (prawdziwe liczby wizytówek i kategorii)</label><br>
 						<label><input type="checkbox" name="<?php echo esc_attr( $o ); ?>[cta_band]" value="1" <?php checked( ! empty( $s['cta_band'] ) ); ?>> Baner „Are You a Holistic Therapist?” przed stopką na podstronach</label><br>
 						<label><input type="checkbox" name="<?php echo esc_attr( $o ); ?>[cta_bar]" value="1" <?php checked( ! empty( $s['cta_bar'] ) ); ?>> Pasek z zachętą do rejestracji na dole ekranu</label>

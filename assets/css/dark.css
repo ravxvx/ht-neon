@@ -1,0 +1,51 @@
+/* HT Neon — dark inner pages: palette and baseline on top of the generated overrides. */
+body.htn-dark{
+  --ht-primary:#ec2fa3;
+  --ht-primary-a:rgba(236,47,163,.9);
+  --ht-primary-soft:rgba(236,47,163,.2);
+  --ht-accent:#8b5cf6;
+  --ht-bg:#110a1b;
+  --ht-ink:#fbf6fd;
+  --ht-muted:#cfc2d8;
+  --ht-line:rgba(226,160,255,.17);
+  --ht-card:#1e1230;
+  --ht-deep:#0b0612;
+  --ht-shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px rgba(0,0,0,.35);
+  --ht-shadow-hover:0 2px 4px rgba(0,0,0,.3),0 18px 40px rgba(0,0,0,.5),0 0 24px rgba(236,47,163,.16);
+  background-color:#110a1b !important;
+  color:#ddd2e4;
+  color-scheme:dark;
+}
+body.htn-dark #page,body.htn-dark .lp-header,body.htn-dark .lp-header .header-container{background-color:transparent}
+
+/* Baseline for plain elements (theme options print element-level colours inline; these sit at the same weight but later). */
+:where(body.htn-dark) h1,:where(body.htn-dark) h2,:where(body.htn-dark) h3,:where(body.htn-dark) h4,:where(body.htn-dark) h5,:where(body.htn-dark) h6{color:#fff}
+:where(body.htn-dark) p,:where(body.htn-dark) li,:where(body.htn-dark) dd,:where(body.htn-dark) dt,:where(body.htn-dark) td,:where(body.htn-dark) th,:where(body.htn-dark) label,:where(body.htn-dark) blockquote,:where(body.htn-dark) figcaption,:where(body.htn-dark) address,:where(body.htn-dark) small{color:#d9cee1}
+:where(body.htn-dark) strong,:where(body.htn-dark) b{color:inherit}
+:where(body.htn-dark) hr{border-color:rgba(226,160,255,.17)}
+:where(body.htn-dark) table,:where(body.htn-dark) td,:where(body.htn-dark) th{border-color:rgba(226,160,255,.17)}
+:where(body.htn-dark) pre,:where(body.htn-dark) code{background-color:#170d24;color:#f3ecf7;border-color:rgba(226,160,255,.17)}
+:where(body.htn-dark) input,:where(body.htn-dark) select,:where(body.htn-dark) textarea{background-color:#170d24;color:#f3ecf7;border-color:rgba(226,160,255,.25)}
+:where(body.htn-dark) select option,:where(body.htn-dark) select optgroup{background-color:#1e1230;color:#f3ecf7}
+body.htn-dark ::placeholder{color:#a898b4;opacity:1}
+body.htn-dark .form-control,body.htn-dark .custom-form-control{background-color:#170d24;color:#f3ecf7;border-color:rgba(226,160,255,.25)}
+body.htn-dark .form-control:focus,body.htn-dark input:focus,body.htn-dark textarea:focus,body.htn-dark select:focus{border-color:var(--ht-primary)}
+body.htn-dark input:-webkit-autofill{-webkit-text-fill-color:#f3ecf7;box-shadow:0 0 0 1000px #170d24 inset}
+
+/* Page builder content */
+body.htn-dark .elementor-widget-heading .elementor-heading-title,
+body.htn-dark .elementor-widget-heading .elementor-heading-title a,
+body.htn-dark .elementor-icon-box-title,body.htn-dark .elementor-image-box-title{color:#fff !important}
+body.htn-dark .elementor-widget-text-editor,body.htn-dark .elementor-widget-text-editor p,body.htn-dark .elementor-widget-text-editor li,
+body.htn-dark .elementor-icon-box-description,body.htn-dark .elementor-image-box-description,body.htn-dark .elementor-icon-list-text{color:#d9cee1 !important}
+body.htn-dark .wpb_text_column,body.htn-dark .wpb_text_column p,body.htn-dark .wpb_text_column li{color:#d9cee1}
+body.htn-dark .wpb_text_column h1,body.htn-dark .wpb_text_column h2,body.htn-dark .wpb_text_column h3,body.htn-dark .wpb_text_column h4{color:#fff}
+
+/* ListingPro surfaces that carry their colour from theme options */
+body.htn-dark .lp-section,body.htn-dark .section-contianer,body.htn-dark .page-container-four,body.htn-dark .lp-archive-container,body.htn-dark .listing-simple,body.htn-dark .post-with-map-container,body.htn-dark .blog-single-page,body.htn-dark .aliceblue{background-color:transparent}
+body.htn-dark .lp-grid-box-contianer .lp-grid-box,body.htn-dark .lp-grid-box-description,body.htn-dark .lp-grid-box-bottom,body.htn-dark .lp-grid-desc-container{background-color:#1e1230;border-color:rgba(226,160,255,.17)}
+body.htn-dark .lp-grid-box-description h4 a,body.htn-dark .lp-listing-bottom h4 a,body.htn-dark .lp-blog-grid-box-description h4 a,body.htn-dark .lp-h4 a{color:#fff}
+body.htn-dark .widget-box,body.htn-dark .sidebar-post,body.htn-dark .lp-blog-grid-box,body.htn-dark .lp-blog-grid-box-description{background-color:#1e1230}
+body.htn-dark .page-heading{background-color:#170d24}
+body.htn-dark .dropdown-menu,body.htn-dark .chosen-container .chosen-drop,body.htn-dark .select2-dropdown{box-shadow:0 18px 44px rgba(0,0,0,.55)}
+body.htn-dark .md-modal .md-content,body.htn-dark .modal-content{background-color:#1e1230;color:#ddd2e4;box-shadow:0 24px 60px rgba(0,0,0,.6)}

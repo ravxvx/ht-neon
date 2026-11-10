@@ -122,6 +122,46 @@ get_header();
 		</section>
 	<?php endif; ?>
 
+	<?php $htn_events = ! empty( $htn_s['events'] ) ? htn_upcoming_events( 4 ) : array(); ?>
+	<?php if ( $htn_events ) : ?>
+		<?php $htn_events_page = get_page_by_path( 'events' ); ?>
+		<section class="htn-section htn-events" aria-labelledby="htn-events-title">
+			<div class="htn-wrap">
+				<div class="htn-head">
+					<h2 class="htn-head__title" id="htn-events-title">Upcoming Events</h2>
+					<?php if ( $htn_events_page ) : ?>
+						<a class="htn-head__link" href="<?php echo esc_url( get_permalink( $htn_events_page ) ); ?>">All events <?php echo htn_icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
+					<?php endif; ?>
+				</div>
+				<ul class="htn-cards htn-cards--4">
+					<?php foreach ( $htn_events as $htn_event ) : ?>
+						<li>
+							<a class="htn-card htn-card--event" href="<?php echo esc_url( $htn_event['link'] ); ?>">
+								<span class="htn-card__img">
+									<?php if ( $htn_event['img'] ) : ?>
+										<img src="<?php echo esc_url( $htn_event['img'] ); ?>" alt="" loading="lazy">
+									<?php endif; ?>
+									<?php if ( $htn_event['date'] ) : ?>
+										<span class="htn-card__date"><b><?php echo esc_html( date_i18n( 'j', $htn_event['date'] ) ); ?></b><?php echo esc_html( date_i18n( 'M', $htn_event['date'] ) ); ?></span>
+									<?php endif; ?>
+								</span>
+								<span class="htn-card__body">
+									<?php if ( $htn_event['date'] ) : ?>
+										<span class="htn-card__meta"><?php echo esc_html( date_i18n( 'l, j F Y', $htn_event['date'] ) ); ?><?php echo $htn_event['time'] ? ' &middot; ' . esc_html( $htn_event['time'] ) : ''; ?></span>
+									<?php endif; ?>
+									<span class="htn-card__title"><?php echo esc_html( $htn_event['title'] ); ?></span>
+									<?php if ( $htn_event['loc'] ) : ?>
+										<span class="htn-card__loc"><?php echo htn_icon( 'pin' ); // phpcs:ignore WordPress.Security.EscapeOutput ?> <?php echo esc_html( $htn_event['loc'] ); ?></span>
+									<?php endif; ?>
+								</span>
+							</a>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+		</section>
+	<?php endif; ?>
+
 	<?php
 	$htn_listings = new WP_Query(
 		array(

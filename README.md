@@ -24,7 +24,9 @@ Cała strona główna: [screenshots/home-full.jpg](screenshots/home-full.jpg)
 
 - **Nagłówek z logo** (lotos + „Holistic Therapists — Ireland —"), menu, „Log In" i przycisk „Join as a Therapist". Zastępuje nagłówek motywu.
 - **Nowa strona główna**: baner z wyszukiwarką podpiętą pod wyszukiwanie ListingPro, cztery zalety, kafelki kategorii, dwa boksy z zachętą, liczniki, ostatnio dodane wizytówki i wpisy z bloga. Dotychczasowa strona główna (Elementor) zostaje nietknięta.
-- **Podstrony**: ciemny nagłówek i stopka, różowe akcenty, baner „Are You a Holistic Therapist?" przed stopką.
+- **Podstrony**: ciemny wygląd całego ListingPro (generowany automatycznie z arkuszy motywu), baner „Are You a Holistic Therapist?" przed stopką. Ciemne podstrony można wyłączyć w ustawieniach.
+- **Stopka** z logo, linkami i mediami społecznościowymi z opcji motywu. Zastępuje stopkę motywu.
+- **Nadchodzące wydarzenia** (typ wpisu `events` z ListingPro) na stronie głównej.
 - **Liczniki** pokazują prawdziwą liczbę opublikowanych wizytówek i kategorii.
 
 ## Instalacja
@@ -41,7 +43,7 @@ Po włączeniu wtyczka działa w trybie **Podgląd**: nowy wygląd widzą tylko 
 Ustawienia są w *Wygląd → HT Neon*:
 
 - tryb: Podgląd / Włączony / Wyłączony,
-- włączanie i wyłączanie nagłówka, strony głównej, liczników, banera i paska rejestracji,
+- włączanie i wyłączanie nagłówka, stopki, strony głównej, ciemnych podstron, wydarzeń, liczników, banera i paska rejestracji,
 - napis i adres przycisku rejestracji (domyślnie `/pricing-plan/`),
 - własne zdjęcie w banerze.
 
@@ -52,8 +54,10 @@ Własne menu w nagłówku: *Wygląd → Menu → Zarządzaj położeniem*, pozyc
 - `ht-neon.php` – ustawienia, nagłówek, podmiana szablonu strony głównej, baner rejestracji
 - `templates/home.php` – strona główna
 - `assets/css/colors.css` – kolor akcentu podmieniony w selektorach ListingPro
-- `assets/css/skin.css` – wygląd podstron
-- `assets/css/neon.css` – nagłówek, strona główna, baner
+- `assets/css/dark-auto.css` – ciemne nadpisania wygenerowane z arkuszy ListingPro, Bootstrapa i bibliotek
+- `assets/css/dark.css` – paleta i podstawy ciemnych podstron
+- `assets/css/skin.css` – kształty, czcionki i karty na podstronach
+- `assets/css/neon.css` – nagłówek, stopka, strona główna, baner
 - `assets/js/neon.js` – menu mobilne, okienko logowania, pasek rejestracji
 - `assets/img/` – zdjęcia banera, kafelków i boksów
 
