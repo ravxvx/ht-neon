@@ -233,6 +233,7 @@ body.htn .htn-bar .htn-bar__text{flex:1 1 auto;min-width:0;margin:0;font-family:
   body.htn .htn-main .htn-eyebrow{font-size:11.5px;letter-spacing:.3em;margin-bottom:14px}
   body.htn .htn-main .htn-hero__lead{font-size:17px;margin-bottom:24px}
   .htn-hero__lead br{display:none}
+  .htn-hero__tags{display:block;margin-top:6px}
   .htn-search{flex-direction:column;border-radius:16px;padding:6px}
   .htn-search__field,.htn-search__field--where{flex:0 0 auto;padding:0 14px}
   .htn-search__field--where::before{left:14px;right:14px;top:0;bottom:auto;width:auto;height:1px}

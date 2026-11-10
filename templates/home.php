@@ -33,7 +33,7 @@ get_header();
 		<div class="htn-wrap htn-hero__inner">
 			<p class="htn-eyebrow">Ireland's Holistic Wellness Directory</p>
 			<h1 class="htn-hero__title">Find Your Balance.<br>Discover <span>Holistic Therapies.</span></h1>
-			<p class="htn-hero__lead">Connect with trusted, qualified holistic therapists across Ireland.<br>Wellbeing &bull; Balance &bull; Healing &bull; Mind &bull; Body &bull; Spirit</p>
+			<p class="htn-hero__lead">Connect with trusted, qualified holistic therapists across Ireland.<br><span class="htn-hero__tags">Wellbeing &bull; Balance &bull; Healing &bull; Mind &bull; Body &bull; Spirit</span></p>
 
 			<form class="htn-search" action="<?php echo esc_url( home_url( '/' ) ); ?>" method="get" role="search" autocomplete="off">
 				<label class="htn-search__field htn-search__field--what">
