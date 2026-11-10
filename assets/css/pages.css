@@ -233,3 +233,11 @@ html body.htn-dark .lp-blog-grid-box-description .lp-blog-grid-title,html body.h
 html body.htn-dark .lp-blog-grid-box-description .lp-blog-grid-title h4,html body.htn-dark .lp-blog-grid-box-description .lp-h4{padding:0 !important;margin:0 !important}
 html body.htn-dark .lp-blog-grid-author{margin:0 !important;text-align:left !important}
 html body.htn-dark .lp-blog-grid-author img{display:none}
+
+/* ===================== Page preloaders (Element Pack, Elementor, theme) ===================== */
+body.htn .bdt-preloader-wrapper,body.htn .bdt-ep-preloader,body.htn .ep-preloader,body.htn #bdt-preloader,body.htn .bdt-page-preloader,body.htn .elementor-preloader,body.htn .e-preloader,body.htn #preloader,body.htn .preloader,body.htn .page-preloader,body.htn .site-preloader,body.htn .lp-preloader,body.htn .wp-preloader,body.htn .gp-preloader{background:#110a1b !important;background-color:#110a1b !important}
+body.htn .bdt-preloader-wrapper *,body.htn #preloader *,body.htn .preloader *,body.htn .page-preloader *{background-color:transparent}
+body.htn .bdt-preloader-wrapper .bdt-preloader,body.htn .bdt-preloader-wrapper .bdt-preloader-inner,body.htn .bdt-preloader-wrapper .bdt-preloader-content,body.htn #preloader .preloader-inner,body.htn .preloader-inner,body.htn .preloader .loader,body.htn .bdt-preloader-wrapper .bdt-loader,body.htn .bdt-preloader-wrapper .loader{background:#1e1230 !important;border-radius:20px !important;border:1px solid rgba(226,160,255,.18);box-shadow:0 24px 60px rgba(0,0,0,.6)}
+body.htn .bdt-preloader-wrapper svg,body.htn .bdt-preloader-wrapper .bdt-preloader-content svg,body.htn #preloader svg,body.htn .preloader svg{stroke:#ff4fbe;color:#ff4fbe}
+body.htn .bdt-preloader-wrapper [class*="circle"],body.htn .bdt-preloader-wrapper [class*="ring"],body.htn .bdt-preloader-wrapper [class*="spinner"],body.htn .preloader [class*="circle"],body.htn .preloader [class*="spinner"],body.htn #preloader [class*="spinner"]{border-color:rgba(255,79,190,.25) !important;border-top-color:#ff4fbe !important;color:#ff4fbe !important}
+body.htn.listingpro-loading::after{background-color:rgba(17,10,27,.85) !important;background-image:none !important}
