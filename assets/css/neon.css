@@ -37,8 +37,9 @@ body.htn .htn-btn--lg{min-height:52px;padding:0 28px;font-size:18px}
 body.htn .htn-btn:focus-visible{outline:2px solid #fff;outline-offset:3px}
 
 /* ---------- Header ---------- */
-.htn-header{position:sticky;top:0;z-index:9980;background:rgba(17,10,27,.96);border-bottom:1px solid rgba(226,160,255,.12);font-family:var(--htn-sans);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.htn-header{position:sticky;top:0;z-index:99990;background:rgba(17,10,27,.96);border-bottom:1px solid rgba(226,160,255,.12);font-family:var(--htn-sans);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
 body.admin-bar .htn-header{top:32px}
+body.htn .htn-nav{z-index:99991}
 .htn-header__inner{max-width:var(--htn-wrap);margin:0 auto;padding:0 28px;height:var(--htn-header-h);display:flex;align-items:center;gap:28px}
 body.htn .htn-logo{display:flex;align-items:center;gap:10px;flex:0 0 auto;margin-right:8px;text-decoration:none;color:#fff}
 body.htn .htn-logo:hover{text-decoration:none;color:#fff}
@@ -219,7 +220,8 @@ body.htn .htn-bar .htn-bar__text{flex:1 1 auto;min-width:0;margin:0;font-family:
   .htn-duo__grid{grid-template-columns:minmax(0,1fr)}
 }
 @media (max-width:782px){
-  body.admin-bar .htn-header{top:46px}
+  body.admin-bar .htn-header{top:0}
+  .htn-header{position:relative;top:auto}
   :root{--htn-header-h:66px}
   .htn-wrap,.htn-header__inner{padding-left:18px;padding-right:18px}
   .htn-logo .htn-lotus{width:54px;height:39px}
@@ -367,3 +369,29 @@ body.htn .lp-price-main form.price-plan-button input[type="submit"],body.htn .lp
 body.htn .lp-price-main form.price-plan-button input[type="submit"]:hover,body.htn .lp-price-main form.price-plan-button button:hover{box-shadow:0 0 0 1px rgba(255,79,190,.6),0 12px 34px rgba(226,26,147,.6)}
 body.htn .lp-price-main .lp-hot{background:var(--htn-pink-btn) !important;color:#fff !important}
 body.htn .lp-price-main .lp-view-all-price-feature span{font-family:var(--htn-sans);color:var(--htn-pink) !important;cursor:pointer}
+
+/* ---------- Mobile "app view" of ListingPro: hide its header/banner, keep popups ---------- */
+body.htn-has-header.listing-app-view #page > .pos-relative > .header-container > header.app-view-header,
+body.htn-has-header.listing-app-view #page > .pos-relative > .header-container > .app-view-header,
+body.htn-has-header.listing-app-view .header-container > header,
+body.htn-has-header.listing-app-view .lp-header-overlay,
+body.htn-has-header.listing-app-view .lp-top-notification-bar,
+body.htn-has-header.listing-app-view .footer-app-menu{display:none !important}
+body.htn-home.listing-app-view #page > .pos-relative > .header-container{background:none !important;padding:0 !important;margin:0 !important;height:auto !important;min-height:0 !important}
+body.htn-home.listing-app-view #page > .pos-relative > .header-container > *:not(.md-modal):not(.md-overlay):not(.app-view-popup-style):not(script):not(style),
+body.htn-home.listing-app-view .app-view2-banner-cat-slider,
+body.htn-home.listing-app-view .home-categories-area,
+body.htn-home.listing-app-view .lp-home-banner-contianer,
+body.htn-home.listing-app-view .map-banner-search-container{display:none !important}
+body.htn-has-header.listing-app-view .header-container{background:transparent !important;height:auto !important;min-height:0 !important;padding:0 !important}
+body.htn.listing-app-view{padding-top:0 !important;padding-bottom:0 !important}
+body.htn.listing-app-view #page{padding-top:0 !important;margin-top:0 !important}
+body.htn-has-footer.listing-app-view footer.footer-app-view-new{display:none !important}
+
+/* Header is sticky but must not overlap the page: reserve its height via a spacer after it. */
+.htn-header + *{scroll-margin-top:var(--htn-header-h)}
+body.htn-has-header{--htn-sticky-offset:0px}
+@media (max-width:782px){
+  .htn-header{position:sticky}
+  body.htn.listing-app-view .htn-main{padding-top:0}
+}

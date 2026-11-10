@@ -186,6 +186,10 @@ body.htn-has-header .lp-header .header-container > header,
 body.htn-has-header .lp-header .header-container > .lp-customize-header-outer,
 body.htn-has-header .lp-header > header{display:none !important}
 body.htn-has-header .lp-header .header-container{height:auto !important;min-height:0 !important}
+/* Mobile navbar of the theme (#slide-nav, navbar-fixed-top) and its spacer */
+body.htn-has-header #slide-nav,body.htn-has-header #navbar-height-col,body.htn-has-header .navbar.navbar-fixed-top,body.htn-has-header .lp-header .navbar-inverse,body.htn-has-header .lp-mobile-logo,body.htn-has-header .lp-header-mobile,body.htn-has-header .lp-header .navbar-header{display:none !important}
+body.htn-has-header{padding-top:0 !important}
+body.htn-has-header .lp-header .header-container > .lp-mobile-menu-outer,body.htn-has-header .lp-header .header-container > .mobile-menu{display:none !important}
 /* Home: the plugin renders its own hero, so drop the theme banner and category strip (login popups stay). */
 body.htn-home .lp-header .header-container{background:none !important;padding:0 !important;margin:0 !important}
 body.htn-home .lp-header .header-container > *:not(.md-modal):not(.md-overlay):not(.app-view-popup-style):not(script):not(style){display:none !important}
