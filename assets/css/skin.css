@@ -1,0 +1,196 @@
+/* HT Neon — inner-page skin for ListingPro: light lavender content, pink accents, dark footer. */
+:root{
+  --ht-primary:#d6168b;
+  --ht-primary-a:rgba(214,22,139,.9);
+  --ht-primary-soft:rgba(214,22,139,.14);
+  --ht-accent:#7a3ff2;
+  --ht-bg:#f7f3fb;
+  --ht-ink:#1b1026;
+  --ht-muted:#5f5370;
+  --ht-line:#e7ddef;
+  --ht-card:#ffffff;
+  --ht-deep:#120a1c;
+  --ht-radius:14px;
+  --ht-radius-sm:10px;
+  --ht-shadow:0 1px 2px rgba(27,16,38,.05),0 8px 24px rgba(27,16,38,.07);
+  --ht-shadow-hover:0 2px 4px rgba(27,16,38,.06),0 16px 36px rgba(27,16,38,.12);
+}
+
+/* ---------- Base ---------- */
+body.htn{background-color:var(--ht-bg);color:var(--ht-ink);-webkit-font-smoothing:antialiased}
+body.htn p,body.htn li{line-height:1.7}
+body.htn ::selection{background:var(--ht-primary);color:#fff}
+body.htn a{transition:color .2s ease,background-color .2s ease,border-color .2s ease,box-shadow .2s ease}
+body.htn a:focus-visible,body.htn button:focus-visible,body.htn input:focus-visible,body.htn select:focus-visible,body.htn textarea:focus-visible{outline:2px solid var(--ht-primary);outline-offset:2px}
+
+/* ---------- Typography ---------- */
+body.htn,
+body.htn p,body.htn li,body.htn a,body.htn label,
+body.htn input,body.htn select,body.htn textarea,body.htn button,
+body.htn .btn,body.htn .elementor-button,body.htn .lp-menu a{font-family:"Cabin","Helvetica Neue",Arial,sans-serif}
+body.htn h1,body.htn h2,body.htn h3,
+body.htn h1 a,body.htn h2 a,body.htn h3 a,
+body.htn .elementor-heading-title,
+body.htn .lp-section-title-container h1,body.htn .lp-section-title-container h2,
+body.htn .page-heading h1,body.htn .post-meta-right-box h1{font-family:"Lora",Georgia,"Times New Roman",serif;font-weight:500;letter-spacing:-.01em}
+body.htn h4,body.htn h5,body.htn h6,
+body.htn h4 a,body.htn h5 a,body.htn h6 a{font-family:"Cabin","Helvetica Neue",Arial,sans-serif;font-weight:700}
+body.htn h1,body.htn h2,body.htn h3{line-height:1.2}
+body.htn .lp-section-title-container h1,body.htn .lp-section-title-container h2{color:var(--ht-ink)}
+body.htn .lp-section-title-container .lp-sub-title,body.htn .lp-section-title-container p{color:var(--ht-muted)}
+
+/* ---------- Buttons ---------- */
+body.htn .btn,
+body.htn .lp-secondary-btn,
+body.htn .lp-primary-btn,
+body.htn .lp-search-btn,
+body.htn input[type="submit"],
+body.htn button[type="submit"],
+body.htn .elementor-button,
+body.htn .lp-add-listing-btn ul li a,
+body.htn .lp-join-now a.md-trigger,
+body.htn .price-plan-button,
+body.htn .lp-review-btn,
+body.htn .lp-claim-btn{border-radius:999px;font-weight:600;letter-spacing:0;text-transform:none;box-shadow:none}
+body.htn .lp-secondary-btn,
+body.htn .lp-primary-btn,
+body.htn .elementor-button,
+body.htn input[type="submit"]{transition:transform .15s ease,box-shadow .2s ease,background-color .2s ease,color .2s ease}
+body.htn .lp-secondary-btn:hover,
+body.htn .lp-primary-btn:hover,
+body.htn .elementor-button:hover,
+body.htn input[type="submit"]:hover{transform:translateY(-1px);box-shadow:0 6px 16px var(--ht-primary-soft)}
+body.htn .elementor-button:not([class*="elementor-button-link"]),
+body.htn .elementor-widget-button .elementor-button{background-color:var(--ht-primary);color:#fff}
+body.htn .elementor-widget-button .elementor-button:hover{background-color:var(--ht-deep);color:#fff}
+
+/* ---------- Forms ---------- */
+body.htn .form-control,
+body.htn .custom-form-control,
+body.htn textarea,
+body.htn input[type="text"],
+body.htn input[type="email"],
+body.htn input[type="password"],
+body.htn input[type="tel"],
+body.htn input[type="url"],
+body.htn input[type="number"]{border-color:var(--ht-line);border-radius:var(--ht-radius-sm);box-shadow:none;color:var(--ht-ink)}
+body.htn .form-control:focus,
+body.htn .custom-form-control:focus,
+body.htn textarea:focus,
+body.htn input[type="text"]:focus,
+body.htn input[type="email"]:focus,
+body.htn input[type="password"]:focus{border-color:var(--ht-primary);box-shadow:0 0 0 3px var(--ht-primary-soft)}
+body.htn ::placeholder{color:#9a8fa6}
+/* keep the joined search bar fields square where they touch each other */
+body.htn .lp-search-bar .form-control,
+body.htn .lp-search-bar input[type="text"],
+body.htn .lp-header-search .form-control,
+body.htn .lp-header-search input[type="text"]{border-radius:0;box-shadow:none}
+body.htn .lp-search-bar{border-radius:var(--ht-radius)}
+
+/* ---------- Header / navigation ---------- */
+body.htn .lp-menu-bar .lp-menu > li > a,
+body.htn .lp-menu-container .lp-menu > li > a,
+body.htn .lp-menu ul > li > a{font-weight:500;letter-spacing:.01em}
+body.htn .lp-menu ul.sub-menu,
+body.htn .lp-menu .sub-menu{border-radius:var(--ht-radius-sm);border:1px solid var(--ht-line);box-shadow:var(--ht-shadow);overflow:hidden}
+body.htn .lp-menu .sub-menu li a{color:var(--ht-ink)}
+
+/* ---------- Listing cards (grid + list) ---------- */
+body.htn .lp-grid-box-contianer .lp-grid-box,
+body.htn .lp-listing .lp-listing-top,
+body.htn .lp-blog-grid-box,
+body.htn .city-girds,
+body.htn .city-girds2,
+body.htn .price-plan-box,
+body.htn .lp-price-main{border-radius:var(--ht-radius);transition:transform .2s ease,box-shadow .25s ease}
+body.htn .lp-grid-box-contianer .lp-grid-box,
+body.htn .lp-blog-grid-box{background:var(--ht-card);border:1px solid var(--ht-line);box-shadow:var(--ht-shadow)}
+body.htn .lp-grid-box-contianer .lp-grid-box:hover,
+body.htn .lp-blog-grid-box:hover,
+body.htn .price-plan-box:hover,
+body.htn .lp-price-main:hover{transform:translateY(-3px);box-shadow:var(--ht-shadow-hover)}
+body.htn .lp-grid-box-thumb-container,
+body.htn .lp-grid-box-thumb,
+body.htn .lp-grid-box-thumb img,
+body.htn .lp-blog-grid-box-thumb,
+body.htn .lp-blog-grid-box-thumb img,
+body.htn .lp-listing-top-thumb,
+body.htn .lp-listing-top-thumb img{border-top-left-radius:var(--ht-radius);border-top-right-radius:var(--ht-radius)}
+body.htn .lp-grid-box-bottom,
+body.htn .lp-listing-bottom{border-bottom-left-radius:var(--ht-radius);border-bottom-right-radius:var(--ht-radius);border-top-color:var(--ht-line)}
+body.htn .lp-grid-box-description h4 a,
+body.htn .lp-listing-bottom h4 a,
+body.htn .lp-blog-grid-box-description h4 a{color:var(--ht-ink)}
+body.htn .lp-grid-box-description h4 a:hover,
+body.htn .lp-listing-bottom h4 a:hover,
+body.htn .lp-blog-grid-box-description h4 a:hover{color:var(--ht-primary)}
+body.htn .lp-grid-box-description p,
+body.htn .lp-grid-box-bottom,
+body.htn .lp-grid-box-bottom a,
+body.htn .lp-blog-grid-box-description p{color:var(--ht-muted)}
+body.htn .city-girds img,
+body.htn .city-girds2 img,
+body.htn .city-girds .city-girds-thumb,
+body.htn .city-girds2 .city-girds-thumb{border-radius:var(--ht-radius)}
+
+/* ---------- Sidebars, widgets, single listing blocks ---------- */
+body.htn .widget-box,
+body.htn .sidebar-post,
+body.htn .post-row,
+body.htn .review-form,
+body.htn .lp-listing-review,
+body.htn .detail-page2-tab-content,
+body.htn .open-hours,
+body.htn .lp-listing-timings{border-radius:var(--ht-radius);border-color:var(--ht-line)}
+body.htn .widget-box,
+body.htn .sidebar-post{background:var(--ht-card);box-shadow:var(--ht-shadow)}
+body.htn .post-meta-right-box h1{color:var(--ht-ink)}
+
+/* ---------- Modals ---------- */
+body.htn .md-modal .md-content,
+body.htn .modal-content{border-radius:var(--ht-radius);border:0;box-shadow:0 24px 60px rgba(27,16,38,.25)}
+
+/* ---------- Pagination & tags ---------- */
+body.htn .lp-pagination ul li a,
+body.htn .lp-pagination ul li span,
+body.htn .pagination > li > a,
+body.htn .pagination > li > span{border-radius:999px;border-color:var(--ht-line)}
+body.htn .tagcloud a,
+body.htn .tags-container a{border-radius:999px;border-color:var(--ht-line)}
+
+/* ---------- Footer ---------- */
+body.htn footer .footer-upper-bar{background-color:var(--ht-deep) !important;border-color:rgba(255,255,255,.08)}
+body.htn footer .footer-bottom-bar,
+body.htn footer.text-center{background-color:#0b0612 !important}
+body.htn footer,
+body.htn footer p,
+body.htn footer li,
+body.htn footer .footer-about-company li{color:#b9aabe}
+body.htn footer h1,body.htn footer h2,body.htn footer h3,body.htn footer h4,
+body.htn footer .widgettitle,body.htn footer .widget-title{color:#fff}
+body.htn footer a{color:#efe6f5}
+body.htn footer a:hover{color:#fff;text-decoration:underline}
+
+/* ---------- Elementor sections on the homepage ---------- */
+body.htn .elementor-widget-heading .elementor-heading-title{color:var(--ht-ink)}
+body.htn .elementor-widget-heading .elementor-heading-title a{color:inherit}
+body.htn .elementor-widget-heading .elementor-heading-title a:hover{color:var(--ht-primary)}
+body.htn .elementor-widget-text-editor{color:var(--ht-muted)}
+body.htn .elementor-widget-image img,
+body.htn .elementor-post__thumbnail,
+body.htn .elementor-post__card{border-radius:var(--ht-radius)}
+
+/* ---------- Replace the theme header with the HT Neon header ---------- */
+body.htn-has-header .lp-header .header-container > header,
+body.htn-has-header .lp-header .header-container > .lp-customize-header-outer,
+body.htn-has-header .lp-header > header{display:none !important}
+body.htn-has-header .lp-header .header-container{height:auto !important;min-height:0 !important}
+/* Home: the plugin renders its own hero, so drop the theme banner and category strip (login popups stay). */
+body.htn-home .lp-header .header-container{background:none !important;padding:0 !important;margin:0 !important}
+body.htn-home .lp-header .header-container > *:not(.md-modal):not(.md-overlay):not(.app-view-popup-style):not(script):not(style){display:none !important}
+body.htn-home .home-categories-area{display:none !important}
+
+/* Inner page title banner in brand colours */
+body.htn .page-heading{background-color:#1a1026}
+body.htn .page-heading h1,body.htn .page-heading .breadcrumbs li,body.htn .page-heading .breadcrumbs li a{color:#fff}
