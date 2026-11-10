@@ -8,11 +8,20 @@
 		burger.addEventListener('click', function () {
 			var open = nav.classList.toggle('is-open');
 			burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+			document.body.classList.toggle('htn-menu-open', open);
+			if (open) {
+				window.scrollTo(0, 0);
+				var header = document.getElementById('htn-header');
+				if (header) { nav.style.top = header.getBoundingClientRect().bottom + 'px'; }
+			} else {
+				nav.style.top = '';
+			}
 		});
 		document.addEventListener('keydown', function (e) {
 			if (e.key === 'Escape' && nav.classList.contains('is-open')) {
 				nav.classList.remove('is-open');
 				burger.setAttribute('aria-expanded', 'false');
+				document.body.classList.remove('htn-menu-open');
 				burger.focus();
 			}
 		});

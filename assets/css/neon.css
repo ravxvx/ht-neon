@@ -208,20 +208,26 @@ body.htn .htn-bar .htn-bar__text{flex:1 1 auto;min-width:0;margin:0;font-family:
 }
 @media (max-width:1100px){
   .htn-burger{display:flex}
-  .htn-nav{position:absolute;left:0;right:0;top:100%;display:none;flex-direction:column;align-items:stretch;gap:0;max-height:calc(100vh - var(--htn-header-h));overflow:auto;padding:10px 20px 22px;background:#150c21;border-bottom:1px solid var(--htn-line);box-shadow:0 30px 50px rgba(0,0,0,.5)}
+  .htn-nav{position:fixed;left:0;right:0;top:var(--htn-header-h);bottom:0;display:none;flex-direction:column;align-items:stretch;gap:0;max-height:none;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 20px 40px;background:#150c21;border-bottom:1px solid var(--htn-line);box-shadow:0 30px 50px rgba(0,0,0,.5);z-index:99991}
+  body.admin-bar .htn-nav{top:calc(var(--htn-header-h) + 46px)}
+  body.htn-menu-open{overflow:hidden}
   .htn-nav.is-open{display:flex}
   .htn-nav__list{flex-direction:column;align-items:stretch;gap:0}
   body.htn .htn-nav__list > li > a{height:auto;padding:14px 4px;font-size:18px;border-bottom:1px solid rgba(226,160,255,.1)}
   .htn-nav__list > li.current-menu-item > a::after,.htn-nav__list > li.current_page_item > a::after{display:none}
   .htn-nav__list > li.menu-item-has-children > a::before{margin-left:auto}
   .htn-nav__list .sub-menu{position:static;opacity:1;visibility:visible;transform:none;min-width:0;padding:4px 0 8px 12px;background:transparent;border:0;box-shadow:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
-  .htn-actions{flex-direction:column;align-items:stretch;gap:10px;margin-top:18px}
+  .htn-actions{order:-1;flex-direction:row;align-items:stretch;gap:10px;margin:8px 0 14px}
+  .htn-nav.is-open{padding-top:16px;justify-content:flex-start}
+  .htn-actions .htn-btn{flex:1 1 0;min-width:0}
   body.htn .htn-actions .htn-btn{min-height:48px;font-size:17px}
   .htn-duo__grid{grid-template-columns:minmax(0,1fr)}
 }
 @media (max-width:782px){
   body.admin-bar .htn-header{top:0}
   .htn-header{position:relative;top:auto}
+  body.htn-menu-open .htn-header{position:sticky;top:0;-webkit-backdrop-filter:none;backdrop-filter:none;background:#110a1b}
+  body.htn-menu-open.admin-bar .htn-header{top:46px}
   :root{--htn-header-h:66px}
   .htn-wrap,.htn-header__inner{padding-left:18px;padding-right:18px}
   .htn-logo .htn-lotus{width:54px;height:39px}
