@@ -4,6 +4,28 @@
 	var header = document.querySelector('.lp-dashboard-new .lp-user-header');
 	var side = document.getElementById('sidebar-wrapper');
 	if (!header || !side) { return; }
+	// On phones, take the sidebar out of #wrapper so no theme layer can sit above it.
+	var mq = window.matchMedia('(max-width: 767px)');
+	var placeholder = document.createComment('htn-sidebar');
+	var parent = side.parentNode;
+	function detach() {
+		if (side.parentNode !== document.body) {
+			parent = side.parentNode;
+			parent.insertBefore(placeholder, side);
+			document.body.appendChild(side);
+			side.classList.add('htn-dash-side');
+		}
+	}
+	function attach() {
+		if (side.parentNode === document.body && placeholder.parentNode) {
+			placeholder.parentNode.insertBefore(side, placeholder);
+			placeholder.parentNode.removeChild(placeholder);
+			side.classList.remove('htn-dash-side');
+		}
+	}
+	function sync() { if (mq.matches) { detach(); } else { attach(); } }
+	sync();
+	if (mq.addEventListener) { mq.addEventListener('change', sync); } else if (mq.addListener) { mq.addListener(sync); }
 	var btn = document.createElement('a');
 	btn.href = '#';
 	btn.className = 'htn-dash-burger';
