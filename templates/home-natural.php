@@ -121,6 +121,108 @@ get_header();
 		</div>
 	</section>
 
+	<?php
+	$htn_fallback_feat = array( $htn_img . 'feat-1.jpg', $htn_img . 'feat-2.jpg', $htn_img . 'feat-3.jpg', $htn_img . 'cta-stones.jpg' );
+	$htn_fallback_ev   = array( $htn_img . 'ev-1.jpg', $htn_img . 'ev-2.jpg', $htn_img . 'ev-3.jpg', $htn_img . 'cta-tent.jpg' );
+	$htn_listings      = new WP_Query(
+		array(
+			'post_type'           => 'listing',
+			'post_status'         => 'publish',
+			'posts_per_page'      => 8,
+			'ignore_sticky_posts' => true,
+			'no_found_rows'       => true,
+		)
+	);
+	$htn_stats = htn_stats();
+	?>
+	<section class="htn-nsection htn-ntherapists" aria-labelledby="htn-therapists-title">
+		<div class="htn-wrap">
+			<div class="htn-nhead htn-nhead--big">
+				<div>
+					<p class="htn-nkicker">Trusted practitioners</p>
+					<h2 id="htn-therapists-title"><?php echo htn_icon( 'leaf2' ); // phpcs:ignore WordPress.Security.EscapeOutput ?> Featured Therapists</h2>
+				</div>
+				<a href="<?php echo esc_url( $htn_find ); ?>">View all therapists <?php echo htn_icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
+			</div>
+			<?php if ( $htn_listings->have_posts() ) : ?>
+				<ul class="htn-ngrid htn-ngrid--4">
+					<?php
+					$htn_i = 0;
+					while ( $htn_listings->have_posts() ) :
+						$htn_listings->the_post();
+						$htn_cat = get_the_terms( get_the_ID(), 'listing-category' );
+						$htn_loc = get_the_terms( get_the_ID(), 'location' );
+						$htn_src = get_the_post_thumbnail_url( get_the_ID(), 'medium_large' );
+						if ( ! $htn_src ) {
+							$htn_src = $htn_fallback_feat[ $htn_i % 4 ];
+						}
+						$htn_i++;
+						?>
+						<li>
+							<a class="htn-ncard" href="<?php the_permalink(); ?>">
+								<span class="htn-ncard__img"><img src="<?php echo esc_url( $htn_src ); ?>" alt="" loading="lazy"></span>
+								<span class="htn-ncard__body">
+									<span class="htn-ncard__title"><?php the_title(); ?></span>
+									<span class="htn-ncard__meta"><?php echo ( $htn_cat && ! is_wp_error( $htn_cat ) ) ? esc_html( end( $htn_cat )->name ) : 'Therapist'; ?><?php echo ( $htn_loc && ! is_wp_error( $htn_loc ) ) ? ' &bull; ' . esc_html( $htn_loc[0]->name ) : ''; ?></span>
+									<span class="htn-ncard__more">View profile <?php echo htn_icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></span>
+								</span>
+							</a>
+						</li>
+					<?php endwhile; ?>
+				</ul>
+			<?php endif; ?>
+			<?php wp_reset_postdata(); ?>
+		</div>
+	</section>
+
+	<?php $htn_upcoming = ! empty( $htn_s['events'] ) ? htn_upcoming_events( 6 ) : array(); ?>
+	<section class="htn-nevents" aria-labelledby="htn-events-title">
+		<div class="htn-wrap">
+			<div class="htn-nhead htn-nhead--big">
+				<div>
+					<p class="htn-nkicker">Workshops, circles &amp; retreats</p>
+					<h2 id="htn-events-title"><?php echo htn_icon( 'calendar' ); // phpcs:ignore WordPress.Security.EscapeOutput ?> Upcoming Events</h2>
+				</div>
+				<a href="<?php echo esc_url( $htn_ev_url ); ?>">All events <?php echo htn_icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
+			</div>
+			<?php if ( $htn_upcoming ) : ?>
+				<ul class="htn-ngrid htn-ngrid--3 htn-nevents__list">
+					<?php foreach ( $htn_upcoming as $htn_k => $htn_e ) : ?>
+						<?php
+						$htn_src = $htn_e['img'] ? $htn_e['img'] : $htn_fallback_ev[ $htn_k % 4 ];
+						$htn_loc = ( $htn_e['loc'] && ! is_numeric( $htn_e['loc'] ) ) ? $htn_e['loc'] : '';
+						?>
+						<li>
+							<a class="htn-ncard htn-ncard--event" href="<?php echo esc_url( $htn_e['link'] ); ?>">
+								<span class="htn-ncard__img"><img src="<?php echo esc_url( $htn_src ); ?>" alt="" loading="lazy">
+									<?php if ( $htn_e['date'] ) : ?>
+										<span class="htn-ndate"><b><?php echo esc_html( date_i18n( 'j', $htn_e['date'] ) ); ?></b><i><?php echo esc_html( date_i18n( 'M', $htn_e['date'] ) ); ?></i></span>
+									<?php endif; ?>
+								</span>
+								<span class="htn-ncard__body">
+									<span class="htn-ncard__title"><?php echo esc_html( $htn_e['title'] ); ?></span>
+									<span class="htn-ncard__meta">
+										<?php echo $htn_e['date'] ? esc_html( date_i18n( 'l, j F', $htn_e['date'] ) ) : ''; ?><?php echo $htn_e['time'] ? ' &bull; ' . esc_html( $htn_e['time'] ) : ''; ?>
+										<?php if ( $htn_loc ) : ?><br><?php echo htn_icon( 'pin' ); // phpcs:ignore WordPress.Security.EscapeOutput ?> <?php echo esc_html( $htn_loc ); ?><?php endif; ?>
+									</span>
+									<span class="htn-ncard__more">Event details <?php echo htn_icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></span>
+								</span>
+							</a>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			<?php else : ?>
+				<div class="htn-nempty">
+					<p>No upcoming events yet — be the first to list yours.</p>
+				</div>
+			<?php endif; ?>
+			<div class="htn-nevents__cta">
+				<p>Running a workshop, retreat or wellbeing circle? Reach people across Ireland who are looking for exactly that.</p>
+				<a class="htn-nbtn" href="<?php echo esc_url( $htn_join ); ?>">List Your Event <?php echo htn_icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
+			</div>
+		</div>
+	</section>
+
 	<section class="htn-nsection htn-nduo" aria-label="For practitioners and organisers">
 		<div class="htn-wrap htn-nduo__grid">
 			<div class="htn-nbox" style="--htn-box-img:url('<?php echo esc_url( $htn_img . 'cta-stones.jpg' ); ?>')">
@@ -154,87 +256,102 @@ get_header();
 		</div>
 	</section>
 
-	<?php
-	$htn_listings = new WP_Query(
-		array(
-			'post_type'           => 'listing',
-			'post_status'         => 'publish',
-			'posts_per_page'      => 6,
-			'ignore_sticky_posts' => true,
-			'no_found_rows'       => true,
-			'meta_query'          => array( // phpcs:ignore WordPress.DB.SlowDBQuery
-				array(
-					'key'     => '_thumbnail_id',
-					'compare' => 'EXISTS',
-				),
-			),
-		)
-	);
-	$htn_upcoming = ! empty( $htn_s['events'] ) ? htn_upcoming_events( 6 ) : array();
-	?>
-	<section class="htn-nsection htn-ncols" aria-label="Featured therapists and upcoming events">
-		<div class="htn-wrap htn-ncols__grid">
-			<div class="htn-ncol">
-				<div class="htn-nhead">
-					<h2><?php echo htn_icon( 'leaf2' ); // phpcs:ignore WordPress.Security.EscapeOutput ?> Featured Therapists</h2>
-					<a href="<?php echo esc_url( $htn_find ); ?>">View All <?php echo htn_icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
+	<section class="htn-nwhy" aria-labelledby="htn-why-title">
+		<div class="htn-wrap htn-nwhy__grid">
+			<div class="htn-nwhy__copy">
+				<p class="htn-nkicker">For therapists &amp; practitioners</p>
+				<h2 id="htn-why-title">Grow your practice with a community that shares your values</h2>
+				<p class="htn-nwhy__lead">Holistic Therapists Ireland is where people go when they are ready to look after themselves. Your profile puts you in front of them.</p>
+				<ul class="htn-nwhy__list">
+					<li><?php echo htn_icon( 'search' ); // phpcs:ignore WordPress.Security.EscapeOutput ?><div><strong>Be found by the right clients</strong><span>Searchable by therapy, location and keyword — on Google too.</span></div></li>
+					<li><?php echo htn_icon( 'calendar' ); // phpcs:ignore WordPress.Security.EscapeOutput ?><div><strong>Promote your events</strong><span>Workshops, circles and retreats shown to the whole community.</span></div></li>
+					<li><?php echo htn_icon( 'heart2' ); // phpcs:ignore WordPress.Security.EscapeOutput ?><div><strong>A profile that feels like you</strong><span>Photos, your story, reviews, booking and contact details in one place.</span></div></li>
+				</ul>
+				<div class="htn-nwhy__actions">
+					<a class="htn-nbtn htn-nbtn--lg" href="<?php echo esc_url( $htn_join ); ?>">Create your profile <?php echo htn_icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
+					<a class="htn-nlink" href="<?php echo esc_url( home_url( '/pricing-plan/' ) ); ?>">See plans</a>
 				</div>
-				<?php if ( $htn_listings->have_posts() ) : ?>
-					<div class="htn-ncar" data-htn-carousel>
-						<button type="button" class="htn-ncar__nav htn-ncar__nav--prev" aria-label="Previous"><?php echo htn_icon( 'chevl' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></button>
-						<ul class="htn-ncar__track">
-							<?php
-							while ( $htn_listings->have_posts() ) :
-								$htn_listings->the_post();
-								$htn_cat = get_the_terms( get_the_ID(), 'listing-category' );
-								$htn_loc = get_the_terms( get_the_ID(), 'location' );
-								?>
-								<li>
-									<a class="htn-ncard" href="<?php the_permalink(); ?>">
-										<span class="htn-ncard__img"><?php the_post_thumbnail( 'medium_large', array( 'loading' => 'lazy', 'alt' => '' ) ); ?></span>
-										<span class="htn-ncard__title"><?php the_title(); ?></span>
-										<span class="htn-ncard__meta"><?php echo ( $htn_cat && ! is_wp_error( $htn_cat ) ) ? esc_html( end( $htn_cat )->name ) : ''; ?><?php echo ( $htn_loc && ! is_wp_error( $htn_loc ) ) ? ' &bull; ' . esc_html( $htn_loc[0]->name ) : ''; ?></span>
-									</a>
-								</li>
-							<?php endwhile; ?>
-						</ul>
-						<button type="button" class="htn-ncar__nav htn-ncar__nav--next" aria-label="Next"><?php echo htn_icon( 'chevr' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></button>
-						<div class="htn-ncar__dots" aria-hidden="true"></div>
-					</div>
-				<?php endif; ?>
-				<?php wp_reset_postdata(); ?>
 			</div>
-			<div class="htn-ncol">
-				<div class="htn-nhead">
-					<h2><?php echo htn_icon( 'calendar' ); // phpcs:ignore WordPress.Security.EscapeOutput ?> Upcoming Events</h2>
-					<a href="<?php echo esc_url( $htn_ev_url ); ?>">View All <?php echo htn_icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
+			<div class="htn-nwhy__visual">
+				<div class="htn-ncollage">
+					<img src="<?php echo esc_url( $htn_img . 'feat-3.jpg' ); ?>" alt="" loading="lazy">
+					<img src="<?php echo esc_url( $htn_img . 'ev-2.jpg' ); ?>" alt="" loading="lazy">
+					<img src="<?php echo esc_url( $htn_img . 'feat-2.jpg' ); ?>" alt="" loading="lazy">
+					<img src="<?php echo esc_url( $htn_img . 'ev-3.jpg' ); ?>" alt="" loading="lazy">
 				</div>
-				<?php if ( $htn_upcoming ) : ?>
-					<div class="htn-ncar" data-htn-carousel>
-						<button type="button" class="htn-ncar__nav htn-ncar__nav--prev" aria-label="Previous"><?php echo htn_icon( 'chevl' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></button>
-						<ul class="htn-ncar__track">
-							<?php foreach ( $htn_upcoming as $htn_e ) : ?>
-								<li>
-									<a class="htn-ncard" href="<?php echo esc_url( $htn_e['link'] ); ?>">
-										<span class="htn-ncard__img"><?php if ( $htn_e['img'] ) : ?><img src="<?php echo esc_url( $htn_e['img'] ); ?>" alt="" loading="lazy"><?php endif; ?></span>
-										<span class="htn-ncard__title"><?php echo esc_html( $htn_e['title'] ); ?></span>
-										<span class="htn-ncard__meta"><?php echo $htn_e['date'] ? esc_html( date_i18n( 'j M Y', $htn_e['date'] ) ) : ''; ?><?php echo $htn_e['loc'] ? ' &bull; ' . esc_html( $htn_e['loc'] ) : ''; ?></span>
-									</a>
-								</li>
-							<?php endforeach; ?>
-						</ul>
-						<button type="button" class="htn-ncar__nav htn-ncar__nav--next" aria-label="Next"><?php echo htn_icon( 'chevr' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></button>
-						<div class="htn-ncar__dots" aria-hidden="true"></div>
-					</div>
-				<?php else : ?>
-					<div class="htn-nempty">
-						<p>No upcoming events yet.</p>
-						<a class="htn-nbtn htn-nbtn--ghost" href="<?php echo esc_url( $htn_join ); ?>">List your event <?php echo htn_icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></a>
-					</div>
-				<?php endif; ?>
+				<ul class="htn-nstats">
+					<li><b><?php echo esc_html( number_format_i18n( $htn_stats['listings'] ) ); ?>+</b><span>therapists &amp; practitioners</span></li>
+					<li><b><?php echo esc_html( number_format_i18n( $htn_stats['categories'] ) ); ?></b><span>therapies to explore</span></li>
+					<li><b>32</b><span>counties covered</span></li>
+				</ul>
 			</div>
 		</div>
 	</section>
+
+	<section class="htn-nsection htn-nhow" aria-labelledby="htn-how-title">
+		<div class="htn-wrap">
+			<h2 class="htn-ntitle" id="htn-how-title"><span>How it works</span></h2>
+			<ol class="htn-nhow__list">
+				<li><span class="htn-nhow__num">1</span><strong>Create your free account</strong><span>Sign up in a minute and choose the plan that suits you.</span></li>
+				<li><span class="htn-nhow__num">2</span><strong>Build your profile</strong><span>Add your therapies, photos, location, prices and booking details.</span></li>
+				<li><span class="htn-nhow__num">3</span><strong>Get found &amp; grow</strong><span>Clients find you by therapy and county; list events to reach even more people.</span></li>
+			</ol>
+			<p class="htn-nhow__cta"><a class="htn-nbtn" href="<?php echo esc_url( $htn_join ); ?>">Get started <?php echo htn_icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></a></p>
+		</div>
+	</section>
+
+	<?php
+	$htn_posts = new WP_Query(
+		array(
+			'post_type'           => 'post',
+			'post_status'         => 'publish',
+			'posts_per_page'      => 3,
+			'ignore_sticky_posts' => true,
+			'no_found_rows'       => true,
+		)
+	);
+	if ( $htn_posts->have_posts() ) :
+		$htn_blog = (int) get_option( 'page_for_posts' );
+		?>
+		<section class="htn-nsection htn-nblog" aria-labelledby="htn-blog-title">
+			<div class="htn-wrap">
+				<div class="htn-nhead htn-nhead--big">
+					<div>
+						<p class="htn-nkicker">Wellbeing reads</p>
+						<h2 id="htn-blog-title"><?php echo htn_icon( 'leaf2' ); // phpcs:ignore WordPress.Security.EscapeOutput ?> From the Blog</h2>
+					</div>
+					<?php if ( $htn_blog ) : ?><a href="<?php echo esc_url( get_permalink( $htn_blog ) ); ?>">All articles <?php echo htn_icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></a><?php endif; ?>
+				</div>
+				<ul class="htn-ngrid htn-ngrid--3">
+					<?php
+					$htn_i = 0;
+					while ( $htn_posts->have_posts() ) :
+						$htn_posts->the_post();
+						$htn_src = get_the_post_thumbnail_url( get_the_ID(), 'medium_large' );
+						if ( ! $htn_src ) {
+							$htn_src = $htn_fallback_feat[ $htn_i % 4 ];
+						}
+						$htn_i++;
+						?>
+						<li>
+							<a class="htn-ncard" href="<?php the_permalink(); ?>">
+								<span class="htn-ncard__img"><img src="<?php echo esc_url( $htn_src ); ?>" alt="" loading="lazy"></span>
+								<span class="htn-ncard__body">
+									<span class="htn-ncard__meta"><?php echo esc_html( get_the_date() ); ?></span>
+									<span class="htn-ncard__title"><?php the_title(); ?></span>
+									<span class="htn-ncard__text"><?php echo esc_html( wp_trim_words( get_the_excerpt(), 18 ) ); ?></span>
+									<span class="htn-ncard__more">Read more <?php echo htn_icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></span>
+								</span>
+							</a>
+						</li>
+					<?php endwhile; ?>
+				</ul>
+			</div>
+		</section>
+		<?php
+	endif;
+	wp_reset_postdata();
+	?>
 
 	<section class="htn-nband" aria-label="Why Holistic Therapists Ireland">
 		<div class="htn-wrap">
