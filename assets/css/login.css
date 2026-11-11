@@ -26,7 +26,7 @@ body.login.htn-login .htn-login__perks .htn-ico{flex:0 0 auto;width:36px;height:
 body.login.htn-login #login{position:relative;z-index:1;grid-column:2;grid-row:1/span 4;align-self:center;width:min(440px,100%);margin:0 auto;padding:48px 24px}
 body.login.htn-login #login h1{display:none}
 body.login.htn-login #login > p,body.login.htn-login #login .message,body.login.htn-login #login .notice,body.login.htn-login #login .success{font-size:14.5px}
-body.login.htn-login #login form{margin:0;padding:30px 30px 26px;border:1px solid var(--htn-line);border-radius:20px;background:#fff;box-shadow:0 1px 2px rgba(31,42,30,.04),0 18px 44px rgba(31,42,30,.1)}
+body.login.htn-login #login form{position:static !important;margin:0 !important;padding:30px 30px 26px;border:1px solid var(--htn-line);border-radius:20px;background:#fff;box-shadow:0 1px 2px rgba(31,42,30,.04),0 18px 44px rgba(31,42,30,.1)}
 body.login.htn-login #login form label{font-size:14px;font-weight:600;color:var(--htn-ink)}
 body.login.htn-login #login form .input,body.login.htn-login #login form input[type="text"],body.login.htn-login #login form input[type="password"],body.login.htn-login #login form input[type="email"]{margin:6px 0 16px;padding:0 14px;min-height:48px;border:1.5px solid var(--htn-line);border-radius:12px;background:#fbfaf6;font-family:var(--htn-sans);font-size:16px;color:var(--htn-ink);box-shadow:none}
 body.login.htn-login #login form .input:focus,body.login.htn-login #login form input:focus{border-color:var(--htn-g2);box-shadow:0 0 0 3px rgba(63,122,58,.15);outline:0}
@@ -54,7 +54,7 @@ body.login.htn-login #login .htn-login__switch a{font-weight:600;color:var(--htn
 body.login.htn-login #login .htn-login__switch a:hover{text-decoration:underline}
 body.login.htn-login #login .privacy-policy-page-link{margin:18px 0 0;text-align:center;font-size:13px}
 body.login.htn-login #login .privacy-policy-page-link a{color:var(--htn-muted)}
-body.login.htn-login #login .message,body.login.htn-login #login .notice,body.login.htn-login #login .success,body.login.htn-login #login #login_error{margin:0 0 16px;padding:12px 16px;border:0;border-left:4px solid var(--htn-g2);border-radius:12px;background:#fff;box-shadow:0 6px 18px rgba(31,42,30,.08)}
+body.login.htn-login #login .message,body.login.htn-login #login .notice,body.login.htn-login #login .success,body.login.htn-login #login #login_error{position:static !important;top:auto !important;left:auto !important;width:auto !important;height:auto !important;min-height:0 !important;max-height:none !important;overflow:visible !important;opacity:1 !important;transform:none !important;animation:none !important;margin:0 0 16px !important;line-height:1.5;padding:12px 16px;border:0;border-left:4px solid var(--htn-g2);border-radius:12px;background:#fff;box-shadow:0 6px 18px rgba(31,42,30,.08)}
 body.login.htn-login #login #login_error{border-left-color:#c0392b}
 body.login.htn-login .language-switcher{position:relative;z-index:1;grid-column:2;margin:0 auto 20px;padding:0}
 body.login.htn-login .language-switcher .button{border-radius:999px}

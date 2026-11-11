@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.2.0
+ * Version: 3.2.1
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.2.0' );
+define( 'HTN_VERSION', '3.2.1' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -707,6 +707,24 @@ function htn_register_validate( $errors ) {
 	return $errors;
 }
 add_filter( 'registration_errors', 'htn_register_validate', 20 );
+
+/* Security plugins replace registration errors with a generic "Invalid login details." – show the real reason instead. */
+function htn_register_keep_errors( $errors ) {
+	if ( is_wp_error( $errors ) && $errors->has_errors() ) {
+		$GLOBALS['htn_reg_errors'] = $errors->get_error_messages();
+	}
+	return $errors;
+}
+add_filter( 'registration_errors', 'htn_register_keep_errors', PHP_INT_MAX );
+
+function htn_register_show_errors( $message ) {
+	$action = isset( $_REQUEST['action'] ) ? sanitize_key( wp_unslash( $_REQUEST['action'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
+	if ( 'register' === $action && ! empty( $GLOBALS['htn_reg_errors'] ) ) {
+		return implode( '<br>', array_map( 'wp_kses_post', $GLOBALS['htn_reg_errors'] ) );
+	}
+	return $message;
+}
+add_filter( 'login_errors', 'htn_register_show_errors', PHP_INT_MAX );
 
 function htn_register_done( $user_id ) {
 	if ( ! htn_login_styled() || empty( $_POST['htn_pass1'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
