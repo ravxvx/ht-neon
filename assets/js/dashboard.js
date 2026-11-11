@@ -23,6 +23,17 @@
 			side.classList.remove('htn-dash-side');
 		}
 	}
+	// "Back to website" link at the top of the sidebar menu (all screen sizes).
+	var list = document.getElementById('sidebar') || side.querySelector('ul.sidebar-nav:not(#sidebar_menu)');
+	if (list && !list.querySelector('.htn-dash-home')) {
+		var home = document.createElement('li');
+		home.className = 'htn-dash-home';
+		var homeUrl = (document.body.getAttribute('data-htn-home') || '/');
+		home.innerHTML = '<a href="' + homeUrl + '"><i class="fa fa-arrow-left" aria-hidden="true"></i> <span>Back to website</span></a>';
+		list.insertBefore(home, list.firstChild);
+	}
+	var brandLink = side.querySelector('.sidebar-brand > a:first-child');
+	if (brandLink) { brandLink.setAttribute('href', document.body.getAttribute('data-htn-home') || '/'); }
 	function sync() { if (mq.matches) { detach(); } else { attach(); } }
 	sync();
 	if (mq.addEventListener) { mq.addEventListener('change', sync); } else if (mq.addListener) { mq.addListener(sync); }
