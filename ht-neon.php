@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.1.0
+ * Version: 3.2.0
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.1.0' );
+define( 'HTN_VERSION', '3.2.0' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -595,6 +595,132 @@ function htn_stats() {
 		'categories' => $cats,
 	);
 }
+
+/* ------------------------------------------------------------------ *
+ * Login / registration page (wp-login.php) in the plugin's style
+ * ------------------------------------------------------------------ */
+
+function htn_login_styled() {
+	$s = htn_settings();
+	return 'off' !== $s['mode'];
+}
+
+function htn_login_assets() {
+	if ( ! htn_login_styled() ) {
+		return;
+	}
+	$natural = htn_is_natural();
+	wp_enqueue_style( 'htn-fonts', $natural ? 'https://fonts.googleapis.com/css2?family=Cabin:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap' : 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600;700&display=swap', array(), null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
+	wp_enqueue_style( 'htn-login', HTN_URL . 'assets/css/login.css', array(), HTN_VERSION );
+	$hero = $natural ? HTN_URL . 'assets/img/natural/hero.jpg' : '';
+	if ( $hero ) {
+		wp_add_inline_style( 'htn-login', 'body.login{--htn-login-img:url(' . esc_url( $hero ) . ')}' );
+	}
+}
+add_action( 'login_enqueue_scripts', 'htn_login_assets' );
+
+function htn_login_body_class( $classes ) {
+	if ( htn_login_styled() ) {
+		$classes[] = 'htn-login';
+		$classes[] = htn_is_natural() ? 'htn-natural' : 'htn-neon';
+		$action    = isset( $_REQUEST['action'] ) ? sanitize_key( wp_unslash( $_REQUEST['action'] ) ) : 'login'; // phpcs:ignore WordPress.Security.NonceVerification
+		$classes[] = 'htn-login--' . $action;
+	}
+	return $classes;
+}
+add_filter( 'login_body_class', 'htn_login_body_class' );
+
+function htn_login_header_url() {
+	return home_url( '/' );
+}
+add_filter( 'login_headerurl', 'htn_login_header_url' );
+
+function htn_login_header_text() {
+	return get_bloginfo( 'name' );
+}
+add_filter( 'login_headertext', 'htn_login_header_text' );
+
+function htn_login_header_markup() {
+	if ( ! htn_login_styled() ) {
+		return;
+	}
+	$action = isset( $_REQUEST['action'] ) ? sanitize_key( wp_unslash( $_REQUEST['action'] ) ) : 'login'; // phpcs:ignore WordPress.Security.NonceVerification
+	$titles = array(
+		'login'        => array( 'Welcome back', 'Log in to manage your profile, listings and events.' ),
+		'register'     => array( 'Create your free account', 'Join Ireland\'s holistic wellbeing directory. It takes a minute — then you can add your listing or event.' ),
+		'lostpassword' => array( 'Forgot your password?', 'Enter your username or email and we\'ll send you a reset link.' ),
+		'rp'           => array( 'Choose a new password', 'Pick something strong that only you know.' ),
+		'resetpass'    => array( 'Choose a new password', 'Pick something strong that only you know.' ),
+	);
+	$t = isset( $titles[ $action ] ) ? $titles[ $action ] : $titles['login'];
+	echo '<div class="htn-login__brand">' . ( htn_is_natural() ? htn_natural_logo() : htn_logo() ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput
+	echo '<div class="htn-login__intro"><h2>' . esc_html( $t[0] ) . '</h2><p>' . esc_html( $t[1] ) . '</p></div>';
+	if ( 'register' === $action ) {
+		echo '<ul class="htn-login__perks"><li>' . htn_icon( 'search' ) . ' Be found by clients searching by therapy and county</li><li>' . htn_icon( 'calendar' ) . ' Promote your workshops, circles and retreats</li><li>' . htn_icon( 'heart2' ) . ' A profile with photos, reviews and booking details</li></ul>'; // phpcs:ignore WordPress.Security.EscapeOutput
+	}
+}
+add_action( 'login_header', 'htn_login_header_markup' );
+
+function htn_login_footer_markup() {
+	if ( ! htn_login_styled() ) {
+		return;
+	}
+	$action = isset( $_REQUEST['action'] ) ? sanitize_key( wp_unslash( $_REQUEST['action'] ) ) : 'login'; // phpcs:ignore WordPress.Security.NonceVerification
+	if ( 'login' === $action && get_option( 'users_can_register' ) ) {
+		echo '<p class="htn-login__switch">New here? <a href="' . esc_url( htn_join_url() ) . '">Create a free account</a></p>';
+	} elseif ( 'register' === $action ) {
+		echo '<p class="htn-login__switch">Already have an account? <a href="' . esc_url( htn_login_url() ) . '">Log in</a></p>';
+	}
+}
+add_action( 'login_footer', 'htn_login_footer_markup' );
+
+/* Registration with a password: the new user is logged in straight away and sent to redirect_to. */
+function htn_register_fields() {
+	if ( ! htn_login_styled() ) {
+		return;
+	}
+	?>
+	<p class="htn-reg-pass">
+		<label for="htn_pass1">Password<br><input type="password" name="htn_pass1" id="htn_pass1" class="input" size="20" autocomplete="new-password" required></label>
+	</p>
+	<p class="htn-reg-pass">
+		<label for="htn_pass2">Confirm password<br><input type="password" name="htn_pass2" id="htn_pass2" class="input" size="20" autocomplete="new-password" required></label>
+	</p>
+	<p class="htn-reg-note">By creating an account you agree to our <a href="<?php echo esc_url( get_privacy_policy_url() ? get_privacy_policy_url() : home_url( '/privacy-policy/' ) ); ?>">privacy policy</a>.</p>
+	<?php
+}
+add_action( 'register_form', 'htn_register_fields' );
+
+function htn_register_validate( $errors ) {
+	if ( ! htn_login_styled() ) {
+		return $errors;
+	}
+	$p1 = isset( $_POST['htn_pass1'] ) ? (string) wp_unslash( $_POST['htn_pass1'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput
+	$p2 = isset( $_POST['htn_pass2'] ) ? (string) wp_unslash( $_POST['htn_pass2'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput
+	if ( '' === $p1 ) {
+		$errors->add( 'htn_pass', '<strong>Error:</strong> Please choose a password.' );
+	} elseif ( strlen( $p1 ) < 8 ) {
+		$errors->add( 'htn_pass', '<strong>Error:</strong> The password must be at least 8 characters long.' );
+	} elseif ( $p1 !== $p2 ) {
+		$errors->add( 'htn_pass', '<strong>Error:</strong> The passwords do not match.' );
+	}
+	return $errors;
+}
+add_filter( 'registration_errors', 'htn_register_validate', 20 );
+
+function htn_register_done( $user_id ) {
+	if ( ! htn_login_styled() || empty( $_POST['htn_pass1'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+		return;
+	}
+	$pass = (string) wp_unslash( $_POST['htn_pass1'] ); // phpcs:ignore WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput
+	wp_set_password( $pass, $user_id );
+	wp_set_current_user( $user_id );
+	wp_set_auth_cookie( $user_id, true );
+	$to = isset( $_REQUEST['redirect_to'] ) ? wp_unslash( $_REQUEST['redirect_to'] ) : htn_url( htn_settings()['join_url'] ); // phpcs:ignore WordPress.Security.NonceVerification,WordPress.Security.ValidatedSanitizedInput
+	wp_safe_redirect( $to ? $to : home_url( '/' ) );
+	exit;
+}
+add_action( 'user_register', 'htn_register_done', 99 );
 
 /* ------------------------------------------------------------------ *
  * Upcoming events (ListingPro "events" post type)

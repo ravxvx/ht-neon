@@ -1,0 +1,76 @@
+/* HT Neon — wp-login.php styling (login, register, lost password). */
+body.login.htn-login{--htn-g:#2f5f2c;--htn-g2:#3f7a3a;--htn-g3:#4e8f48;--htn-gold:#c99a3c;--htn-gold2:#e2b45a;--htn-ink:#1f2a1e;--htn-muted:#5d685b;--htn-line:#e3e2d8;--htn-bg:#f6f4ee;--htn-serif:"Lora",Georgia,serif;--htn-sans:"Cabin","Segoe UI",system-ui,sans-serif;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto auto auto 1fr;min-height:100vh;margin:0;padding:0;background:var(--htn-bg);font-family:var(--htn-sans);color:var(--htn-ink)}
+body.login.htn-login.htn-neon{--htn-g:#1e1230;--htn-g2:#e21a93;--htn-g3:#ff4fbe;--htn-gold:#ff7fd0;--htn-gold2:#ff9fdc;--htn-ink:#140b1f;--htn-bg:#f4f0f7;--htn-serif:"Playfair Display",Georgia,serif;--htn-sans:"Inter",system-ui,sans-serif}
+body.login.htn-login::before{content:"";position:fixed;left:0;top:0;bottom:0;width:50%;background:var(--htn-login-img,linear-gradient(135deg,#1e3a1c,#3f7a3a)) 70% center/cover no-repeat;z-index:0}
+body.login.htn-login::after{content:"";position:fixed;left:0;top:0;bottom:0;width:50%;background:linear-gradient(160deg,rgba(20,34,20,.78),rgba(47,95,44,.6));z-index:0}
+body.login.htn-login.htn-neon::after{background:linear-gradient(160deg,rgba(17,10,27,.9),rgba(122,63,242,.6))}
+
+/* left column */
+body.login.htn-login .htn-login__brand,body.login.htn-login .htn-login__intro,body.login.htn-login .htn-login__perks{position:relative;z-index:1;grid-column:1;margin:0;padding:0 8vw;color:#fff}
+body.login.htn-login .htn-login__brand{grid-row:1;padding-top:40px}
+body.login.htn-login .htn-login__intro{grid-row:2;align-self:end;padding-top:12vh}
+body.login.htn-login .htn-login__perks{grid-row:3;padding-top:22px;padding-bottom:40px;list-style:none}
+body.login.htn-login .htn-logo{display:inline-flex;align-items:center;gap:12px;text-decoration:none;color:#fff}
+body.login.htn-login .htn-logo svg{width:60px;height:auto;flex:0 0 auto}
+body.login.htn-login .htn-logo__text{display:flex;flex-direction:column;align-items:flex-start}
+body.login.htn-login .htn-logo__name{font-family:var(--htn-serif);font-size:21px;font-weight:500;line-height:1.12;color:#fff}
+body.login.htn-login .htn-logo__rule{display:block;width:100%;height:2px;margin-top:6px;background:var(--htn-gold2);border-radius:2px}
+body.login.htn-login .htn-logo__sub{font-family:var(--htn-sans);font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:var(--htn-gold2)}
+body.login.htn-login .htn-login__intro h2{margin:0 0 12px;font-family:var(--htn-serif);font-size:clamp(30px,3.2vw,44px);font-weight:500;line-height:1.12;color:#fff}
+body.login.htn-login .htn-login__intro p{margin:0;max-width:460px;font-size:17px;line-height:1.55;color:#e5efe1}
+body.login.htn-login .htn-login__perks li{display:flex;align-items:center;gap:12px;margin:0 0 12px;font-size:15.5px;color:#eef3ec}
+body.login.htn-login .htn-login__perks .htn-ico{flex:0 0 auto;width:36px;height:36px;padding:8px;border-radius:10px;background:rgba(255,255,255,.12);color:var(--htn-gold2);stroke-width:1.6}
+
+/* right column: the form */
+body.login.htn-login #login{position:relative;z-index:1;grid-column:2;grid-row:1/span 4;align-self:center;width:min(440px,100%);margin:0 auto;padding:48px 24px}
+body.login.htn-login #login h1{display:none}
+body.login.htn-login #login > p,body.login.htn-login #login .message,body.login.htn-login #login .notice,body.login.htn-login #login .success{font-size:14.5px}
+body.login.htn-login #login form{margin:0;padding:30px 30px 26px;border:1px solid var(--htn-line);border-radius:20px;background:#fff;box-shadow:0 1px 2px rgba(31,42,30,.04),0 18px 44px rgba(31,42,30,.1)}
+body.login.htn-login #login form label{font-size:14px;font-weight:600;color:var(--htn-ink)}
+body.login.htn-login #login form .input,body.login.htn-login #login form input[type="text"],body.login.htn-login #login form input[type="password"],body.login.htn-login #login form input[type="email"]{margin:6px 0 16px;padding:0 14px;min-height:48px;border:1.5px solid var(--htn-line);border-radius:12px;background:#fbfaf6;font-family:var(--htn-sans);font-size:16px;color:var(--htn-ink);box-shadow:none}
+body.login.htn-login #login form .input:focus,body.login.htn-login #login form input:focus{border-color:var(--htn-g2);box-shadow:0 0 0 3px rgba(63,122,58,.15);outline:0}
+body.login.htn-login #login form .wp-pwd{position:relative}
+body.login.htn-login #login form .wp-hide-pw{top:6px;right:4px;height:48px;color:var(--htn-muted)}
+body.login.htn-login #login form .wp-hide-pw:focus{box-shadow:none}
+body.login.htn-login #login form .forgetmenot{margin-top:2px}
+body.login.htn-login #login form .forgetmenot label{font-weight:500;color:var(--htn-muted)}
+body.login.htn-login #login form input[type="checkbox"]{border-radius:5px;border-color:var(--htn-line);box-shadow:none;margin-right:6px}
+body.login.htn-login #login form input[type="checkbox"]:checked{background:var(--htn-g2);border-color:var(--htn-g2)}
+body.login.htn-login #login form input[type="checkbox"]:checked::before{filter:brightness(0) invert(1)}
+body.login.htn-login #login form .submit{margin-top:6px}
+body.login.htn-login #login form .button-primary,body.login.htn-login #login form #wp-submit{float:none;display:block;width:100%;min-height:50px;margin:0;padding:0 20px;border:0;border-radius:999px;background:var(--htn-g2);color:#fff;font-family:var(--htn-sans);font-size:17px;font-weight:600;line-height:50px;text-shadow:none;box-shadow:0 8px 20px rgba(63,122,58,.3);cursor:pointer;transition:background-color .2s ease,transform .15s ease}
+body.login.htn-login #login form .button-primary:hover,body.login.htn-login #login form #wp-submit:hover{background:var(--htn-g);transform:translateY(-1px)}
+body.login.htn-login #login form .button-primary:focus,body.login.htn-login #login form #wp-submit:focus{box-shadow:0 0 0 3px rgba(63,122,58,.3)}
+body.login.htn-login #login form #reg_passmail{margin:0 0 14px;font-size:13.5px;color:var(--htn-muted)}
+body.login.htn-login #login form .htn-reg-note{margin:0 0 14px;font-size:13px;line-height:1.5;color:var(--htn-muted)}
+body.login.htn-login #login form .htn-reg-note a{color:var(--htn-g2)}
+body.login.htn-login #login form .user-pass-wrap{margin-bottom:0}
+body.login.htn-login #login #nav,body.login.htn-login #login #backtoblog{margin:14px 0 0;padding:0;text-align:center;font-size:14px}
+body.login.htn-login #login #nav a,body.login.htn-login #login #backtoblog a{color:var(--htn-muted);text-decoration:none}
+body.login.htn-login #login #nav a:hover,body.login.htn-login #login #backtoblog a:hover{color:var(--htn-g2);text-decoration:underline}
+body.login.htn-login #login .htn-login__switch{margin:22px 0 0;text-align:center;font-size:15px;color:var(--htn-muted)}
+body.login.htn-login #login .htn-login__switch a{font-weight:600;color:var(--htn-g2);text-decoration:none}
+body.login.htn-login #login .htn-login__switch a:hover{text-decoration:underline}
+body.login.htn-login #login .privacy-policy-page-link{margin:18px 0 0;text-align:center;font-size:13px}
+body.login.htn-login #login .privacy-policy-page-link a{color:var(--htn-muted)}
+body.login.htn-login #login .message,body.login.htn-login #login .notice,body.login.htn-login #login .success,body.login.htn-login #login #login_error{margin:0 0 16px;padding:12px 16px;border:0;border-left:4px solid var(--htn-g2);border-radius:12px;background:#fff;box-shadow:0 6px 18px rgba(31,42,30,.08)}
+body.login.htn-login #login #login_error{border-left-color:#c0392b}
+body.login.htn-login .language-switcher{position:relative;z-index:1;grid-column:2;margin:0 auto 20px;padding:0}
+body.login.htn-login .language-switcher .button{border-radius:999px}
+
+/* register: hide WP's "password will be e-mailed" note — we take a password right away */
+body.login.htn-login.htn-login--register #login form #reg_passmail{display:none}
+
+@media (max-width:900px){
+  body.login.htn-login{display:block;padding-bottom:30px}
+  body.login.htn-login::before,body.login.htn-login::after{width:100%;height:auto;bottom:auto;top:0;height:280px;position:absolute}
+  body.login.htn-login .htn-login__brand,body.login.htn-login .htn-login__intro,body.login.htn-login .htn-login__perks{padding:0 20px}
+  body.login.htn-login .htn-login__brand{padding-top:22px}
+  body.login.htn-login .htn-login__intro{padding-top:22px}
+  body.login.htn-login .htn-login__intro h2{font-size:26px}
+  body.login.htn-login .htn-login__intro p{font-size:15px;color:#fff}
+  body.login.htn-login .htn-login__perks{display:none}
+  body.login.htn-login #login{width:min(440px,100%);margin:26px auto 0;padding:0 16px}
+  body.login.htn-login #login form{padding:22px 20px 20px}
+}
