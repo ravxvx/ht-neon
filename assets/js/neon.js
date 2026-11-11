@@ -27,22 +27,6 @@
 		});
 	}
 
-	// Log In: use the ListingPro login popup when it exists, otherwise follow the link to the login page.
-	var login = document.querySelector('.htn-login');
-	if (login) {
-		login.addEventListener('click', function (e) {
-			if (document.getElementById('modal-3')) {
-				e.preventDefault();
-				if (nav) {
-					nav.classList.remove('is-open');
-				}
-				if (burger) {
-					burger.setAttribute('aria-expanded', 'false');
-				}
-			}
-		});
-	}
-
 	// Sticky registration bar
 	var bar = document.getElementById('htn-bar');
 	if (bar) {

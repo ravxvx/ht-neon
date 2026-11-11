@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.0.1
+ * Version: 3.0.2
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.0.1' );
+define( 'HTN_VERSION', '3.0.2' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -126,8 +126,19 @@ function htn_url( $path ) {
 }
 
 function htn_join_url() {
-	$s = htn_settings();
-	return htn_url( $s['join_url'] );
+	$s      = htn_settings();
+	$target = htn_url( $s['join_url'] );
+	if ( is_user_logged_in() || ! get_option( 'users_can_register' ) ) {
+		return $target;
+	}
+	// Guests go straight to registration and land on the join page afterwards.
+	return add_query_arg( 'redirect_to', rawurlencode( $target ), wp_registration_url() );
+}
+
+function htn_login_url() {
+	$dash = get_page_by_path( 'listing-author' );
+	$to   = ( $dash && 'publish' === $dash->post_status ) ? get_permalink( $dash ) : home_url( '/' );
+	return wp_login_url( $to );
 }
 
 function htn_search_url() {
@@ -512,7 +523,7 @@ function htn_render_header() {
 						<?php endif; ?>
 						<a class="htn-btn htn-btn--pink" href="<?php echo esc_url( home_url( '/submit-listing/' ) ); ?>">Add a Listing</a>
 					<?php else : ?>
-						<a class="htn-btn htn-btn--ghost htn-login md-trigger" data-modal="modal-3" href="<?php echo esc_url( wp_login_url( home_url( '/' ) ) ); ?>"><?php echo htn_icon( 'user' ); // phpcs:ignore WordPress.Security.EscapeOutput ?> Log In</a>
+						<a class="htn-btn htn-btn--ghost htn-login" href="<?php echo esc_url( htn_login_url() ); ?>"><?php echo htn_icon( 'user' ); // phpcs:ignore WordPress.Security.EscapeOutput ?> Log In</a>
 						<a class="htn-btn htn-btn--pink" href="<?php echo esc_url( htn_join_url() ); ?>"><?php echo esc_html( htn_is_natural() && 'Join as a Therapist' === $s['join_label'] ? 'List Your Service' : $s['join_label'] ); ?></a>
 					<?php endif; ?>
 				</div>
