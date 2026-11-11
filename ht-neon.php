@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 2.3.5
+ * Version: 3.0.0
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '2.3.5' );
+define( 'HTN_VERSION', '3.0.0' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -26,6 +26,7 @@ define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
 function htn_defaults() {
 	return array(
 		'mode'       => 'preview', // off | preview | live
+		'theme'      => 'natural', // neon | natural
 		'home'       => 1,
 		'header'     => 1,
 		'footer'     => 1,
@@ -47,6 +48,15 @@ function htn_settings() {
 		$saved = array();
 	}
 	return wp_parse_args( $saved, htn_defaults() );
+}
+
+function htn_theme() {
+	$s = htn_settings();
+	return 'neon' === $s['theme'] ? 'neon' : 'natural';
+}
+
+function htn_is_natural() {
+	return 'natural' === htn_theme();
 }
 
 function htn_is_listingpro() {
@@ -107,7 +117,7 @@ function htn_is_map_archive() {
 
 function htn_use_dark() {
 	$s = htn_settings();
-	return htn_is_active() && ! empty( $s['dark'] ) && ! htn_is_dashboard();
+	return htn_is_active() && ! htn_is_natural() && ! empty( $s['dark'] ) && ! htn_is_dashboard();
 }
 
 function htn_url( $path ) {
@@ -139,6 +149,22 @@ function htn_enqueue() {
 	if ( ! htn_is_active() ) {
 		return;
 	}
+	if ( htn_is_natural() ) {
+		wp_enqueue_style( 'htn-fonts', 'https://fonts.googleapis.com/css2?family=Cabin:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap', array(), null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters
+		wp_enqueue_style( 'htn-colors', HTN_URL . 'assets/css/colors.css', array(), HTN_VERSION );
+		wp_enqueue_style( 'htn-skin', HTN_URL . 'assets/css/skin.css', array( 'htn-colors' ), HTN_VERSION );
+		wp_enqueue_style( 'htn-neon', HTN_URL . 'assets/css/neon.css', array( 'htn-skin' ), HTN_VERSION );
+		wp_enqueue_style( 'htn-natural', HTN_URL . 'assets/css/natural.css', array( 'htn-neon' ), HTN_VERSION );
+		if ( htn_is_dashboard() ) {
+			wp_enqueue_style( 'htn-dashboard', HTN_URL . 'assets/css/dashboard.css', array( 'htn-natural' ), HTN_VERSION );
+			wp_enqueue_style( 'htn-natural-dashboard', HTN_URL . 'assets/css/natural-dashboard.css', array( 'htn-dashboard' ), HTN_VERSION );
+			wp_enqueue_script( 'htn-dashboard', HTN_URL . 'assets/js/dashboard.js', array(), HTN_VERSION, true );
+			wp_add_inline_script( 'htn-dashboard', 'document.body.setAttribute("data-htn-home",' . wp_json_encode( home_url( '/' ) ) . ');', 'before' );
+		}
+		wp_enqueue_script( 'htn-neon', HTN_URL . 'assets/js/neon.js', array(), HTN_VERSION, true );
+		wp_enqueue_script( 'htn-preloader', HTN_URL . 'assets/js/preloader.js', array(), HTN_VERSION, false );
+		return;
+	}
 	wp_enqueue_style( 'htn-fonts', 'https://fonts.googleapis.com/css2?family=Cabin:wght@400;500;600;700&family=Lora:wght@400;500;600&display=swap', array(), null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters
 	wp_enqueue_style( 'htn-colors', HTN_URL . 'assets/css/colors.css', array(), HTN_VERSION );
 	$skin_deps = array( 'htn-colors' );
@@ -165,6 +191,7 @@ add_filter( 'body_class', 'htn_body_class' );
 function htn_body_class( $classes ) {
 	if ( htn_is_active() ) {
 		$classes[] = 'htn';
+		$classes[] = htn_is_natural() ? 'htn-natural' : 'htn-neon';
 		if ( htn_use_header() ) {
 			$classes[] = 'htn-has-header';
 		}
@@ -199,6 +226,29 @@ function htn_lotus_svg( $size = 56 ) {
 		. '</g></svg>';
 }
 
+function htn_natural_lotus_svg( $size = 64 ) {
+	$id = 'htn-nl-' . wp_rand( 1000, 9999 );
+	return '<svg class="htn-lotus htn-lotus--natural" width="' . (int) $size . '" height="' . (int) round( $size * 0.78 ) . '" viewBox="0 0 100 78" fill="none" aria-hidden="true" focusable="false">'
+		. '<defs><linearGradient id="' . $id . '" x1="20" y1="6" x2="80" y2="60" gradientUnits="userSpaceOnUse"><stop stop-color="#e2b45a"/><stop offset="1" stop-color="#b8862c"/></linearGradient></defs>'
+		. '<g stroke="url(#' . $id . ')" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">'
+		. '<path d="M50 6c-8 9-12 19-12 29 0 10 5 18 12 24 7-6 12-14 12-24 0-10-4-20-12-29z"/>'
+		. '<path d="M39 25c-7-4-14-6-20-6 0 12 4 22 11 29 5 5 12 9 20 11"/>'
+		. '<path d="M61 25c7-4 14-6 20-6 0 12-4 22-11 29-5 5-12 9-20 11"/>'
+		. '<path d="M22 40c-6-1-11 0-16 2 4 9 11 15 20 19 7 3 15 3 24 2"/>'
+		. '<path d="M78 40c6-1 11 0 16 2-4 9-11 15-20 19-7 3-15 3-24 2"/>'
+		. '</g>'
+		. '<path d="M30 68c6 6 14 8 20 8s14-2 20-8c-6-4-14-6-20-6s-14 2-20 6z" fill="#3f7a3a"/>'
+		. '<path d="M30 68c12 2 28 2 40 0" stroke="#2f5f2c" stroke-width="1.6" stroke-linecap="round"/>'
+		. '</svg>';
+}
+
+function htn_natural_logo() {
+	return '<a class="htn-logo htn-logo--natural" href="' . esc_url( home_url( '/' ) ) . '" aria-label="' . esc_attr( get_bloginfo( 'name' ) ) . '">'
+		. htn_natural_lotus_svg( 64 )
+		. '<span class="htn-logo__text"><span class="htn-logo__name">Holistic Therapists<br>Ireland</span><i class="htn-logo__rule"></i></span>'
+		. '</a>';
+}
+
 function htn_logo() {
 	return '<a class="htn-logo" href="' . esc_url( home_url( '/' ) ) . '" aria-label="' . esc_attr( get_bloginfo( 'name' ) ) . '">'
 		. htn_lotus_svg( 78 )
@@ -220,6 +270,20 @@ function htn_icon( $name ) {
 		'chev'   => '<path d="m6 9 6 6 6-6"/>',
 		'menu'   => '<path d="M4 7h16M4 12h16M4 17h16"/>',
 		'close'  => '<path d="m6 6 12 12M18 6 6 18"/>',
+		'calendar' => '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+		'leaf2'    => '<path d="M4 20c0-9 5-14 16-15-.5 10-6 15-16 15z"/><path d="M4 20c3-5 7-8 11-10"/>',
+		'lotus'    => '<path d="M12 3.5c-2.5 2.6-3.6 5.4-3.6 8 0 2.8 1.4 5 3.6 6.6 2.2-1.6 3.6-3.8 3.6-6.6 0-2.6-1.1-5.4-3.6-8z"/><path d="M8.8 9.2C6.6 8 4.6 7.6 3 7.6c0 3.4 1.2 6.4 3.2 8.3 1.6 1.5 3.6 2.4 6 3"/><path d="M15.2 9.2c2.2-1.2 4.2-1.6 5.8-1.6 0 3.4-1.2 6.4-3.2 8.3-1.6 1.5-3.6 2.4-6 3"/>',
+		'stones'   => '<ellipse cx="12" cy="18" rx="8" ry="2.6"/><ellipse cx="12" cy="13" rx="6" ry="2.3"/><ellipse cx="12" cy="8.5" rx="4" ry="1.9"/>',
+		'infinity' => '<path d="M8 12c0-2.2 1.5-3.5 3-3.5 2.2 0 3 2.5 4 3.5 1 1 1.8 2 3 2 1.8 0 3-1.5 3-3.5S19.8 7 18 7c-1.2 0-2 1-3 2-1 1-1.8 3.5-4 3.5-1.5 0-3-1.3-3-3.5z"/>',
+		'compass'  => '<circle cx="12" cy="12" r="8.5"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>',
+		'yoga'     => '<circle cx="12" cy="5" r="2"/><path d="M12 8v5m0 0-5 4m5-4 5 4M5 13h14"/>',
+		'mountain' => '<path d="m3 18 6-9 4 6 2-3 6 6z"/><path d="M3 18h18"/>',
+		'grid'     => '<circle cx="6" cy="6" r="1.3"/><circle cx="12" cy="6" r="1.3"/><circle cx="18" cy="6" r="1.3"/><circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/><circle cx="6" cy="18" r="1.3"/><circle cx="12" cy="18" r="1.3"/><circle cx="18" cy="18" r="1.3"/>',
+		'hands'    => '<path d="M7 11V6.5a1.5 1.5 0 0 1 3 0V11m0-2V5a1.5 1.5 0 0 1 3 0v4m0-1.5V6a1.5 1.5 0 0 1 3 0v7a6 6 0 0 1-6 6h-.5a5.5 5.5 0 0 1-5.5-5.5V12a1.5 1.5 0 0 1 3 0"/>',
+		'arrowl'   => '<path d="M19 12H5"/><path d="m11 6-6 6 6 6"/>',
+		'chevl'    => '<path d="m15 6-6 6 6 6"/>',
+		'chevr'    => '<path d="m9 6 6 6-6 6"/>',
+		'heart2'   => '<path d="M12 20.5S3.5 15.3 3.5 9.3A4.6 4.6 0 0 1 12 6.8a4.6 4.6 0 0 1 8.5 2.5c0 6-8.5 11.2-8.5 11.2z"/>',
 	);
 	if ( ! isset( $paths[ $name ] ) ) {
 		return '';
@@ -238,12 +302,13 @@ function htn_use_favicon() {
 
 function htn_icon_file( $size ) {
 	$size = (int) $size;
+	$dir  = htn_is_natural() ? 'assets/img/natural/icon-' : 'assets/img/icon-';
 	foreach ( array( 32, 180, 192, 270, 512 ) as $available ) {
 		if ( $size <= $available ) {
-			return HTN_URL . 'assets/img/icon-' . $available . '.png?v=' . HTN_VERSION;
+			return HTN_URL . $dir . $available . '.png?v=' . HTN_VERSION;
 		}
 	}
-	return HTN_URL . 'assets/img/icon-512.png?v=' . HTN_VERSION;
+	return HTN_URL . $dir . '512.png?v=' . HTN_VERSION;
 }
 
 add_filter( 'get_site_icon_url', 'htn_site_icon_url', 20, 2 );
@@ -343,7 +408,45 @@ function htn_default_nav() {
  * The header is placed right after the opening <body> tag by filtering the page output.
  * The wp_body_open hook is not used: on this site it runs at the end of the page.
  */
+function htn_natural_nav() {
+	$find   = htn_search_url();
+	$events = get_page_by_path( 'events' );
+	$blog   = (int) get_option( 'page_for_posts' );
+	$html   = '<ul class="htn-nav__list">';
+	$html  .= '<li class="menu-item-has-children"><a href="' . esc_url( $find ) . '">Find a Therapist</a><ul class="sub-menu">';
+	foreach ( htn_top_categories( 10 ) as $t ) {
+		$link = get_term_link( $t );
+		if ( ! is_wp_error( $link ) ) {
+			$html .= '<li><a href="' . esc_url( $link ) . '">' . esc_html( $t->name ) . '</a></li>';
+		}
+	}
+	$html .= '</ul></li>';
+	if ( $events && 'publish' === $events->post_status ) {
+		$html .= '<li class="menu-item-has-children ' . ( is_page( $events->ID ) ? 'current-menu-item' : '' ) . '"><a href="' . esc_url( get_permalink( $events ) ) . '">Events</a><ul class="sub-menu"><li><a href="' . esc_url( get_permalink( $events ) ) . '">Upcoming events</a></li><li><a href="' . esc_url( htn_join_url() ) . '">List your event</a></li></ul></li>';
+	}
+	$html .= '<li class="menu-item-has-children"><a href="' . esc_url( htn_join_url() ) . '">For Practitioners</a><ul class="sub-menu"><li><a href="' . esc_url( htn_join_url() ) . '">List your service</a></li><li><a href="' . esc_url( home_url( '/submit-listing/' ) ) . '">Add a listing</a></li><li><a href="' . esc_url( home_url( '/submit-your-articles/' ) ) . '">Submit an article</a></li></ul></li>';
+	$res = '';
+	if ( $blog ) {
+		$res .= '<li><a href="' . esc_url( get_permalink( $blog ) ) . '">Blog</a></li>';
+	}
+	$nl = get_page_by_path( 'newsletter-signup' );
+	if ( $nl && 'publish' === $nl->post_status ) {
+		$res .= '<li><a href="' . esc_url( get_permalink( $nl ) ) . '">Newsletter</a></li>';
+	}
+	if ( $res ) {
+		$html .= '<li class="menu-item-has-children ' . ( is_home() ? 'current-menu-item' : '' ) . '"><a href="' . esc_url( $blog ? get_permalink( $blog ) : home_url( '/' ) ) . '">Resources</a><ul class="sub-menu">' . $res . '</ul></li>';
+	}
+	foreach ( array( 'about' => 'About', 'contact' => 'Contact' ) as $slug => $label ) {
+		$p = get_page_by_path( $slug );
+		if ( $p && 'publish' === $p->post_status ) {
+			$html .= '<li class="' . ( is_page( $p->ID ) ? 'current-menu-item' : '' ) . '"><a href="' . esc_url( get_permalink( $p ) ) . '">' . esc_html( $label ) . '</a></li>';
+		}
+	}
+	return $html . '</ul>';
+}
+
 add_action( 'template_redirect', 'htn_start_buffer', 0 );
+
 function htn_start_buffer() {
 	if ( htn_use_header() && ! is_feed() && ! is_robots() ) {
 		ob_start( 'htn_inject_header' );
@@ -379,9 +482,9 @@ function htn_inject_header( $html ) {
 function htn_render_header() {
 	$s = htn_settings();
 	?>
-	<div class="htn-header" id="htn-header" role="banner">
+	<div class="htn-header<?php echo htn_is_natural() ? ' htn-header--natural' : ''; ?>" id="htn-header" role="banner">
 		<div class="htn-header__inner">
-			<?php echo htn_logo(); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+			<?php echo htn_is_natural() ? htn_natural_logo() : htn_logo(); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			<button type="button" class="htn-burger" id="htn-burger" aria-expanded="false" aria-controls="htn-nav" aria-label="Menu">
 				<?php echo htn_icon( 'menu' ) . htn_icon( 'close' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 			</button>
@@ -398,7 +501,7 @@ function htn_render_header() {
 						)
 					);
 				} else {
-					echo htn_default_nav(); // phpcs:ignore WordPress.Security.EscapeOutput
+					echo htn_is_natural() ? htn_natural_nav() : htn_default_nav(); // phpcs:ignore WordPress.Security.EscapeOutput
 				}
 				?>
 				<div class="htn-actions">
@@ -410,7 +513,7 @@ function htn_render_header() {
 						<a class="htn-btn htn-btn--pink" href="<?php echo esc_url( home_url( '/submit-listing/' ) ); ?>">Add a Listing</a>
 					<?php else : ?>
 						<a class="htn-btn htn-btn--ghost htn-login md-trigger" data-modal="modal-3" href="<?php echo esc_url( wp_login_url( home_url( '/' ) ) ); ?>"><?php echo htn_icon( 'user' ); // phpcs:ignore WordPress.Security.EscapeOutput ?> Log In</a>
-						<a class="htn-btn htn-btn--pink" href="<?php echo esc_url( htn_join_url() ); ?>"><?php echo esc_html( $s['join_label'] ); ?></a>
+						<a class="htn-btn htn-btn--pink" href="<?php echo esc_url( htn_join_url() ); ?>"><?php echo esc_html( htn_is_natural() && 'Join as a Therapist' === $s['join_label'] ? 'List Your Service' : $s['join_label'] ); ?></a>
 					<?php endif; ?>
 				</div>
 			</nav>
@@ -426,7 +529,7 @@ function htn_render_header() {
 add_filter( 'template_include', 'htn_template_include', 999 );
 function htn_template_include( $template ) {
 	if ( htn_use_home() ) {
-		$file = HTN_PATH . 'templates/home.php';
+		$file = HTN_PATH . ( htn_is_natural() ? 'templates/home-natural.php' : 'templates/home.php' );
 		if ( file_exists( $file ) ) {
 			return $file;
 		}
@@ -582,7 +685,7 @@ function htn_render_footer() {
 	<div class="htn-footer" role="contentinfo">
 		<div class="htn-footer__inner">
 			<div class="htn-footer__brand">
-				<?php echo htn_logo(); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+				<?php echo htn_is_natural() ? htn_natural_logo() : htn_logo(); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				<p>Ireland's holistic wellness directory. Find therapists, practitioners and wellbeing events near you.</p>
 				<ul class="htn-footer__social">
 					<?php foreach ( $social as $key => $label ) : ?>
@@ -683,7 +786,7 @@ function htn_cta_bar() {
 	?>
 	<div class="htn-bar" id="htn-bar" hidden>
 		<p class="htn-bar__text">Therapist or practitioner? Get listed and reach new clients.</p>
-		<a class="htn-btn htn-btn--pink" href="<?php echo esc_url( htn_join_url() ); ?>"><?php echo esc_html( $s['join_label'] ); ?></a>
+		<a class="htn-btn htn-btn--pink" href="<?php echo esc_url( htn_join_url() ); ?>"><?php echo esc_html( htn_is_natural() && 'Join as a Therapist' === $s['join_label'] ? 'List Your Service' : $s['join_label'] ); ?></a>
 		<button type="button" class="htn-bar__close" id="htn-bar-close" aria-label="Close"><?php echo htn_icon( 'close' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></button>
 	</div>
 	<?php
@@ -711,6 +814,9 @@ function htn_sanitize( $in ) {
 	}
 	if ( isset( $in['mode'] ) && in_array( $in['mode'], array( 'off', 'preview', 'live' ), true ) ) {
 		$out['mode'] = $in['mode'];
+	}
+	if ( isset( $in['theme'] ) && in_array( $in['theme'], array( 'neon', 'natural' ), true ) ) {
+		$out['theme'] = $in['theme'];
 	}
 	foreach ( array( 'home', 'header', 'footer', 'dark', 'events', 'favicon', 'cta_band', 'cta_bar', 'stats' ) as $k ) {
 		$out[ $k ] = empty( $in[ $k ] ) ? 0 : 1;
@@ -754,6 +860,15 @@ function htn_render_page() {
 							<label><input type="radio" name="<?php echo esc_attr( $o ); ?>[mode]" value="off" <?php checked( $s['mode'], 'off' ); ?>> <strong>Wyłączony</strong> — stary wygląd dla wszystkich</label>
 						</fieldset>
 						<p class="description">W trybie podglądu nowy wygląd działa też pod adresem: <a href="<?php echo esc_url( add_query_arg( 'ht_preview', '1', home_url( '/' ) ) ); ?>" target="_blank" rel="noopener"><?php echo esc_html( add_query_arg( 'ht_preview', '1', home_url( '/' ) ) ); ?></a></p>
+					</td>
+				</tr>
+				<tr>
+					<th scope="row">Styl</th>
+					<td>
+						<fieldset>
+							<label><input type="radio" name="<?php echo esc_attr( $o ); ?>[theme]" value="natural" <?php checked( $s['theme'], 'natural' ); ?>> <strong>Natural</strong> — jasny, zieleń i złoto, zdjęcia Irlandii</label><br>
+							<label><input type="radio" name="<?php echo esc_attr( $o ); ?>[theme]" value="neon" <?php checked( $s['theme'], 'neon' ); ?>> <strong>Neon</strong> — ciemny fiolet z różowym akcentem</label>
+						</fieldset>
 					</td>
 				</tr>
 				<tr>

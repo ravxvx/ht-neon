@@ -66,3 +66,12 @@ Własne menu w nagłówku: *Wygląd → Menu → Zarządzaj położeniem*, pozyc
 ## Status
 
 Wtyczka była sprawdzana lokalnie na stylach ListingPro 2.9.12 z przykładowymi danymi, jeszcze nie na działającej stronie.
+
+## 3.0.0 — styl „Natural”
+
+Wtyczka ma teraz dwa style do wyboru w **Ustawienia → HT Neon → Styl**:
+
+- **Natural** (domyślny) — jasny, zielono‑złoty, zdjęcie irlandzkich klifów w hero, kafelki „Are you a Therapist? / Running an Event?”, „Browse by Therapy”, karuzele Featured Therapists / Upcoming Events, zielony pasek zaufania. Jasne podstrony ListingPro, zielono‑złota stopka i dashboard.
+- **Neon** — dotychczasowy ciemny fiolet/róż.
+
+![Natural – strona główna](screenshots/natural-home.png)

@@ -91,3 +91,34 @@
 		new MutationObserver(function(m){m.forEach(function(r){Array.prototype.forEach.call(r.addedNodes,function(n){if(n.nodeType===1)fix(n);});});}).observe(document.documentElement,{childList:true,subtree:true});
 	}
 })();
+
+// Natural home: simple scroll-snap carousels (Featured Therapists / Upcoming Events).
+(function () {
+	'use strict';
+	var cars = document.querySelectorAll('[data-htn-carousel]');
+	Array.prototype.forEach.call(cars, function (car) {
+		var track = car.querySelector('.htn-ncar__track');
+		var prev = car.querySelector('.htn-ncar__nav--prev');
+		var next = car.querySelector('.htn-ncar__nav--next');
+		var dots = car.querySelector('.htn-ncar__dots');
+		if (!track) { return; }
+		var items = track.children;
+		function step() { return items.length ? items[0].getBoundingClientRect().width + 16 : 0; }
+		function pages() { return Math.max(1, Math.ceil((track.scrollWidth - track.clientWidth) / Math.max(1, step())) + 1); }
+		function current() { return Math.round(track.scrollLeft / Math.max(1, step())); }
+		function draw() {
+			if (!dots) { return; }
+			var n = pages(); var c = current(); var html = '';
+			for (var i = 0; i < n; i++) { html += '<i' + (i === c ? ' class="is-on"' : '') + '></i>'; }
+			dots.innerHTML = n > 1 ? html : '';
+			var max = track.scrollWidth - track.clientWidth - 2;
+			if (prev) { prev.disabled = track.scrollLeft <= 2; }
+			if (next) { next.disabled = track.scrollLeft >= max; }
+		}
+		if (prev) { prev.addEventListener('click', function () { track.scrollBy({ left: -step(), behavior: 'smooth' }); }); }
+		if (next) { next.addEventListener('click', function () { track.scrollBy({ left: step(), behavior: 'smooth' }); }); }
+		track.addEventListener('scroll', function () { window.requestAnimationFrame(draw); }, { passive: true });
+		window.addEventListener('resize', draw);
+		draw();
+	});
+})();
