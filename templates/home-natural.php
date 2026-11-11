@@ -26,39 +26,45 @@ if ( is_wp_error( $htn_locs ) ) {
 	$htn_locs = array();
 }
 
-/* Quick chips under the search bar: real categories, most used first. */
-$htn_chips = array();
-foreach ( htn_top_categories( 7 ) as $htn_t ) {
-	$htn_l = get_term_link( $htn_t );
-	if ( ! is_wp_error( $htn_l ) ) {
-		$htn_chips[] = array( $htn_t->name, $htn_l );
-	}
-}
-
-/* Browse by therapy: label, icon, category slug (falls back to search). */
-$htn_browse = array(
-	array( 'Massage', 'lotus', 'massage' ),
-	array( 'Reiki', 'hands', 'reiki' ),
-	array( 'Coaching', 'compass', 'coaching' ),
-	array( 'Counselling', 'heart2', 'counselling' ),
-	array( 'Energy Work', 'infinity', 'bio-energy' ),
-	array( 'Hypnotherapy', 'stones', 'hypnotherapist' ),
-	array( 'Yoga', 'yoga', 'yoga' ),
-	array( 'Shamanism', 'mountain', 'shamanism' ),
-	array( 'Reflexology', 'leaf2', 'reflexology', '', 'htn-nbrowse__extra' ),
-);
-foreach ( $htn_browse as &$htn_b ) {
-	$htn_term = get_term_by( 'slug', $htn_b[2], 'listing-category' );
-	$htn_link = '';
-	if ( $htn_term && ! is_wp_error( $htn_term ) ) {
-		$htn_l = get_term_link( $htn_term );
-		if ( ! is_wp_error( $htn_l ) ) {
-			$htn_link = $htn_l;
+/* Resolve a label to a listing category (by slug, then by name), otherwise a search / events link. */
+$htn_cat_link = function ( $slugs, $fallback ) use ( $htn_find ) {
+	foreach ( (array) $slugs as $htn_slug ) {
+		$htn_term = get_term_by( 'slug', $htn_slug, 'listing-category' );
+		if ( ! $htn_term ) {
+			$htn_term = get_term_by( 'name', $htn_slug, 'listing-category' );
+		}
+		if ( $htn_term && ! is_wp_error( $htn_term ) ) {
+			$htn_l = get_term_link( $htn_term );
+			if ( ! is_wp_error( $htn_l ) ) {
+				return $htn_l;
+			}
 		}
 	}
-	$htn_b[3] = $htn_link ? $htn_link : add_query_arg( 'select', rawurlencode( $htn_b[2] ), $htn_find );
-}
-unset( $htn_b );
+	return $fallback ? $fallback : add_query_arg( 'select', rawurlencode( is_array( $slugs ) ? $slugs[0] : $slugs ), $htn_find );
+};
+
+/* Quick chips under the search bar – as in the design. */
+$htn_chips = array(
+	array( 'Massage', $htn_cat_link( array( 'massage' ), '' ) ),
+	array( 'Reiki', $htn_cat_link( array( 'reiki' ), '' ) ),
+	array( 'Access Bars&reg;', $htn_cat_link( array( 'access-bars', 'Access Bars' ), '' ) ),
+	array( 'Coaching', $htn_cat_link( array( 'coaching' ), '' ) ),
+	array( 'Energy Healing', $htn_cat_link( array( 'bio-energy', 'energy-healing', 'Bio-Energy' ), '' ) ),
+	array( 'Workshops', $htn_ev_url ),
+	array( 'Retreats', $htn_ev_url ),
+);
+
+/* Browse by therapy: label, icon, link – as in the design. */
+$htn_browse = array(
+	array( 'Massage', 'lotus', $htn_cat_link( array( 'massage' ), '' ) ),
+	array( 'Reiki', 'hands', $htn_cat_link( array( 'reiki' ), '' ) ),
+	array( 'Access Bars', 'stones', $htn_cat_link( array( 'access-bars', 'Access Bars' ), '' ) ),
+	array( 'Coaching', 'compass', $htn_cat_link( array( 'coaching' ), '' ) ),
+	array( 'Energy Work', 'infinity', $htn_cat_link( array( 'bio-energy', 'Bio-Energy' ), '' ) ),
+	array( 'Holistic Therapies', 'leaf2', $htn_cat_link( array( 'therapist', 'Therapist' ), $htn_find ) ),
+	array( 'Workshops', 'calendar', $htn_ev_url ),
+	array( 'Retreats', 'mountain', $htn_ev_url ),
+);
 
 get_header();
 ?>
@@ -97,7 +103,7 @@ get_header();
 			<?php if ( $htn_chips ) : ?>
 				<ul class="htn-chips">
 					<?php foreach ( $htn_chips as $htn_c ) : ?>
-						<li><a href="<?php echo esc_url( $htn_c[1] ); ?>"><?php echo esc_html( $htn_c[0] ); ?></a></li>
+						<li><a href="<?php echo esc_url( $htn_c[1] ); ?>"><?php echo wp_kses( $htn_c[0], array() ); ?></a></li>
 					<?php endforeach; ?>
 				</ul>
 			<?php endif; ?>
@@ -141,7 +147,7 @@ get_header();
 			<h2 class="htn-ntitle" id="htn-browse-title"><span>Browse by Therapy</span></h2>
 			<ul class="htn-nbrowse__list">
 				<?php foreach ( $htn_browse as $htn_b ) : ?>
-					<li class="<?php echo esc_attr( isset( $htn_b[4] ) ? $htn_b[4] : '' ); ?>"><a href="<?php echo esc_url( $htn_b[3] ); ?>"><span class="htn-nbrowse__icon"><?php echo htn_icon( $htn_b[1] ); // phpcs:ignore WordPress.Security.EscapeOutput ?></span><span><?php echo esc_html( $htn_b[0] ); ?></span></a></li>
+					<li><a href="<?php echo esc_url( $htn_b[2] ); ?>"><span class="htn-nbrowse__icon"><?php echo htn_icon( $htn_b[1] ); // phpcs:ignore WordPress.Security.EscapeOutput ?></span><span><?php echo esc_html( $htn_b[0] ); ?></span></a></li>
 				<?php endforeach; ?>
 				<li><a href="<?php echo esc_url( $htn_find ); ?>"><span class="htn-nbrowse__icon"><?php echo htn_icon( 'grid' ); // phpcs:ignore WordPress.Security.EscapeOutput ?></span><span>More</span></a></li>
 			</ul>
