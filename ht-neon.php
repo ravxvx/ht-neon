@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 2.2.4
+ * Version: 2.3.0
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '2.2.4' );
+define( 'HTN_VERSION', '2.3.0' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -154,6 +154,7 @@ function htn_enqueue() {
 	wp_enqueue_style( 'htn-neon', HTN_URL . 'assets/css/neon.css', array( 'htn-skin' ), HTN_VERSION );
 	if ( htn_is_dashboard() ) {
 		wp_enqueue_style( 'htn-dashboard', HTN_URL . 'assets/css/dashboard.css', array( 'htn-neon' ), HTN_VERSION );
+		wp_enqueue_script( 'htn-dashboard', HTN_URL . 'assets/js/dashboard.js', array(), HTN_VERSION, true );
 	}
 	wp_enqueue_script( 'htn-neon', HTN_URL . 'assets/js/neon.js', array(), HTN_VERSION, true );
 	wp_enqueue_script( 'htn-preloader', HTN_URL . 'assets/js/preloader.js', array(), HTN_VERSION, false );
