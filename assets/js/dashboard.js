@@ -10,12 +10,16 @@
 	btn.setAttribute('aria-label', 'Menu');
 	btn.innerHTML = '<i class="fa fa-bars" aria-hidden="true"></i>';
 	header.insertBefore(btn, header.firstChild);
+	var overlay = document.createElement('div');
+	overlay.className = 'htn-dash-overlay';
+	document.body.appendChild(overlay);
+	overlay.addEventListener('click', function () { document.body.classList.remove('htn-dash-open'); });
 	function close() { document.body.classList.remove('htn-dash-open'); }
 	btn.addEventListener('click', function (e) { e.preventDefault(); document.body.classList.toggle('htn-dash-open'); });
 	document.addEventListener('click', function (e) {
 		if (!document.body.classList.contains('htn-dash-open')) { return; }
 		if (side.contains(e.target) || btn.contains(e.target)) { return; }
-		close();
+		if (e.target === overlay) { return; }
 	});
 	document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { close(); } });
 	var toggle = document.getElementById('menu-toggle');
