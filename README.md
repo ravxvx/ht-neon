@@ -58,7 +58,7 @@ Własne menu w nagłówku: *Wygląd → Menu → Zarządzaj położeniem*, pozyc
 - `assets/css/dark.css` – paleta i podstawy ciemnych podstron
 - `assets/css/skin.css` – kształty, czcionki i karty na podstronach
 - `assets/css/pages.css` – ciemna mapa, lista terapeutów, wizytówka, kontakt, blog, okna logowania
-- `assets/css/dashboard.css` – panel użytkownika w kolorach marki
+- `assets/css/dashboard.css` + `assets/js/dashboard.js` – ciemny panel użytkownika (sidebar z lotosem, kafelki statystyk, wysuwane menu na telefonie)
 - `assets/css/neon.css` – nagłówek, stopka, strona główna, baner
 - `assets/js/neon.js` – menu mobilne, okienko logowania, pasek rejestracji
 - `assets/img/` – zdjęcia banera, kafelków i boksów
