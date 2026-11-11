@@ -268,3 +268,28 @@ body.htn #wrapper.lp-dashboard-new:not(.active) ul.sidebar-nav li.htn-dash-home 
 @media (max-width:767px){
   body.htn #wrapper.lp-dashboard-new:not(.active) ul.sidebar-nav li.htn-dash-home a span,body.htn #sidebar-wrapper.htn-dash-side ul.sidebar-nav li.htn-dash-home a span{display:inline}
 }
+
+/* Wrappers around list rows */
+body.htn .lp-dashboard-new .panel-body,body.htn .lp-dashboard-new .tab-content,body.htn .lp-dashboard-new .tab-content>.tab-pane,body.htn .lp-dashboard-new .lp-coupns-form,body.htn .lp-dashboard-new #lp-events,body.htn .lp-dashboard-new .lp-new-packages,body.htn .lp-dashboard-new .lp-listings-wrapper,body.htn .lp-dashboard-new .lp-dash-listings,body.htn .lp-dashboard-new .lp-manage-types-group,body.htn .lp-dashboard-new .lp-add-announcement-form,body.htn .lp-dashboard-new .lp-edit-lead-form,body.htn .lp-dashboard-new .well,body.htn .lp-dashboard-new .lp-dashboard-panel-outer>.row>[class*="col-"]>div[style*="background"]{background:transparent !important;background-color:transparent !important;border-color:var(--htd-line) !important;box-shadow:none !important}
+body.htn .lp-dashboard-new .lp-main-title{background:var(--htd-panel-2) !important;border:1px solid var(--htd-line) !important;border-radius:12px !important;color:#fff !important;margin-bottom:12px}
+body.htn .lp-dashboard-new .lp-main-title p,body.htn .lp-dashboard-new .lp-main-title h4,body.htn .lp-dashboard-new .lp-main-title span{color:#fff !important;font-family:var(--htd-sans);font-size:12.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}
+body.htn .lp-dashboard-new .panel-title,body.htn .lp-dashboard-new .panel-title a{color:#fff !important}
+body.htn .lp-dashboard-new .lp-dashboard-panel-outer h2.lp-section-heading,body.htn .lp-dashboard-new .panel-heading h2,body.htn .lp-dashboard-new .panel-heading h3{color:#fff !important;font-family:var(--htd-sans)}
+body.htn .lp-dashboard-new .lp-dashboard-top-label{color:var(--htd-muted) !important}
+body.htn .lp-dashboard-new .lp-add-new-btn,body.htn .lp-dashboard-new a.lp-add-new-btn{text-transform:capitalize}
+
+@media (max-width:767px){
+  body.htn .lp-dashboard-new .lp-user-header{overflow-x:auto;overflow-y:visible;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  body.htn .lp-dashboard-new .lp-user-header::-webkit-scrollbar{display:none}
+  body.htn .lp-dashboard-new .lp-user-header>*{flex:0 0 auto}
+  body.htn .lp-dashboard-new .lp-user-header .lp-contact-support-outer a[href*="submit-listing"]{padding:0 12px}
+  body.htn .lp-dashboard-new .lp-user-header .lp-contact-support-outer a[href*="submit-listing"] span{font-size:13px}
+  body.htn .lp-dashboard-new .lp-section-app-head-area{margin-left:auto !important;padding-right:0 !important}
+  body.htn .lp-dashboard-new .lp-user-meta ul{gap:6px}
+  body.htn .lp-dashboard-new .user-meta-image{width:34px !important;height:34px}
+  body.htn .lp-dashboard-new .lp-user-header-details>a{width:34px;height:34px}
+  body.htn .htn-dash-burger,body.htn .lp-dashboard-new .lp-user-header .lp-contact-support-outer a{width:36px;height:36px}
+  body.htn .lp-dashboard-new .lp-user-header{gap:6px;padding:10px 12px}
+  body.htn .lp-dashboard-new .lp-main-title{display:none}
+  body.htn .lp-dashboard-new .lp-coupon-outer-container,body.htn .lp-dashboard-new .lp-listing-outer-container{padding:14px 12px !important;margin-bottom:12px}
+}
