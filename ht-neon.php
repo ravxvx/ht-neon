@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.2.1
+ * Version: 3.2.2
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.2.1' );
+define( 'HTN_VERSION', '3.2.2' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -719,12 +719,22 @@ add_filter( 'registration_errors', 'htn_register_keep_errors', PHP_INT_MAX );
 
 function htn_register_show_errors( $message ) {
 	$action = isset( $_REQUEST['action'] ) ? sanitize_key( wp_unslash( $_REQUEST['action'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification
-	if ( 'register' === $action && ! empty( $GLOBALS['htn_reg_errors'] ) ) {
+	if ( in_array( $action, array( 'register', 'lostpassword', 'retrievepassword' ), true ) && ! empty( $GLOBALS['htn_reg_errors'] ) ) {
 		return implode( '<br>', array_map( 'wp_kses_post', $GLOBALS['htn_reg_errors'] ) );
+	}
+	if ( in_array( $action, array( 'lostpassword', 'retrievepassword' ), true ) && isset( $GLOBALS['htn_mail_error'] ) ) {
+		return '<strong>Error:</strong> The reset e-mail could not be sent (mail delivery problem on the site: ' . esc_html( $GLOBALS['htn_mail_error'] ) . '). Please contact us and we will reset it for you.';
 	}
 	return $message;
 }
+add_filter( 'lostpassword_errors', 'htn_register_keep_errors', PHP_INT_MAX );
 add_filter( 'login_errors', 'htn_register_show_errors', PHP_INT_MAX );
+
+/* Keep the real reason when the reset / confirmation e-mail cannot be sent. */
+function htn_mail_failed( $error ) {
+	$GLOBALS['htn_mail_error'] = is_wp_error( $error ) ? $error->get_error_message() : '';
+}
+add_action( 'wp_mail_failed', 'htn_mail_failed' );
 
 function htn_register_done( $user_id ) {
 	if ( ! htn_login_styled() || empty( $_POST['htn_pass1'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
