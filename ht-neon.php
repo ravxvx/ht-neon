@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.2.2
+ * Version: 3.2.3
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.2.2' );
+define( 'HTN_VERSION', '3.2.3' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -673,6 +673,48 @@ function htn_login_footer_markup() {
 	}
 }
 add_action( 'login_footer', 'htn_login_footer_markup' );
+
+/* After login, regular users go to their dashboard – never to wp-admin. */
+function htn_user_dashboard_url() {
+	$dash = get_page_by_path( 'listing-author' );
+	return ( $dash && 'publish' === $dash->post_status ) ? get_permalink( $dash ) : home_url( '/' );
+}
+
+function htn_login_redirect( $redirect_to, $requested, $user ) {
+	if ( ! $user || is_wp_error( $user ) || user_can( $user, 'manage_options' ) ) {
+		return $redirect_to;
+	}
+	$to = $requested ? $requested : $redirect_to;
+	if ( ! $to || false !== strpos( $to, 'wp-admin' ) || false !== strpos( $to, 'wp-login.php' ) ) {
+		$to = htn_user_dashboard_url();
+	}
+	return $to;
+}
+add_filter( 'login_redirect', 'htn_login_redirect', 999, 3 );
+
+function htn_block_wp_admin() {
+	if ( wp_doing_ajax() || ! is_user_logged_in() || current_user_can( 'edit_pages' ) || current_user_can( 'manage_options' ) ) {
+		return;
+	}
+	if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+		return;
+	}
+	$script = isset( $_SERVER['SCRIPT_NAME'] ) ? basename( sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ) ) ) : '';
+	if ( in_array( $script, array( 'admin-ajax.php', 'admin-post.php', 'async-upload.php', 'media-upload.php' ), true ) ) {
+		return;
+	}
+	wp_safe_redirect( htn_user_dashboard_url() );
+	exit;
+}
+add_action( 'admin_init', 'htn_block_wp_admin', 1 );
+
+function htn_hide_admin_bar( $show ) {
+	if ( is_user_logged_in() && ! current_user_can( 'edit_posts' ) ) {
+		return false;
+	}
+	return $show;
+}
+add_filter( 'show_admin_bar', 'htn_hide_admin_bar' );
 
 /* Registration with a password: the new user is logged in straight away and sent to redirect_to. */
 function htn_register_fields() {
