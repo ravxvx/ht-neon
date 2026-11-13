@@ -297,3 +297,19 @@ html body.htn-natural .post-row-header h2,html body.htn-natural .post-row h2,htm
   body.htn-natural .single-listing .post-meta-right-box > span,body.htn-natural .single-listing .post-meta-right-box .rating-text{display:block;margin:0 0 8px;color:#5d685b}
   body.htn-natural .single-listing .single-page-slider-container,body.htn-natural .single-listing .lp-single-slider,body.htn-natural .single-listing .single-page-bg,body.htn-natural .single-listing .lp-listing-cover,body.htn-natural .single-listing .single-banner-image{min-height:230px}
 }
+/* Book an Appointment shortcut */
+html body.htn-natural .post-stat li.htn-book-li a.htn-book-btn{display:inline-flex !important;align-items:center;gap:8px;background:#c99a3c !important;border:0 !important;border-radius:999px !important;color:#fff !important;padding:10px 20px !important;font-family:"Cabin",sans-serif !important;font-weight:700 !important;font-size:15px !important;box-shadow:0 8px 20px rgba(201,154,60,.35) !important;text-decoration:none}
+html body.htn-natural .post-stat li.htn-book-li a.htn-book-btn i{color:#fff !important}
+html body.htn-natural .post-stat li.htn-book-li a.htn-book-btn:hover{background:#b8862c !important}
+body.htn-natural .htn-booking-box{scroll-margin-top:90px;transition:box-shadow .4s ease}
+body.htn-natural .htn-booking-box.is-flash{box-shadow:0 0 0 4px rgba(201,154,60,.45) !important}
+body.htn-natural .htn-book-note{margin:12px 0 0;padding:10px 14px;border-radius:12px;background:rgba(201,154,60,.12);color:#1f2a1e;font-size:14px}
+body.htn-natural .htn-book-note a{color:#2f5f2c;font-weight:600}
+.htn-book-bar{display:none}
+@media (max-width:767px){
+  body.htn-natural .htn-book-bar{display:block;position:fixed;left:0;right:0;bottom:0;z-index:9000;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);border-top:1px solid #e3e2d8;box-shadow:0 -10px 30px rgba(31,42,30,.12);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+  body.htn-natural .htn-book-bar__btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px;border-radius:999px;background:#3f7a3a;color:#fff !important;font-family:"Cabin",sans-serif;font-size:17px;font-weight:700;text-decoration:none;box-shadow:0 8px 20px rgba(63,122,58,.3)}
+  body.htn-natural .htn-book-bar__btn i{color:#fff !important}
+  body.htn-natural.single-listing{padding-bottom:80px !important}
+  body.htn-natural .htn-bar{bottom:76px}
+}

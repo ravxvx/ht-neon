@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.3.4
+ * Version: 3.4.0
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.3.4' );
+define( 'HTN_VERSION', '3.4.0' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -167,6 +167,20 @@ function htn_enqueue() {
 		wp_enqueue_style( 'htn-neon', HTN_URL . 'assets/css/neon.css', array( 'htn-skin' ), HTN_VERSION );
 		wp_enqueue_style( 'htn-natural', HTN_URL . 'assets/css/natural.css', array( 'htn-neon' ), HTN_VERSION );
 		wp_enqueue_style( 'htn-natural-pages', HTN_URL . 'assets/css/natural-pages.css', array( 'htn-natural' ), HTN_VERSION );
+		if ( is_singular( 'listing' ) ) {
+			wp_enqueue_script( 'htn-listing', HTN_URL . 'assets/js/listing.js', array(), HTN_VERSION, true );
+			wp_add_inline_script(
+				'htn-listing',
+				'window.htnListing=' . wp_json_encode(
+					array(
+						'loggedIn'    => is_user_logged_in(),
+						'loginUrl'    => wp_login_url( get_permalink() . '#htn-booking' ),
+						'registerUrl' => add_query_arg( 'redirect_to', rawurlencode( get_permalink() . '#htn-booking' ), wp_registration_url() ),
+					)
+				) . ';',
+				'before'
+			);
+		}
 		if ( htn_is_dashboard() ) {
 			wp_enqueue_style( 'htn-dashboard', HTN_URL . 'assets/css/dashboard.css', array( 'htn-natural' ), HTN_VERSION );
 			wp_enqueue_style( 'htn-natural-dashboard', HTN_URL . 'assets/css/natural-dashboard.css', array( 'htn-dashboard' ), HTN_VERSION );
