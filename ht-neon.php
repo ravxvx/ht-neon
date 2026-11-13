@@ -462,7 +462,7 @@ add_action( 'template_redirect', 'htn_start_buffer', 0 );
 /* Single listing on phones: use the (responsive) desktop template instead of ListingPro's stripped "app view",
    so bookings, lead form, gallery and reviews are all there and get the Natural styling. */
 function htn_listing_desktop_template_on_mobile() {
-	if ( htn_active() && is_singular( 'listing' ) ) {
+	if ( htn_is_active() && is_singular( 'listing' ) ) {
 		add_filter( 'wp_is_mobile', '__return_false', 99 );
 	}
 }
