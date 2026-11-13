@@ -488,6 +488,13 @@ function htn_prepare_header() {
 			$logo = wp_get_attachment_image_url( (int) $logo, 'thumbnail' );
 		}
 		if ( empty( $logo ) ) {
+			// Same fallback as the theme's own mobile view: the default business logo from ListingPro options.
+			$opts = isset( $GLOBALS['listingpro_options'] ) ? $GLOBALS['listingpro_options'] : array();
+			if ( ! empty( $opts['business_logo_default']['url'] ) ) {
+				$logo = $opts['business_logo_default']['url'];
+			}
+		}
+		if ( empty( $logo ) ) {
 			$logo = get_the_post_thumbnail_url( get_the_ID(), 'medium' );
 		}
 		if ( ! empty( $logo ) ) {
