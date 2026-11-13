@@ -258,3 +258,15 @@ body.htn-natural .leaflet-bar{border:1px solid #e3e2d8 !important;border-radius:
 body.htn-natural .leaflet-control-attribution{background:rgba(255,255,255,.8) !important;color:#5d685b !important;border-radius:8px 0 0 0}
 body.htn-natural .leaflet-control-attribution a{color:#3f7a3a !important}
 body.htn-natural .listing-app-view2 .list-style-none,body.htn-natural .listing-app-view2 .list-st-img{list-style:none !important;padding-left:0 !important;margin:0 !important}
+body.htn-natural .listing-app-view2 .post-meta-info,body.htn-natural .listing-app-view2 .post-meta-left-box,body.htn-natural .listing-app-view2 .post-meta-info .container,body.htn-natural .listing-app-view2 .post-meta-info .row,body.htn-natural .listing-app-view2 .post-meta-info [class*="col-"]{overflow:visible !important}
+body.htn-natural .listing-app-view2 ul.lp-appview-post-stat > li > a i,body.htn-natural .listing-app-view2 ul.lp-appview-post-stat > li > a span,body.htn-natural .listing-app-view2 ul.lp-appview-post-stat > li > a .email-icon{position:static !important;display:block !important;float:none !important;transform:none !important}
+/* Desktop single listing on small screens */
+@media (max-width:767px){
+  body.htn-natural .single-listing .post-meta-left-box{text-align:center}
+  body.htn-natural .single-listing .post-meta-left-box .lp-listing-logo{float:none !important;margin:0 auto 12px !important}
+  body.htn-natural .single-listing .post-meta-right-box{text-align:center !important}
+  body.htn-natural .single-listing .post-meta-right-box .post-stat{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+  body.htn-natural .single-listing .post-meta-right-box .post-stat li{margin:0 !important}
+  body.htn-natural .single-listing .widget-box,body.htn-natural .single-listing .post-row{margin-left:0 !important;margin-right:0 !important}
+  body.htn-natural .single-listing .single-inner-container{padding-left:12px;padding-right:12px}
+}

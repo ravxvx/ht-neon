@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.3.1
+ * Version: 3.3.2
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.3.1' );
+define( 'HTN_VERSION', '3.3.2' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -458,6 +458,15 @@ function htn_natural_nav() {
 }
 
 add_action( 'template_redirect', 'htn_start_buffer', 0 );
+
+/* Single listing on phones: use the (responsive) desktop template instead of ListingPro's stripped "app view",
+   so bookings, lead form, gallery and reviews are all there and get the Natural styling. */
+function htn_listing_desktop_template_on_mobile() {
+	if ( htn_active() && is_singular( 'listing' ) ) {
+		add_filter( 'wp_is_mobile', '__return_false', 99 );
+	}
+}
+add_action( 'template_redirect', 'htn_listing_desktop_template_on_mobile', 1 );
 
 function htn_start_buffer() {
 	if ( htn_use_header() && ! is_feed() && ! is_robots() ) {
