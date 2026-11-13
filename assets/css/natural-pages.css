@@ -270,3 +270,13 @@ body.htn-natural .listing-app-view2 ul.lp-appview-post-stat > li > a i,body.htn-
   body.htn-natural .single-listing .widget-box,body.htn-natural .single-listing .post-row{margin-left:0 !important;margin-right:0 !important}
   body.htn-natural .single-listing .single-inner-container{padding-left:12px;padding-right:12px}
 }
+/* Listing logo injected by HT Neon when the theme has logos switched off */
+body.htn-natural .htn-listing-logo{margin:0 0 10px}
+body.htn-natural .lp-listing-title .lp-listing-logo{width:92px !important;height:92px !important;border-radius:50% !important;overflow:hidden !important;border:3px solid #e2b45a !important;background:#fff !important;box-shadow:0 10px 24px rgba(31,42,30,.18) !important}
+body.htn-natural .lp-listing-title .lp-listing-logo img{width:100% !important;height:100% !important;object-fit:cover !important;border-radius:50% !important}
+html body.htn-natural .post-stat .fa-star,html body.htn-natural #clicktoreview i,html body.htn-natural .post-stat li a.lp-review-btn i{color:#fff !important}
+html body.htn-natural .post-row-header h2,html body.htn-natural .post-row h2,html body.htn-natural .post-detail-content h2,html body.htn-natural .single-listing .widget-content h2{font-family:"Lora",Georgia,serif !important;font-size:22px !important;font-weight:500 !important;text-transform:none !important;letter-spacing:0 !important;color:#1f2a1e !important}
+@media (max-width:767px){
+  body.htn-natural .htn-listing-logo{display:flex;justify-content:center}
+  body.htn-natural .lp-listing-title .lp-listing-logo{float:none !important;margin:0 auto !important}
+}

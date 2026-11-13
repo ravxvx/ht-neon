@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.3.2
+ * Version: 3.3.3
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.3.2' );
+define( 'HTN_VERSION', '3.3.3' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -482,9 +482,25 @@ function htn_prepare_header() {
 	ob_start();
 	htn_render_header();
 	$GLOBALS['htn_header_html'] = ob_get_clean();
+	if ( is_singular( 'listing' ) && htn_is_natural() ) {
+		$logo = function_exists( 'listing_get_metabox_by_ID' ) ? listing_get_metabox_by_ID( 'business_logo', get_the_ID() ) : '';
+		if ( is_numeric( $logo ) ) {
+			$logo = wp_get_attachment_image_url( (int) $logo, 'thumbnail' );
+		}
+		if ( empty( $logo ) ) {
+			$logo = get_the_post_thumbnail_url( get_the_ID(), 'medium' );
+		}
+		if ( ! empty( $logo ) ) {
+			$GLOBALS['htn_listing_logo'] = $logo;
+		}
+	}
 }
 
 function htn_inject_header( $html ) {
+	if ( ! empty( $GLOBALS['htn_listing_logo'] ) && false === strpos( $html, 'lp-listing-logo' ) ) {
+		$logo_html = '<div class="lp-listing-title htn-listing-logo"><div class="lp-listing-logo"><img src="' . esc_url( $GLOBALS['htn_listing_logo'] ) . '" alt=""></div></div>';
+		$html      = preg_replace( '/(<div class="post-meta-left-box[^"]*">)(.*?)(<h1)/s', '$1$2' . str_replace( '$', '\$', $logo_html ) . '$3', $html, 1 );
+	}
 	if ( empty( $GLOBALS['htn_header_html'] ) || false !== strpos( $html, 'id="htn-header"' ) ) {
 		return $html;
 	}
