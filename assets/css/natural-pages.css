@@ -204,3 +204,57 @@ body.htn-natural .contact-form.quickform .form-control:focus,body.htn-natural .r
 body.htn-natural .contact-form.quickform .form-group.pos-relative input[type="submit"]{background:#3f7a3a !important;color:#fff !important;border-radius:999px !important}
 body.htn-natural .post-author-box .status,body.htn-natural .post-author-box .online{color:#3f7a3a !important}
 body.htn-natural .post-detail-content p,body.htn-natural .post-row p,body.htn-natural .widget-content p,body.htn-natural .post-row li,body.htn-natural .widget-content li{color:#3b463a !important}
+
+/* ---------- Mobile "app view" single listing (ListingPro mobile/templates/listing_app_view.php) ---------- */
+body.htn-natural .listing-app-view2.listing-second-view{background:#f6f4ee !important;padding-bottom:20px}
+body.htn-natural .listing-app-view2 .app-view-gallery{margin:0 !important}
+body.htn-natural .listing-app-view2 .app-view-gallery .slide-img{height:230px !important;overflow:hidden}
+body.htn-natural .listing-app-view2 .app-view-gallery .slide-img img{width:100% !important;height:100% !important;object-fit:cover !important}
+body.htn-natural .listing-app-view2 .post-meta-info{position:relative;z-index:2;margin:-44px 16px 0 !important;padding:0 !important;background:#fff !important;border:1px solid #e3e2d8 !important;border-radius:20px !important;box-shadow:0 1px 2px rgba(31,42,30,.04),0 14px 34px rgba(31,42,30,.1) !important}
+body.htn-natural .listing-app-view2 .post-meta-info .container{padding:0 !important;width:auto !important}
+body.htn-natural .listing-app-view2 .post-meta-info .row{margin:0 !important}
+body.htn-natural .listing-app-view2 .post-meta-info [class*="col-"]{padding:0 !important;float:none !important;width:100% !important}
+body.htn-natural .listing-app-view2 .post-meta-left-box{display:flex !important;flex-direction:column;align-items:center;text-align:center !important;padding:0 18px 18px !important}
+body.htn-natural .listing-app-view2 .post-meta-left-box .lp-listing-logo{width:96px !important;height:96px !important;margin:-48px auto 12px !important;float:none !important;border-radius:50% !important;overflow:hidden !important;border:3px solid #e2b45a !important;background:#fff !important;box-shadow:0 10px 24px rgba(31,42,30,.18) !important}
+body.htn-natural .listing-app-view2 .post-meta-left-box .lp-listing-logo img{width:100% !important;height:100% !important;object-fit:cover !important;border-radius:50% !important;margin:0 !important}
+body.htn-natural .listing-app-view2 .post-meta-left-box h1{margin:0 0 4px !important;font-family:"Lora",Georgia,serif !important;font-size:24px !important;line-height:1.2 !important;color:#1f2a1e !important}
+body.htn-natural .listing-app-view2 .post-meta-left-box h1 .claimed{display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding:2px 10px;border-radius:999px;background:rgba(63,122,58,.12) !important;color:#2f5f2c !important;font-family:"Cabin",sans-serif;font-size:12px;font-weight:600;vertical-align:middle}
+body.htn-natural .listing-app-view2 .post-meta-left-box > p{margin:0 0 6px !important;color:#5d685b !important;font-size:14.5px !important}
+body.htn-natural .listing-app-view2 .rating-section{display:inline-flex !important;align-items:center;gap:8px;color:#5d685b !important;font-size:14px !important}
+body.htn-natural .listing-app-view2 .rating-section .rate{background:#c99a3c !important;color:#fff !important;border-radius:8px !important;padding:2px 8px !important}
+body.htn-natural .listing-app-view2 .post-meta-right-box{margin:0 !important;padding:0 !important;text-align:center !important}
+body.htn-natural .listing-app-view2 ul.lp-appview-post-stat{display:flex !important;margin:0 !important;padding:0 !important;border-top:1px solid #e3e2d8 !important;list-style:none}
+body.htn-natural .listing-app-view2 ul.lp-appview-post-stat > li{flex:1 1 0 !important;float:none !important;width:auto !important;margin:0 !important;padding:0 !important;background:transparent !important;border:0 !important;border-right:1px solid #e3e2d8 !important;border-radius:0 !important;text-align:center}
+body.htn-natural .listing-app-view2 ul.lp-appview-post-stat > li:last-child{border-right:0 !important}
+body.htn-natural .listing-app-view2 ul.lp-appview-post-stat > li > a{display:flex !important;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:64px;padding:8px 4px !important;background:transparent !important;border:0 !important;box-shadow:none !important;color:#1f2a1e !important;font-family:"Cabin",sans-serif !important;font-size:13.5px !important;font-weight:600 !important;line-height:1.2 !important;text-decoration:none}
+body.htn-natural .listing-app-view2 ul.lp-appview-post-stat > li > a i{color:#3f7a3a !important;font-size:18px !important;margin:0 !important}
+body.htn-natural .listing-app-view2 ul.lp-appview-post-stat > li > a span,body.htn-natural .listing-app-view2 ul.lp-appview-post-stat > li > a .email-icon{color:#1f2a1e !important;font-size:13.5px !important}
+body.htn-natural .listing-app-view2 ul.lp-appview-post-stat > li.reviews.sbutton{background:transparent !important;box-shadow:none !important;border-radius:0 !important}
+body.htn-natural .listing-app-view2 ul.lp-appview-post-stat > li > a:active{background:rgba(63,122,58,.08) !important}
+body.htn-natural .listing-app-view2 .aliceblue.clearfix,body.htn-natural .listing-app-view2 .content-white-area{background:transparent !important}
+body.htn-natural .listing-app-view2 .widget-box,body.htn-natural .listing-app-view2 .widget-box.map-area,body.htn-natural .listing-app-view2 .post-row{margin:14px 16px 0 !important;padding:16px !important;background:#fff !important;border:1px solid #e3e2d8 !important;border-radius:18px !important;box-shadow:0 1px 2px rgba(31,42,30,.04),0 10px 26px rgba(31,42,30,.06) !important}
+body.htn-natural .listing-app-view2 .single-inner-container,body.htn-natural .listing-app-view2 .single-inner-container .row,body.htn-natural .listing-app-view2 .single-inner-container [class*="col-"]{padding-left:0 !important;padding-right:0 !important;margin-left:0 !important;margin-right:0 !important}
+body.htn-natural .listing-app-view2 .widget-box .widget-box,body.htn-natural .listing-app-view2 .widget-box .post-row{margin:0 !important;padding:0 !important;border:0 !important;box-shadow:none !important}
+body.htn-natural .listing-app-view2 .widget-map,body.htn-natural .listing-app-view2 .singlemap{border-radius:14px !important;overflow:hidden !important;border:1px solid #e3e2d8 !important}
+body.htn-natural .listing-app-view2 .listing-detail-infos li,body.htn-natural .listing-app-view2 .list-st-img li{padding:12px 0 !important;border-bottom:1px solid #eeede4 !important;color:#1f2a1e !important;font-size:15px !important}
+body.htn-natural .listing-app-view2 .listing-detail-infos li:last-child{border-bottom:0 !important}
+body.htn-natural .listing-app-view2 .cat-icon,body.htn-natural .listing-app-view2 .cat-icon i,body.htn-natural .listing-app-view2 .phone-icon i{color:#3f7a3a !important;background:transparent !important}
+body.htn-natural .listing-app-view2 .get-directions{display:flex !important;align-items:center;justify-content:space-between;margin-top:10px;padding:12px 14px !important;border-radius:12px !important;background:rgba(63,122,58,.1) !important;color:#2f5f2c !important;font-weight:600 !important}
+body.htn-natural .listing-app-view2 .get-directions i{color:#2f5f2c !important}
+body.htn-natural .listing-app-view2 .business-hour-list,body.htn-natural .listing-app-view2 .business-hours,body.htn-natural .listing-app-view2 .lp-business-hours{color:#1f2a1e !important}
+body.htn-natural .listing-app-view2 .show-all-timings{color:#3f7a3a !important;font-weight:600 !important}
+body.htn-natural .listing-app-view2 .closed-now,body.htn-natural .listing-app-view2 .listing-closed{color:#b23a2f !important}
+body.htn-natural .listing-app-view2 .open-now,body.htn-natural .listing-app-view2 .listing-open{color:#3f7a3a !important}
+body.htn-natural .listing-app-view2 .widget-header h2,body.htn-natural .listing-app-view2 .widget-header h3,body.htn-natural .listing-app-view2 .post-row-header h2,body.htn-natural .listing-app-view2 .post-row-header h3{font-family:"Lora",Georgia,serif !important;font-size:20px !important;color:#1f2a1e !important}
+body.htn-natural .listing-app-view2 .secondary-btn.make-reservation,body.htn-natural .listing-app-view2 .lp-review-btn,body.htn-natural .listing-app-view2 .review-form input[type="submit"]{display:block !important;width:100% !important;text-align:center !important;background:#3f7a3a !important;color:#fff !important;border:0 !important;border-radius:999px !important;padding:12px 18px !important;font-weight:600 !important}
+body.htn-natural .listing-app-view2 .widget-social li a{width:44px !important;height:44px !important;border-radius:50% !important;border:1px solid #e3e2d8 !important;background:#fff !important}
+body.htn-natural .listing-app-view2 .widget-social li a i{color:#3f7a3a !important;line-height:42px !important}
+body.htn-natural .listing-app-view2 .post-author-box .user_text h4,body.htn-natural .listing-app-view2 .post-author-box .user_text h4 a{color:#1f2a1e !important}
+
+/* Leaflet controls on all pages */
+body.htn-natural .leaflet-bar a,body.htn-natural .leaflet-control-zoom a{background:#fff !important;color:#2f5f2c !important;border-bottom:1px solid #e3e2d8 !important;font-weight:700}
+body.htn-natural .leaflet-bar a:hover{background:#f1efe6 !important}
+body.htn-natural .leaflet-bar{border:1px solid #e3e2d8 !important;border-radius:10px !important;overflow:hidden;box-shadow:0 6px 16px rgba(31,42,30,.14) !important}
+body.htn-natural .leaflet-control-attribution{background:rgba(255,255,255,.8) !important;color:#5d685b !important;border-radius:8px 0 0 0}
+body.htn-natural .leaflet-control-attribution a{color:#3f7a3a !important}
+body.htn-natural .listing-app-view2 .list-style-none,body.htn-natural .listing-app-view2 .list-st-img{list-style:none !important;padding-left:0 !important;margin:0 !important}
