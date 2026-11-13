@@ -280,3 +280,20 @@ html body.htn-natural .post-row-header h2,html body.htn-natural .post-row h2,htm
   body.htn-natural .htn-listing-logo{display:flex;justify-content:center}
   body.htn-natural .lp-listing-title .lp-listing-logo{float:none !important;margin:0 auto !important}
 }
+/* Phone: title area as a card overlapping the cover (like the app view) */
+@media (max-width:767px){
+  body.htn-natural .single-listing .post-meta-info{position:relative;z-index:2;margin:-44px 16px 0 !important;padding:0 !important;background:#fff !important;border:1px solid #e3e2d8 !important;border-radius:20px !important;box-shadow:0 1px 2px rgba(31,42,30,.04),0 14px 34px rgba(31,42,30,.1) !important;overflow:visible !important}
+  body.htn-natural .single-listing .post-meta-info .container{padding:0 !important;width:auto !important}
+  body.htn-natural .single-listing .post-meta-info .row{margin:0 !important}
+  body.htn-natural .single-listing .post-meta-info [class*="col-"]{padding:0 !important;float:none !important;width:100% !important}
+  body.htn-natural .single-listing .post-meta-left-box{display:flex;flex-direction:column;align-items:center;padding:0 18px 14px !important;overflow:visible !important}
+  body.htn-natural .single-listing .post-meta-left-box .breadcrumbs,body.htn-natural .single-listing .post-meta-left-box .lp-breadcrumbs,body.htn-natural .single-listing .post-meta-left-box ul.breadcrumb{order:3;margin:8px 0 0 !important;font-size:12.5px}
+  body.htn-natural .single-listing .htn-listing-logo,body.htn-natural .single-listing .lp-listing-title{order:0;margin:-48px auto 10px !important}
+  body.htn-natural .single-listing .post-meta-left-box h1{order:1;margin:0 0 4px !important;font-size:24px !important;text-align:center}
+  body.htn-natural .single-listing .post-meta-left-box > p{order:2;margin:0 !important;text-align:center;color:#5d685b !important}
+  body.htn-natural .single-listing .post-meta-right-box{margin:0 !important;padding:12px 14px 16px !important;border-top:1px solid #e3e2d8;text-align:center !important}
+  body.htn-natural .single-listing .post-meta-right-box .post-stat{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:0 !important}
+  body.htn-natural .single-listing .post-meta-right-box .post-stat li{margin:0 !important}
+  body.htn-natural .single-listing .post-meta-right-box > span,body.htn-natural .single-listing .post-meta-right-box .rating-text{display:block;margin:0 0 8px;color:#5d685b}
+  body.htn-natural .single-listing .single-page-slider-container,body.htn-natural .single-listing .lp-single-slider,body.htn-natural .single-listing .single-page-bg,body.htn-natural .single-listing .lp-listing-cover,body.htn-natural .single-listing .single-banner-image{min-height:230px}
+}
