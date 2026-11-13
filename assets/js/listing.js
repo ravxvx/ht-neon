@@ -39,6 +39,7 @@
 	bar.className = 'htn-book-bar';
 	bar.innerHTML = '<a href="#htn-booking" class="htn-book-bar__btn"><i class="fa fa-calendar-check-o"></i> ' + label + '</a>';
 	document.body.appendChild(bar);
+	document.body.classList.add('htn-has-book-bar');
 	bar.querySelector('a').addEventListener('click', go);
 	if (!cfg.loggedIn) {
 		var note = document.createElement('p');

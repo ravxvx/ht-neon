@@ -310,6 +310,15 @@ body.htn-natural .htn-book-note a{color:#2f5f2c;font-weight:600}
   body.htn-natural .htn-book-bar{display:block;position:fixed;left:0;right:0;bottom:0;z-index:9000;padding:10px 16px calc(10px + env(safe-area-inset-bottom));background:rgba(255,255,255,.96);border-top:1px solid #e3e2d8;box-shadow:0 -10px 30px rgba(31,42,30,.12);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
   body.htn-natural .htn-book-bar__btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:50px;border-radius:999px;background:#3f7a3a;color:#fff !important;font-family:"Cabin",sans-serif;font-size:17px;font-weight:700;text-decoration:none;box-shadow:0 8px 20px rgba(63,122,58,.3)}
   body.htn-natural .htn-book-bar__btn i{color:#fff !important}
-  body.htn-natural.single-listing{padding-bottom:80px !important}
+  body.htn-natural.htn-has-book-bar{padding-bottom:80px !important}
   body.htn-natural .htn-bar{bottom:76px}
 }
+
+/* Map marker: hide ListingPro's missing category icon, show a lotus instead */
+body.htn-natural .leaflet-marker-icon img,body.htn-natural .leaflet-marker-icon .marker-icon img{opacity:0 !important}
+body.htn-natural .leaflet-marker-icon{overflow:visible}
+body.htn-natural .leaflet-marker-icon::after{content:"";position:absolute;left:50%;top:9px;width:22px;height:22px;margin-left:-11px;background:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='none' stroke='%23ffffff' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'><path d='M50 10c-8 9-12 19-12 29 0 10 5 18 12 24 7-6 12-14 12-24 0-10-4-20-12-29z'/><path d='M39 29c-7-4-14-6-20-6 0 12 4 22 11 29 5 5 12 9 20 11'/><path d='M61 29c7-4 14-6 20-6 0 12-4 22-11 29-5 5-12 9-20 11'/><path d='M30 72c6 6 14 8 20 8s14-2 20-8'/></svg>") center/contain no-repeat;pointer-events:none}
+body.htn-natural .leaflet-control-zoom a{font-size:18px !important;line-height:28px !important;text-indent:0 !important;color:#2f5f2c !important}
+body.htn-natural .leaflet-control-zoom-in::before{content:"+"}
+body.htn-natural .leaflet-control-zoom-out::before{content:"\2212"}
+body.htn-natural .leaflet-control-zoom a span{display:none}
