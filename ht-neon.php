@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.4.1
+ * Version: 3.4.2
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.4.1' );
+define( 'HTN_VERSION', '3.4.2' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -526,6 +526,22 @@ function htn_inject_header( $html ) {
 	if ( false !== strpos( $html, 'Widget Didn' ) ) {
 		$html = preg_replace( '/(<p[^>]*>\s*)?Widget Didn(?:\'|&#8217;|’)t Load.*?Refresh this page\s*(<\/a>)?(\s*<\/p>)?/su', '', $html );
 	}
+	// SEO: the home page keeps one H1 (our hero title); H1s printed by the theme or widgets (e.g. "Explore Your city") become H2.
+	if ( ! empty( $GLOBALS['htn_home_template'] ) ) {
+		$demoted = preg_replace_callback(
+			'/<h1\b([^>]*)>(.*?)<\/h1>/is',
+			function ( $m ) {
+				if ( false !== strpos( $m[1], 'htn-nhero__title' ) || false !== strpos( $m[1], 'htn-hero__title' ) ) {
+					return $m[0];
+				}
+				return '<h2' . $m[1] . '>' . $m[2] . '</h2>';
+			},
+			$html
+		);
+		if ( null !== $demoted ) {
+			$html = $demoted;
+		}
+	}
 	if ( empty( $GLOBALS['htn_header_html'] ) || false !== strpos( $html, 'id="htn-header"' ) ) {
 		return $html;
 	}
@@ -593,6 +609,7 @@ function htn_template_include( $template ) {
 	if ( htn_use_home() ) {
 		$file = HTN_PATH . ( htn_is_natural() ? 'templates/home-natural.php' : 'templates/home.php' );
 		if ( file_exists( $file ) ) {
+			$GLOBALS['htn_home_template'] = true;
 			return $file;
 		}
 	}
