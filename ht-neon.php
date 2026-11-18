@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.4.2
+ * Version: 3.5.0
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.4.2' );
+define( 'HTN_VERSION', '3.5.0' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -488,6 +488,63 @@ function htn_start_buffer() {
 	}
 }
 
+add_action( 'wp_head', 'htn_prepare_listing_schema', 2 );
+function htn_prepare_listing_schema() {
+	if ( ! htn_is_active() || ! is_singular( 'listing' ) ) {
+		return;
+	}
+	$id  = get_the_ID();
+	$get = function ( $key ) use ( $id ) {
+		$v = function_exists( 'listing_get_metabox_by_ID' ) ? listing_get_metabox_by_ID( $key, $id ) : '';
+		return is_string( $v ) ? trim( wp_strip_all_tags( $v ) ) : $v;
+	};
+	$desc = has_excerpt( $id ) ? get_the_excerpt( $id ) : wp_trim_words( wp_strip_all_tags( strip_shortcodes( get_post_field( 'post_content', $id ) ) ), 40, '…' );
+	$data = array(
+		'@context'    => 'https://schema.org',
+		'@type'       => 'LocalBusiness',
+		'@id'         => get_permalink( $id ) . '#business',
+		'name'        => html_entity_decode( get_the_title( $id ), ENT_QUOTES, 'UTF-8' ),
+		'url'         => get_permalink( $id ),
+		'description' => html_entity_decode( $desc, ENT_QUOTES, 'UTF-8' ),
+	);
+	$img = get_the_post_thumbnail_url( $id, 'large' );
+	if ( ! $img && ! empty( $GLOBALS['htn_listing_logo'] ) ) {
+		$img = $GLOBALS['htn_listing_logo'];
+	}
+	if ( $img ) {
+		$data['image'] = $img;
+	}
+	$address = $get( 'gAddress' );
+	if ( ! empty( $address ) && is_string( $address ) ) {
+		$data['address'] = array(
+			'@type'         => 'PostalAddress',
+			'streetAddress' => $address,
+		);
+	}
+	$lat = $get( 'latitude' );
+	$lng = $get( 'longitude' );
+	if ( is_numeric( $lat ) && is_numeric( $lng ) && ( 0.0 !== (float) $lat || 0.0 !== (float) $lng ) ) {
+		$data['geo'] = array(
+			'@type'     => 'GeoCoordinates',
+			'latitude'  => (float) $lat,
+			'longitude' => (float) $lng,
+		);
+	}
+	$phone = $get( 'phone' );
+	if ( ! empty( $phone ) && is_string( $phone ) ) {
+		$data['telephone'] = $phone;
+	}
+	$site = $get( 'website' );
+	if ( ! empty( $site ) && is_string( $site ) && filter_var( $site, FILTER_VALIDATE_URL ) ) {
+		$data['sameAs'] = array( $site );
+	}
+	$locs = get_the_terms( $id, 'location' );
+	if ( $locs && ! is_wp_error( $locs ) ) {
+		$data['areaServed'] = wp_list_pluck( $locs, 'name' );
+	}
+	$GLOBALS['htn_listing_schema'] = wp_json_encode( $data, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG );
+}
+
 add_action( 'wp_head', 'htn_prepare_header', 1 );
 function htn_prepare_header() {
 	if ( ! htn_use_header() ) {
@@ -540,6 +597,14 @@ function htn_inject_header( $html ) {
 		);
 		if ( null !== $demoted ) {
 			$html = $demoted;
+		}
+	}
+	// SEO: LocalBusiness schema on single listings, only when nothing else (e.g. Rank Math) printed JSON-LD.
+	if ( ! empty( $GLOBALS['htn_listing_schema'] ) && false === stripos( $html, 'application/ld+json' ) ) {
+		$script = '<script type="application/ld+json" class="htn-schema">' . $GLOBALS['htn_listing_schema'] . '</script>' . "\n";
+		$pos    = stripos( $html, '</head>' );
+		if ( false !== $pos ) {
+			$html = substr_replace( $html, $script, $pos, 0 );
 		}
 	}
 	if ( empty( $GLOBALS['htn_header_html'] ) || false !== strpos( $html, 'id="htn-header"' ) ) {
