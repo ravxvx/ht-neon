@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.6.0
+ * Version: 3.7.0
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.6.0' );
+define( 'HTN_VERSION', '3.7.0' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -678,6 +678,14 @@ function htn_template_include( $template ) {
 			return $file;
 		}
 	}
+	// Single event: our own page (Natural style only).
+	if ( htn_use_event_template() ) {
+		$file = HTN_PATH . 'templates/event-natural.php';
+		if ( file_exists( $file ) ) {
+			$GLOBALS['htn_home_template'] = true; // keep a single H1 (ours)
+			return $file;
+		}
+	}
 	// Events page: our own list instead of the ListingPro calendar (Natural style only).
 	$s = htn_settings();
 	if ( htn_is_active() && htn_is_natural() && ! empty( $s['events'] ) && is_page( 'events' ) ) {
@@ -993,6 +1001,188 @@ function htn_upcoming_events( $limit = 4 ) {
 		);
 	}
 	return $out;
+}
+
+/* ------------------------------------------------------------------ *
+ * Single event: data, SEO title and Event schema
+ * ------------------------------------------------------------------ */
+
+function htn_event_data( $id ) {
+	$tz    = new DateTimeZone( 'Europe/Dublin' );
+	$meta  = get_post_meta( $id );
+	$get   = function ( $key ) use ( $meta ) {
+		return isset( $meta[ $key ][0] ) ? trim( (string) maybe_unserialize( $meta[ $key ][0] ) ) : '';
+	};
+	$mk    = function ( $ts, $time ) use ( $tz ) {
+		if ( ! is_numeric( $ts ) || ! $ts ) {
+			return null;
+		}
+		$d = new DateTime( gmdate( 'Y-m-d', (int) $ts ), $tz );
+		if ( $time && false !== strtotime( $time ) ) {
+			$t = new DateTime( $time, $tz );
+			$d->setTime( (int) $t->format( 'G' ), (int) $t->format( 'i' ) );
+		}
+		return $d;
+	};
+	$time  = $get( 'event-time' );
+	$etime = $get( 'event-time-e' );
+	$start = $mk( $get( 'event-date' ), $time );
+	$end   = $mk( $get( 'event-date-e' ), $etime );
+	if ( ! $end && $start && $etime ) {
+		$end = $mk( $get( 'event-date' ), $etime );
+	}
+	$place = $get( 'event-loc' );
+	$place = is_numeric( $place ) ? '' : $place;
+
+	/* Coordinates and a ticket / info link, whatever the importer called them. */
+	$lat    = '';
+	$lng    = '';
+	$ticket = '';
+	$links  = array();
+	foreach ( $meta as $k => $v ) {
+		$val = isset( $v[0] ) && is_string( $v[0] ) ? trim( $v[0] ) : '';
+		if ( '' === $val ) {
+			continue;
+		}
+		if ( '' === $lat && preg_match( '/(^|[-_])lat(itude)?$/i', $k ) && is_numeric( $val ) ) {
+			$lat = $val;
+		} elseif ( '' === $lng && preg_match( '/(^|[-_])(lng|lon|long|longitude)$/i', $k ) && is_numeric( $val ) ) {
+			$lng = $val;
+		} elseif ( preg_match( '#^https?://#i', $val ) && ! preg_match( '/\.(jpe?g|png|gif|webp|svg)(\?|$)/i', $val ) && preg_match( '/tic|ticket|link|url|website|source|info/i', $k ) && false === strpos( $val, wp_parse_url( home_url(), PHP_URL_HOST ) ) ) {
+			$links[ preg_match( '/tic/i', $k ) ? 0 : count( $links ) + 1 ] = $val;
+		}
+	}
+	if ( $links ) {
+		ksort( $links );
+		$ticket = reset( $links );
+	}
+
+	$img = get_the_post_thumbnail_url( $id, 'large' );
+	if ( ! $img ) {
+		$img = $get( 'event-img' );
+	}
+	$where = ( $lat && $lng ) ? $lat . ',' . $lng : $place;
+
+	$time_label = '';
+	if ( $start && $time ) {
+		$time_label = strtolower( $start->format( 'g:i a' ) );
+		if ( $end && $etime ) {
+			$time_label .= ' – ' . strtolower( $end->format( 'g:i a' ) );
+		}
+	}
+
+	$gcal = '';
+	if ( $start ) {
+		$utc = new DateTimeZone( 'UTC' );
+		if ( $time ) {
+			$e    = $end && $end > $start ? clone $end : ( clone $start )->modify( '+2 hours' );
+			$s1   = ( clone $start )->setTimezone( $utc )->format( 'Ymd\THis\Z' );
+			$dates = $s1 . '/' . $e->setTimezone( $utc )->format( 'Ymd\THis\Z' );
+		} else {
+			$dates = $start->format( 'Ymd' ) . '/' . ( clone $start )->modify( '+1 day' )->format( 'Ymd' );
+		}
+		$gcal = add_query_arg(
+			array(
+				'action'   => 'TEMPLATE',
+				'text'     => rawurlencode( html_entity_decode( get_the_title( $id ), ENT_QUOTES, 'UTF-8' ) ),
+				'dates'    => $dates,
+				'location' => rawurlencode( $place ),
+				'details'  => rawurlencode( get_permalink( $id ) ),
+			),
+			'https://calendar.google.com/calendar/render'
+		);
+	}
+
+	$last = $end ? $end : ( $start ? ( clone $start )->setTime( 23, 59 ) : null );
+
+	return array(
+		'title'      => html_entity_decode( get_the_title( $id ), ENT_QUOTES, 'UTF-8' ),
+		'url'        => get_permalink( $id ),
+		'start'      => $start,
+		'end'        => $end,
+		'has_time'   => (bool) $time,
+		'time_label' => $time_label,
+		'place'      => $place,
+		'lat'        => $lat,
+		'lng'        => $lng,
+		'ticket'     => $ticket,
+		'img'        => is_string( $img ) ? $img : '',
+		'directions' => $where ? 'https://www.google.com/maps/search/?api=1&query=' . rawurlencode( $where ) : '',
+		'map'        => $where ? 'https://maps.google.com/maps?q=' . rawurlencode( $where ) . '&z=15&output=embed' : '',
+		'gcal'       => $gcal,
+		'past'       => $last && $last->getTimestamp() < time(),
+	);
+}
+
+function htn_use_event_template() {
+	$s = htn_settings();
+	return htn_is_active() && htn_is_natural() && ! empty( $s['events'] ) && is_singular( 'events' );
+}
+
+/* Short SEO title for events: "Title · 27 Nov" (no site name), unless Rank Math has a custom title. */
+add_filter( 'rank_math/frontend/title', 'htn_event_seo_title', 20 );
+function htn_event_seo_title( $title ) {
+	if ( ! is_singular( 'events' ) || ! htn_is_active() ) {
+		return $title;
+	}
+	$id = get_queried_object_id();
+	if ( get_post_meta( $id, 'rank_math_title', true ) ) {
+		return $title;
+	}
+	$ev   = htn_event_data( $id );
+	$name = $ev['title'];
+	if ( $ev['start'] ) {
+		$with = $name . ' · ' . $ev['start']->format( 'j M' );
+		if ( function_exists( 'mb_strlen' ) ? mb_strlen( $with ) <= 60 : strlen( $with ) <= 60 ) {
+			return $with;
+		}
+	}
+	return $name;
+}
+
+add_action( 'wp_head', 'htn_prepare_event_schema', 2 );
+function htn_prepare_event_schema() {
+	if ( ! htn_is_active() || ! is_singular( 'events' ) ) {
+		return;
+	}
+	$id = get_queried_object_id();
+	$ev = htn_event_data( $id );
+	if ( ! $ev['start'] ) {
+		return;
+	}
+	$desc = has_excerpt( $id ) ? get_the_excerpt( $id ) : wp_trim_words( wp_strip_all_tags( strip_shortcodes( get_post_field( 'post_content', $id ) ) ), 40, '…' );
+	$data = array(
+		'@context'            => 'https://schema.org',
+		'@type'               => 'Event',
+		'name'                => $ev['title'],
+		'url'                 => $ev['url'],
+		'description'         => html_entity_decode( $desc, ENT_QUOTES, 'UTF-8' ),
+		'startDate'           => $ev['has_time'] ? $ev['start']->format( 'c' ) : $ev['start']->format( 'Y-m-d' ),
+		'eventStatus'         => 'https://schema.org/EventScheduled',
+		'eventAttendanceMode' => 'https://schema.org/OfflineEventAttendanceMode',
+	);
+	if ( $ev['end'] ) {
+		$data['endDate'] = $ev['has_time'] ? $ev['end']->format( 'c' ) : $ev['end']->format( 'Y-m-d' );
+	}
+	if ( $ev['place'] ) {
+		$parts            = array_map( 'trim', explode( ',', $ev['place'] ) );
+		$data['location'] = array(
+			'@type'   => 'Place',
+			'name'    => $parts[0],
+			'address' => $ev['place'],
+		);
+		if ( $ev['lat'] && $ev['lng'] ) {
+			$data['location']['geo'] = array(
+				'@type'     => 'GeoCoordinates',
+				'latitude'  => (float) $ev['lat'],
+				'longitude' => (float) $ev['lng'],
+			);
+		}
+	}
+	if ( $ev['img'] ) {
+		$data['image'] = array( $ev['img'] );
+	}
+	$GLOBALS['htn_listing_schema'] = wp_json_encode( $data, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG );
 }
 
 /* ------------------------------------------------------------------ *
