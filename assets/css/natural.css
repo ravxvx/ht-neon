@@ -356,7 +356,7 @@ html body.htn-natural .lp-mobile-logo,html body.htn-natural #slide-nav,html body
 /* ---------- Events page (templates/events-natural.php) ---------- */
 .htn-evpage{background:var(--htn-cream)}
 .htn-evhero{position:relative;display:flex;align-items:center;min-height:420px;padding:64px 0 96px;color:#fff;isolation:isolate;overflow:hidden;text-align:center}
-.htn-evhero__bg{position:absolute;inset:0;z-index:-1;background:var(--htn-evhero-img) center 55%/cover no-repeat}
+.htn-evhero__bg{position:absolute;inset:0;z-index:-1;background:var(--htn-evhero-img) center 45%/cover no-repeat}
 .htn-evhero__bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(20,34,20,.62) 0%,rgba(20,34,20,.38) 55%,rgba(20,34,20,.7) 100%)}
 .htn-evhero__inner{display:flex;flex-direction:column;align-items:center;max-width:860px}
 body.htn-natural .htn-evhero .htn-nkicker{color:#f1e3bd;letter-spacing:.3em}
@@ -506,3 +506,6 @@ body.htn-natural .htn-evs-note{margin:16px 0 0;font-family:var(--htn-sans);font-
   body.htn-natural .htn-evs-content{font-size:16.5px}
   .htn-evs-more{margin-top:44px}
 }
+
+/* Events pages: our own header replaces the theme's grey page-title band. */
+body.htn-evtpl .page-heading,body.htn-evtpl .page-heading-inner-container{display:none !important}

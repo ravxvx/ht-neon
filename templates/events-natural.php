@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 $htn_s        = htn_settings();
 $htn_img      = HTN_URL . 'assets/img/natural/';
 $htn_join     = htn_join_url();
-$htn_hero     = ! empty( $htn_s['hero_image'] ) ? $htn_s['hero_image'] : $htn_img . 'cta-tent.jpg';
+$htn_hero     = ! empty( $htn_s['hero_image'] ) ? $htn_s['hero_image'] : $htn_img . 'hero.jpg';
 $htn_fallback = array( $htn_img . 'ev-1.jpg', $htn_img . 'ev-2.jpg', $htn_img . 'ev-3.jpg', $htn_img . 'cta-tent.jpg' );
 $htn_events   = htn_upcoming_events( 60 );
 

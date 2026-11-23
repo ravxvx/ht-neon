@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.7.0
+ * Version: 3.7.1
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.7.0' );
+define( 'HTN_VERSION', '3.7.1' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -229,6 +229,9 @@ function htn_body_class( $classes ) {
 		}
 		if ( htn_use_dark() ) {
 			$classes[] = 'htn-dark';
+		}
+		if ( ! empty( $GLOBALS['htn_ev_template'] ) ) {
+			$classes[] = 'htn-evtpl';
 		}
 	}
 	return $classes;
@@ -683,6 +686,7 @@ function htn_template_include( $template ) {
 		$file = HTN_PATH . 'templates/event-natural.php';
 		if ( file_exists( $file ) ) {
 			$GLOBALS['htn_home_template'] = true; // keep a single H1 (ours)
+			$GLOBALS['htn_ev_template']   = true; // hide the theme's page title band
 			return $file;
 		}
 	}
@@ -692,6 +696,7 @@ function htn_template_include( $template ) {
 		$file = HTN_PATH . 'templates/events-natural.php';
 		if ( file_exists( $file ) ) {
 			$GLOBALS['htn_home_template'] = true; // keep a single H1 (ours)
+			$GLOBALS['htn_ev_template']   = true; // hide the theme's page title band
 			return $file;
 		}
 	}
