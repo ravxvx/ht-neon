@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.7.1
+ * Version: 3.8.0
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.7.1' );
+define( 'HTN_VERSION', '3.8.0' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -32,6 +32,7 @@ function htn_defaults() {
 		'footer'     => 1,
 		'dark'       => 1,
 		'events'     => 1,
+		'blog'       => 1,
 		'favicon'    => 1,
 		'cta_band'   => 1,
 		'cta_bar'    => 0,
@@ -681,6 +682,16 @@ function htn_template_include( $template ) {
 			return $file;
 		}
 	}
+	// Single blog post: our own article layout (Natural style only).
+	$bs = htn_settings();
+	if ( htn_is_active() && htn_is_natural() && ! empty( $bs['blog'] ) && is_singular( 'post' ) ) {
+		$file = HTN_PATH . 'templates/post-natural.php';
+		if ( file_exists( $file ) ) {
+			$GLOBALS['htn_home_template'] = true; // keep a single H1 (ours) – also fixes posts that have an H1 in the content
+			$GLOBALS['htn_ev_template']   = true; // hide the theme's page title band
+			return $file;
+		}
+	}
 	// Single event: our own page (Natural style only).
 	if ( htn_use_event_template() ) {
 		$file = HTN_PATH . 'templates/event-natural.php';
@@ -1117,6 +1128,60 @@ function htn_event_data( $id ) {
 		'gcal'       => $gcal,
 		'past'       => $last && $last->getTimestamp() < time(),
 	);
+}
+
+/* Listing categories mentioned in a post (title or content), for "Find a practitioner" links. */
+function htn_post_therapy_links( $id, $max = 4 ) {
+	$terms = get_terms(
+		array(
+			'taxonomy'   => 'listing-category',
+			'hide_empty' => true,
+		)
+	);
+	if ( is_wp_error( $terms ) || ! $terms ) {
+		return array();
+	}
+	$skip = array( 'therapist', 'health', 'shops', 'freelance', 'gym', 'spa', 'beauty-spa', 'wellness-centers' );
+	$hay  = ' ' . wp_strip_all_tags( get_the_title( $id ) . ' ' . get_post_field( 'post_content', $id ) ) . ' ';
+	$out  = array();
+	foreach ( $terms as $t ) {
+		if ( in_array( $t->slug, $skip, true ) ) {
+			continue;
+		}
+		$name = html_entity_decode( $t->name, ENT_QUOTES, 'UTF-8' );
+		if ( preg_match( '/\b' . preg_quote( $name, '/' ) . '/iu', $hay ) ) {
+			$link = get_term_link( $t );
+			if ( ! is_wp_error( $link ) ) {
+				$out[ $t->count * 1000 + count( $out ) ] = array( 'name' => $name . ' practitioners', 'url' => $link );
+			}
+		}
+	}
+	krsort( $out );
+	return array_slice( array_values( $out ), 0, $max );
+}
+
+function htn_related_posts( $id, $limit = 3 ) {
+	$cats = array_diff( wp_get_post_categories( $id ), array( (int) get_option( 'default_category' ) ) );
+	$args = array(
+		'post_type'           => 'post',
+		'post_status'         => 'publish',
+		'posts_per_page'      => $limit,
+		'post__not_in'        => array( $id ),
+		'ignore_sticky_posts' => true,
+		'no_found_rows'       => true,
+		'meta_key'            => '_thumbnail_id', // phpcs:ignore WordPress.DB.SlowDBQuery
+	);
+	if ( $cats ) {
+		$args['category__in'] = array_values( $cats );
+	}
+	$posts = get_posts( $args );
+	if ( count( $posts ) < $limit ) {
+		unset( $args['category__in'] );
+		$args['post__not_in']   = array_merge( array( $id ), wp_list_pluck( $posts, 'ID' ) );
+		$args['posts_per_page'] = $limit - count( $posts );
+		$posts                  = array_merge( $posts, get_posts( $args ) );
+	}
+	return $posts;
 }
 
 function htn_use_event_template() {
