@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.9.4
+ * Version: 3.10.0
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.9.4' );
+define( 'HTN_VERSION', '3.10.0' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -603,9 +603,12 @@ function htn_inject_header( $html ) {
 			$html = $demoted;
 		}
 	}
-	// Pricing page: intro header before the Elementor content.
+	// Pricing page: intro header before the Elementor content, social-media perk per plan, featured plan.
 	if ( ! empty( $GLOBALS['htn_pricing'] ) && false === strpos( $html, 'htn-price-hero' ) && preg_match( '/<div[^>]*data-elementor-type="wp-page"/', $html, $pm, PREG_OFFSET_CAPTURE ) ) {
 		$html = substr_replace( $html, htn_pricing_intro_html(), $pm[0][1], 0 );
+	}
+	if ( ! empty( $GLOBALS['htn_pricing'] ) && false !== strpos( $html, 'price-view-default' ) && false === strpos( $html, 'htn-perk' ) ) {
+		$html = htn_pricing_cards( $html );
 	}
 	// SEO: LocalBusiness schema on single listings, only when nothing else (e.g. Rank Math) printed JSON-LD.
 	if ( ! empty( $GLOBALS['htn_listing_schema'] ) && false === stripos( $html, 'application/ld+json' ) ) {
@@ -1214,6 +1217,55 @@ function htn_pricing_intro_html() {
 		. '<p class="htn-price-hero__lead">Choose a plan that suits you. Simple monthly pricing, no long contracts – cancel any time.</p>'
 		. '<ul class="htn-price-hero__list">' . $li . '</ul>'
 		. '</div></header>';
+}
+
+/* Plan perks shown as an extra first row on each pricing card, matched by plan name. */
+function htn_plan_perks() {
+	return array(
+		'free'     => 'Welcome post on our Facebook &amp; LinkedIn',
+		'standard' => 'Your events shared on our Facebook &amp; LinkedIn',
+		'premium'  => 'Monthly featured post on Facebook, LinkedIn &amp; Instagram',
+	);
+}
+
+function htn_pricing_cards( $html ) {
+	$parts = preg_split( '/(?=<div class="[^"]*\bprice-view-default\b)/', $html );
+	if ( count( $parts ) < 2 ) {
+		return $html;
+	}
+	$names = array();
+	foreach ( $parts as $i => $part ) {
+		if ( 0 === $i ) {
+			continue;
+		}
+		$names[ $i ] = preg_match( '/lp-plane-top-wrape[^>]*>\s*<a[^>]*>([^<]+)</', $part, $m ) ? strtolower( trim( $m[1] ) ) : '';
+	}
+	/* Featured: the Standard plan; without one, the Premium plan. */
+	$featured = 0;
+	foreach ( array( 'standard', 'premium' ) as $want ) {
+		foreach ( $names as $i => $n ) {
+			if ( ! $featured && false !== strpos( $n, $want ) ) {
+				$featured = $i;
+			}
+		}
+	}
+	foreach ( $names as $i => $n ) {
+		$perk = '';
+		foreach ( htn_plan_perks() as $key => $text ) {
+			if ( false !== strpos( $n, $key ) ) {
+				$perk = $text;
+				break;
+			}
+		}
+		if ( $perk ) {
+			$li          = '<li class="htn-perk"><span class="htn-perk__ico">' . htn_icon( 'spark' ) . '</span><span>' . $perk . '</span></li>';
+			$parts[ $i ] = preg_replace( '/(<ul class="lp-listprc"[^>]*>)/', '$1' . $li, $parts[ $i ], 1 );
+		}
+		if ( $i === $featured ) {
+			$parts[ $i ] = preg_replace( '/^<div class="/', '<div class="htn-plan-featured ', $parts[ $i ], 1 );
+		}
+	}
+	return implode( '', $parts );
 }
 
 function htn_use_event_template() {
