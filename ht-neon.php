@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.11.3
+ * Version: 3.11.4
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.11.3' );
+define( 'HTN_VERSION', '3.11.4' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -614,7 +614,7 @@ function htn_inject_header( $html ) {
 	if ( ! empty( $GLOBALS['htn_pricing'] ) && false === strpos( $html, 'htn-price-hero' ) && preg_match( '/<div[^>]*data-elementor-type="wp-page"/', $html, $pm, PREG_OFFSET_CAPTURE ) ) {
 		$html = substr_replace( $html, htn_pricing_intro_html(), $pm[0][1], 0 );
 	}
-	if ( ! empty( $GLOBALS['htn_pricing'] ) && ! is_user_logged_in() && false === strpos( $html, 'price-view-default' ) && false !== ( $fp = strpos( $html, '<footer' ) ) ) {
+	if ( ! empty( $GLOBALS['htn_pricing'] ) && ! is_user_logged_in() && false === strpos( $html, 'price-view-default' ) && null !== ( $fp = htn_footer_pos( $html ) ) ) {
 		$block = ( false === strpos( $html, 'htn-price-hero' ) ? htn_pricing_intro_html() : '' ) . htn_guest_plans_html();
 		$html  = substr_replace( $html, $block, $fp, 0 );
 	}
@@ -1236,28 +1236,32 @@ function htn_pricing_keep_public( $location, $status ) {
  * Guest view of the plans. ListingPro prints no plans for signed-out visitors, so HT Neon builds
  * the cards from the published price plans, with the same markup the styles above expect.
  */
+function htn_footer_pos( $html ) {
+	$pos = array();
+	foreach ( array( '<footer', '<div class="htn-footer"' ) as $needle ) {
+		$p = strpos( $html, $needle );
+		if ( false !== $p ) {
+			$pos[] = $p;
+		}
+	}
+	return $pos ? min( $pos ) : null;
+}
+
 function htn_guest_plan_rows() {
 	return array(
-		'map_show'                     => 'Map Display',
-		'contact_show'                 => 'Contact Display',
-		'gallery_show'                 => 'Image Gallery',
-		'video_show'                   => 'Video',
-		'listingproc_tagline'          => 'Business Tagline',
-		'listingproc_location'         => 'Location',
-		'listingproc_website'          => 'Website',
-		'listingproc_social'           => 'Social Media Links',
-		'listingproc_faq'              => 'FAQs',
-		'listingproc_price'            => 'Price Range',
-		'listingproc_tag_key'          => 'Tags & Keywords',
-		'listingproc_bhours'           => 'Business Hours',
-		'lp_eventsplan'                => 'Events',
-		'listingproc_bookings'         => 'Bookings',
-		'listingproc_leadform'         => 'Lead Form',
-		'listingproc_plan_reservera'   => 'Reservations',
-		'listingproc_plan_announcment' => 'Announcements',
-		'listingproc_plan_deals'       => 'Deals & Offers',
-		'listingproc_plan_campaigns'   => 'Ad Campaigns',
-		'lp_hidegooglead'              => 'No Competitor Ads',
+		'map_show'                   => 'Map Display',
+		'contact_show'               => 'Contact Display',
+		'gallery_show'               => 'Image Gallery',
+		'video_show'                 => 'Video',
+		'listingproc_tagline'        => 'Business Tagline',
+		'listingproc_social'         => 'Social Media Links',
+		'listingproc_faq'            => 'FAQs',
+		'listingproc_bhours'         => 'Business Hours',
+		'lp_eventsplan'              => 'Events',
+		'listingproc_bookings'       => 'Bookings',
+		'listingproc_leadform'       => 'Lead Form',
+		'listingproc_plan_deals'     => 'Deals & Offers',
+		'lp_hidegooglead'            => 'No Competitor Ads',
 	);
 }
 
