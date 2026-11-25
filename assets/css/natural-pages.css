@@ -373,7 +373,7 @@ body.htn-natural .lp-price-main form.price-plan-button input[type="submit"]:hove
 
 /* Featured (second) plan */
 body.htn-natural .price-view-default:nth-child(2) .lp-price-main{border:2px solid #c99a3c !important;box-shadow:0 2px 6px rgba(31,42,30,.06),0 26px 60px rgba(31,42,30,.16) !important}
-body.htn-natural .price-view-default:nth-child(2) .lp-price-main::before{content:"Most popular";position:absolute;top:16px;right:-36px;z-index:2;width:150px;padding:5px 0;transform:rotate(45deg);background:#c99a3c;font-family:"Cabin","Helvetica Neue",Arial,sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-align:center;color:#1f2a1e}
+body.htn-natural .price-view-default:nth-child(2) .lp-price-main::before{content:"Most popular";position:absolute;top:26px;right:-46px;z-index:2;width:180px;padding:6px 0;transform:rotate(45deg);background:#c99a3c;font-family:"Cabin","Helvetica Neue",Arial,sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-align:center;color:#1f2a1e}
 body.htn-natural .price-view-default:nth-child(2) .lp-price-main .lp-title{background:linear-gradient(160deg,#2f5f2c,#3f7a3a) !important;border-bottom:0 !important}
 body.htn-natural .price-view-default:nth-child(2) .lp-price-main .lp-title p{color:#fff !important}
 body.htn-natural .price-view-default:nth-child(2) .lp-price-main .lp-title .package-type{color:#e8ecdf !important}
