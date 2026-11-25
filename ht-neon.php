@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.8.0
+ * Version: 3.9.0
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.8.0' );
+define( 'HTN_VERSION', '3.9.0' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -603,6 +603,10 @@ function htn_inject_header( $html ) {
 			$html = $demoted;
 		}
 	}
+	// Pricing page: intro header before the Elementor content.
+	if ( ! empty( $GLOBALS['htn_pricing'] ) && false === strpos( $html, 'htn-price-hero' ) && preg_match( '/<div[^>]*data-elementor-type="wp-page"/', $html, $pm, PREG_OFFSET_CAPTURE ) ) {
+		$html = substr_replace( $html, htn_pricing_intro_html(), $pm[0][1], 0 );
+	}
 	// SEO: LocalBusiness schema on single listings, only when nothing else (e.g. Rank Math) printed JSON-LD.
 	if ( ! empty( $GLOBALS['htn_listing_schema'] ) && false === stripos( $html, 'application/ld+json' ) ) {
 		$script = '<script type="application/ld+json" class="htn-schema">' . $GLOBALS['htn_listing_schema'] . '</script>' . "\n";
@@ -1182,6 +1186,34 @@ function htn_related_posts( $id, $limit = 3 ) {
 		$posts                  = array_merge( $posts, get_posts( $args ) );
 	}
 	return $posts;
+}
+
+/* Pricing page (ListingPro "pricing-plans" widget): our intro header, one H1, no dark title band. */
+add_action( 'template_redirect', 'htn_pricing_flags' );
+function htn_pricing_flags() {
+	if ( htn_is_active() && htn_is_natural() && is_page( 'pricing-plan' ) ) {
+		$GLOBALS['htn_home_template'] = true;
+		$GLOBALS['htn_ev_template']   = true;
+		$GLOBALS['htn_pricing']       = true;
+	}
+}
+
+function htn_pricing_intro_html() {
+	$items = array(
+		'Get found by clients searching for therapists across Ireland',
+		'Your own profile page with photos, contact details and map',
+		'Promote workshops and retreats on our Events page',
+	);
+	$li = '';
+	foreach ( $items as $it ) {
+		$li .= '<li>' . htn_icon( 'leaf' ) . ' ' . esc_html( $it ) . '</li>';
+	}
+	return '<header class="htn-price-hero"><div class="htn-wrap">'
+		. '<p class="htn-nkicker">For practitioners</p>'
+		. '<h1 class="htn-price-hero__title htn-h1-keep">List your practice on <span>Holistic Therapists Ireland</span></h1>'
+		. '<p class="htn-price-hero__lead">Choose a plan that suits you. Simple monthly pricing, no long contracts – cancel any time.</p>'
+		. '<ul class="htn-price-hero__list">' . $li . '</ul>'
+		. '</div></header>';
 }
 
 function htn_use_event_template() {
