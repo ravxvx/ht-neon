@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.11.2
+ * Version: 3.11.3
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.11.2' );
+define( 'HTN_VERSION', '3.11.3' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -614,8 +614,9 @@ function htn_inject_header( $html ) {
 	if ( ! empty( $GLOBALS['htn_pricing'] ) && false === strpos( $html, 'htn-price-hero' ) && preg_match( '/<div[^>]*data-elementor-type="wp-page"/', $html, $pm, PREG_OFFSET_CAPTURE ) ) {
 		$html = substr_replace( $html, htn_pricing_intro_html(), $pm[0][1], 0 );
 	}
-	if ( ! empty( $GLOBALS['htn_pricing'] ) && ! is_user_logged_in() && false === strpos( $html, 'price-view-default' ) && false !== ( $hp = strpos( $html, '</header>', (int) strpos( $html, 'htn-price-hero' ) ) ) ) {
-		$html = substr_replace( $html, htn_guest_plans_html(), $hp + 9, 0 );
+	if ( ! empty( $GLOBALS['htn_pricing'] ) && ! is_user_logged_in() && false === strpos( $html, 'price-view-default' ) && false !== ( $fp = strpos( $html, '<footer' ) ) ) {
+		$block = ( false === strpos( $html, 'htn-price-hero' ) ? htn_pricing_intro_html() : '' ) . htn_guest_plans_html();
+		$html  = substr_replace( $html, $block, $fp, 0 );
 	}
 	if ( ! empty( $GLOBALS['htn_pricing'] ) && false !== strpos( $html, 'price-view-default' ) && false === strpos( $html, 'htn-perk' ) ) {
 		$html = htn_pricing_cards( $html );
