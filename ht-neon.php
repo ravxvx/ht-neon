@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.11.1
+ * Version: 3.11.2
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.11.1' );
+define( 'HTN_VERSION', '3.11.2' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -1345,6 +1345,15 @@ function htn_guest_plans_html() {
 		. '<p class="htn-guest-plans__login">Already listed? <a href="' . esc_url( $login ) . '">Log in to manage your listing</a></p>'
 		. '</div></section>'
 		. '<script>(function(){var t=document.querySelector(".htn-gtoggle");if(!t)return;t.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;t.querySelectorAll("button").forEach(function(x){x.classList.toggle("is-on",x===b);});document.querySelectorAll(".htn-gset").forEach(function(s){s.hidden=s.getAttribute("data-set")!==b.getAttribute("data-set");});});})();</script>';
+}
+
+/* Signed-out visitors: render none of the pricing page's Elementor content (ListingPro stops the page there). */
+add_filter( 'elementor/frontend/builder_content_data', 'htn_pricing_guest_no_elementor', 10, 2 );
+function htn_pricing_guest_no_elementor( $data, $post_id ) {
+	if ( ! is_user_logged_in() && ! empty( $GLOBALS['htn_pricing'] ) && (int) $post_id === (int) get_queried_object_id() ) {
+		return array();
+	}
+	return $data;
 }
 
 /* Signed-out visitors: skip ListingPro's pricing widget (it redirects and stops the page); HT Neon prints the guest plans instead. */
