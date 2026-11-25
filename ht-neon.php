@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.11.0
+ * Version: 3.11.1
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.11.0' );
+define( 'HTN_VERSION', '3.11.1' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -582,6 +582,13 @@ function htn_inject_header( $html ) {
 	if ( ! empty( $GLOBALS['htn_listing_logo'] ) && false === strpos( $html, 'lp-listing-logo' ) ) {
 		$logo_html = '<div class="lp-listing-title htn-listing-logo"><div class="lp-listing-logo"><img src="' . esc_url( $GLOBALS['htn_listing_logo'] ) . '" alt=""></div></div>';
 		$html      = preg_replace( '/(<div class="post-meta-left-box[^"]*">)(.*?)(<h1)/s', '$1$2' . str_replace( '$', '\$', $logo_html ) . '$3', $html, 1 );
+	}
+	// Footer social icons with no address (href="#"): Instagram, YouTube/Twitter, Tumblr.
+	if ( false !== strpos( $html, 'icons8-' ) ) {
+		$clean = preg_replace( '#<li>\s*<a href="\#"[^>]*>\s*<img class="icon icons8-[a-z0-9_-]+"[^>]*>\s*</a>\s*</li>#i', '', $html );
+		if ( null !== $clean ) {
+			$html = $clean;
+		}
 	}
 	// Leftover Wix "Widget Didn't Load" snippets pasted into listing descriptions.
 	if ( false !== strpos( $html, 'Widget Didn' ) ) {
@@ -1338,6 +1345,15 @@ function htn_guest_plans_html() {
 		. '<p class="htn-guest-plans__login">Already listed? <a href="' . esc_url( $login ) . '">Log in to manage your listing</a></p>'
 		. '</div></section>'
 		. '<script>(function(){var t=document.querySelector(".htn-gtoggle");if(!t)return;t.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;t.querySelectorAll("button").forEach(function(x){x.classList.toggle("is-on",x===b);});document.querySelectorAll(".htn-gset").forEach(function(s){s.hidden=s.getAttribute("data-set")!==b.getAttribute("data-set");});});})();</script>';
+}
+
+/* Signed-out visitors: skip ListingPro's pricing widget (it redirects and stops the page); HT Neon prints the guest plans instead. */
+add_filter( 'elementor/frontend/widget/should_render', 'htn_pricing_skip_lp_widget', 10, 2 );
+function htn_pricing_skip_lp_widget( $should, $widget ) {
+	if ( $should && ! is_user_logged_in() && ! empty( $GLOBALS['htn_pricing'] ) && is_object( $widget ) && method_exists( $widget, 'get_name' ) && false !== strpos( $widget->get_name(), 'pricing' ) ) {
+		return false;
+	}
+	return $should;
 }
 
 function htn_pricing_intro_html() {
