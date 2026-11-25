@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.11.4
+ * Version: 3.11.5
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.11.4' );
+define( 'HTN_VERSION', '3.11.5' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -1824,4 +1824,13 @@ add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), 'htn_action_li
 function htn_action_links( $links ) {
 	array_unshift( $links, '<a href="' . esc_url( admin_url( 'themes.php?page=ht-neon' ) ) . '">Ustawienia</a>' );
 	return $links;
+}
+
+/* Social share images: no Rank Math "play" overlay (the site has no videos behind those images). */
+add_filter( 'get_post_metadata', 'htn_no_og_overlay', 10, 3 );
+function htn_no_og_overlay( $value, $object_id, $meta_key ) {
+	if ( 'rank_math_facebook_enable_image_overlay' === $meta_key || 'rank_math_twitter_enable_image_overlay' === $meta_key ) {
+		return array( 'off' );
+	}
+	return $value;
 }
