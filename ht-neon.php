@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.10.1
+ * Version: 3.10.2
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.10.1' );
+define( 'HTN_VERSION', '3.10.2' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -1240,12 +1240,12 @@ function htn_pricing_cards( $html ) {
 		}
 		$names[ $i ] = preg_match( '/lp-plane-top-wrape[^>]*>\s*<a[^>]*>([^<]+)</', $part, $m ) ? strtolower( trim( $m[1] ) ) : '';
 	}
-	/* Featured: the Standard plan; without one, the Premium plan. */
-	$featured = 0;
+	/* Featured: every Standard card (monthly and annual); without one, every Premium card. */
+	$featured_key = '';
 	foreach ( array( 'standard', 'premium' ) as $want ) {
-		foreach ( $names as $i => $n ) {
-			if ( ! $featured && false !== strpos( $n, $want ) ) {
-				$featured = $i;
+		foreach ( $names as $n ) {
+			if ( ! $featured_key && false !== strpos( $n, $want ) ) {
+				$featured_key = $want;
 			}
 		}
 	}
@@ -1261,7 +1261,7 @@ function htn_pricing_cards( $html ) {
 			$li          = '<li class="htn-perk"><span class="htn-perk__ico">' . htn_icon( 'spark' ) . '</span><span>' . $perk . '</span></li>';
 			$parts[ $i ] = preg_replace( '/(<ul class="lp-listprc"[^>]*>)/', '$1' . $li, $parts[ $i ], 1 );
 		}
-		if ( $i === $featured ) {
+		if ( $featured_key && false !== strpos( $n, $featured_key ) ) {
 			$parts[ $i ] = preg_replace( '/^<div class="/', '<div class="htn-plan-featured ', $parts[ $i ], 1 );
 		}
 	}
