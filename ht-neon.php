@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.10.5
+ * Version: 3.11.0
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.10.5' );
+define( 'HTN_VERSION', '3.11.0' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -606,6 +606,9 @@ function htn_inject_header( $html ) {
 	// Pricing page: intro header before the Elementor content, social-media perk per plan, featured plan.
 	if ( ! empty( $GLOBALS['htn_pricing'] ) && false === strpos( $html, 'htn-price-hero' ) && preg_match( '/<div[^>]*data-elementor-type="wp-page"/', $html, $pm, PREG_OFFSET_CAPTURE ) ) {
 		$html = substr_replace( $html, htn_pricing_intro_html(), $pm[0][1], 0 );
+	}
+	if ( ! empty( $GLOBALS['htn_pricing'] ) && ! is_user_logged_in() && false === strpos( $html, 'price-view-default' ) && false !== ( $hp = strpos( $html, '</header>', (int) strpos( $html, 'htn-price-hero' ) ) ) ) {
+		$html = substr_replace( $html, htn_guest_plans_html(), $hp + 9, 0 );
 	}
 	if ( ! empty( $GLOBALS['htn_pricing'] ) && false !== strpos( $html, 'price-view-default' ) && false === strpos( $html, 'htn-perk' ) ) {
 		$html = htn_pricing_cards( $html );
@@ -1221,23 +1224,121 @@ function htn_pricing_keep_public( $location, $status ) {
 	return '' === $to ? false : $location;
 }
 
-/* TEMP: public plan data (prices/features) to build the guest view. Remove after. */
-add_action( 'template_redirect', function () {
-	if ( isset( $_GET['htn_plandump'] ) && 'a7k2' === $_GET['htn_plandump'] ) {
-		$out = array();
-		foreach ( get_posts( array( 'post_type' => 'price_plan', 'post_status' => 'publish', 'numberposts' => 20 ) ) as $p ) {
-			$m = array();
-			foreach ( get_post_meta( $p->ID ) as $k => $v ) {
-				if ( '_edit_lock' === $k || '_edit_last' === $k ) {
-					continue;
-				}
-				$m[ $k ] = maybe_unserialize( $v[0] );
-			}
-			$out[] = array( 'id' => $p->ID, 'title' => $p->post_title, 'order' => $p->menu_order, 'meta' => $m );
-		}
-		wp_send_json( $out );
+/*
+ * Guest view of the plans. ListingPro prints no plans for signed-out visitors, so HT Neon builds
+ * the cards from the published price plans, with the same markup the styles above expect.
+ */
+function htn_guest_plan_rows() {
+	return array(
+		'map_show'                     => 'Map Display',
+		'contact_show'                 => 'Contact Display',
+		'gallery_show'                 => 'Image Gallery',
+		'video_show'                   => 'Video',
+		'listingproc_tagline'          => 'Business Tagline',
+		'listingproc_location'         => 'Location',
+		'listingproc_website'          => 'Website',
+		'listingproc_social'           => 'Social Media Links',
+		'listingproc_faq'              => 'FAQs',
+		'listingproc_price'            => 'Price Range',
+		'listingproc_tag_key'          => 'Tags & Keywords',
+		'listingproc_bhours'           => 'Business Hours',
+		'lp_eventsplan'                => 'Events',
+		'listingproc_bookings'         => 'Bookings',
+		'listingproc_leadform'         => 'Lead Form',
+		'listingproc_plan_reservera'   => 'Reservations',
+		'listingproc_plan_announcment' => 'Announcements',
+		'listingproc_plan_deals'       => 'Deals & Offers',
+		'listingproc_plan_campaigns'   => 'Ad Campaigns',
+		'lp_hidegooglead'              => 'No Competitor Ads',
+	);
+}
+
+function htn_guest_plan_card( $p ) {
+	$m      = function ( $k ) use ( $p ) {
+		return (string) get_post_meta( $p->ID, $k, true );
+	};
+	$price  = (float) $m( 'plan_price' );
+	$days   = (int) $m( 'plan_time' );
+	$yearly = 'yearly' === $m( 'plan_duration_type' );
+	$pack   = 'Package' === $m( 'plan_package_type' );
+	$per    = $pack ? 'Per Package' : 'Per Listing';
+	$fmt    = function ( $n ) {
+		return '€' . ( floor( $n ) == $n ? number_format( $n, 0 ) : number_format( $n, 2 ) );
+	};
+	if ( $price <= 0 ) {
+		$head = '<p>Free</p><span class="package-type">' . esc_html( $per ) . '</span>';
+	} elseif ( $yearly ) {
+		$head = '<p>' . esc_html( $fmt( round( $price / 12, 2 ) ) ) . ' <small>Per Month</small></p><span class="package-type">' . esc_html( $fmt( $price ) . ' billed annually ' . strtolower( $per ) ) . '</span>';
+	} else {
+		$head = '<p>' . esc_html( $fmt( $price ) ) . '</p><span class="package-type">' . esc_html( $per ) . '</span>';
 	}
-}, 0 );
+	$yes  = '<span class="icon-text"><img class="icons8-Checked" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt=""></span>';
+	$no   = '<span class="icon-text"><img class="icons8-Cancel" src="data:image/gif;base64,R0lGODlhAQABAAAAACw=" alt=""></span>';
+	$rows = '<li>' . $yes . '<span>Duration : ' . (int) $days . ' days</span></li>';
+	if ( $pack ) {
+		$max   = (int) $m( 'plan_text' );
+		$rows .= '<li>' . $yes . '<span>Max. Listings : ' . ( $max ? $max : 'unlimited' ) . '</span></li>';
+	}
+	foreach ( htn_guest_plan_rows() as $key => $label ) {
+		$on = 'true' === $m( $key );
+		if ( 'gallery_show' === $key && $on && 1 === (int) $m( 'plan_no_of_img' ) ) {
+			$label = '1 Photo';
+		}
+		$rows .= '<li>' . ( $on ? $yes : $no ) . '<span>' . esc_html( $label ) . '</span></li>';
+	}
+	$opts = get_post_meta( $p->ID, 'lp_listingpro_options', true );
+	if ( is_array( $opts ) && ! empty( $opts['lp_price_plan_addmore'] ) && is_array( $opts['lp_price_plan_addmore'] ) ) {
+		foreach ( $opts['lp_price_plan_addmore'] as $extra ) {
+			if ( '' !== trim( (string) $extra ) ) {
+				$rows .= '<li>' . $yes . '<span>' . esc_html( $extra ) . '</span></li>';
+			}
+		}
+	}
+	$register = add_query_arg(
+		array(
+			'action'      => 'register',
+			'redirect_to' => rawurlencode( home_url( '/pricing-plan/' ) ),
+		),
+		wp_login_url()
+	);
+	return '<div class="col-md-4 price-view-default ' . (int) $p->ID . '"><div class="lp-price-main">'
+		. '<div class="lp-title"><div class="lp-plane-top-wrape"><a>' . esc_html( get_the_title( $p ) ) . '</a>' . $head . '</div></div>'
+		. '<div class="lp-price-list"><ul class="lp-listprc">' . $rows . '</ul>'
+		. '<form class="price-plan-button" method="get" action="' . esc_url( $register ) . '" onsubmit="location.href=this.action;return false;"><input type="submit" value="Get started"></form>'
+		. '</div></div></div>';
+}
+
+function htn_guest_plans_html() {
+	$plans = get_posts(
+		array(
+			'post_type'   => 'price_plan',
+			'post_status' => 'publish',
+			'numberposts' => 20,
+		)
+	);
+	$sets  = array( 'monthly' => '', 'yearly' => '' );
+	foreach ( $plans as $p ) {
+		$opts = get_post_meta( $p->ID, 'lp_listingpro_options', true );
+		if ( is_array( $opts ) && ! empty( $opts['plan_for'] ) && 'listingonly' !== $opts['plan_for'] ) {
+			continue;
+		}
+		$type          = 'yearly' === get_post_meta( $p->ID, 'plan_duration_type', true ) ? 'yearly' : 'monthly';
+		$sets[ $type ] .= htn_guest_plan_card( $p );
+	}
+	if ( '' === $sets['monthly'] && '' === $sets['yearly'] ) {
+		return '';
+	}
+	$login  = wp_login_url( home_url( '/pricing-plan/' ) );
+	$toggle = '' !== $sets['yearly'] && '' !== $sets['monthly']
+		? '<div class="htn-gtoggle" role="tablist"><button type="button" class="is-on" data-set="monthly">Monthly</button><button type="button" data-set="yearly">Annually <em>2 months free</em></button></div>'
+		: '';
+	return '<section class="htn-guest-plans elementor-widget-pricing-plans"><div class="col-md-10 col-md-offset-1">' . $toggle
+		. '<div class="page-inner-container htn-gset" data-set="monthly">' . $sets['monthly'] . '</div>'
+		. ( '' !== $sets['yearly'] ? '<div class="page-inner-container htn-gset" data-set="yearly" hidden>' . $sets['yearly'] . '</div>' : '' )
+		. '<p class="htn-guest-plans__login">Already listed? <a href="' . esc_url( $login ) . '">Log in to manage your listing</a></p>'
+		. '</div></section>'
+		. '<script>(function(){var t=document.querySelector(".htn-gtoggle");if(!t)return;t.addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;t.querySelectorAll("button").forEach(function(x){x.classList.toggle("is-on",x===b);});document.querySelectorAll(".htn-gset").forEach(function(s){s.hidden=s.getAttribute("data-set")!==b.getAttribute("data-set");});});})();</script>';
+}
 
 function htn_pricing_intro_html() {
 	$items = array(

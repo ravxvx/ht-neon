@@ -401,3 +401,16 @@ body.htn-natural .lp-price-main ul.lp-listprc li.htn-perk span{color:#6d5418 !im
 body.htn-natural .lp-price-main ul.lp-listprc li.htn-perk .htn-perk__ico{display:inline-grid;place-items:center;flex:0 0 auto;width:22px;height:22px;margin-right:11px;border-radius:50%;background:#c99a3c;color:#fff !important}
 body.htn-natural .lp-price-main ul.lp-listprc li.htn-perk .htn-perk__ico::before{content:none !important;display:none !important}
 body.htn-natural .lp-price-main ul.lp-listprc li.htn-perk .htn-ico{width:13px;height:13px}
+
+/* Guest view of the plans (built by HT Neon for signed-out visitors) */
+body.htn-natural .htn-guest-plans{padding:8px 0 64px;background:#eef1f4}
+body.htn-natural .htn-guest-plans .page-inner-container[hidden]{display:none !important}
+body.htn-natural .htn-gtoggle{display:flex;justify-content:center;gap:6px;width:max-content;margin:8px auto 34px;padding:6px;border:1px solid #e3e2d8;border-radius:999px;background:#fff;box-shadow:0 6px 18px rgba(31,42,30,.06)}
+body.htn-natural .htn-gtoggle button{padding:11px 22px;border:0;border-radius:999px;background:transparent;font-family:"Cabin","Helvetica Neue",Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5d685b;cursor:pointer}
+body.htn-natural .htn-gtoggle button.is-on{background:#3f7a3a;color:#fff}
+body.htn-natural .htn-gtoggle button em{margin-left:6px;font-style:normal;font-size:11px;letter-spacing:.04em;text-transform:none;color:#c99a3c}
+body.htn-natural .htn-gtoggle button.is-on em{color:#f1e3bd}
+body.htn-natural .htn-guest-plans .lp-title p small{font-family:"Cabin","Helvetica Neue",Arial,sans-serif;font-size:15px;font-weight:500}
+body.htn-natural .htn-guest-plans .lp-plane-top-wrape a{cursor:default}
+body.htn-natural .htn-guest-plans__login{margin:34px 0 0;text-align:center;font-size:15px;color:#5d685b}
+body.htn-natural .htn-guest-plans__login a{color:#2f5f2c;font-weight:600;text-decoration:underline}
