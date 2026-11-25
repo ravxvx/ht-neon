@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.10.4
+ * Version: 3.10.5
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.10.4' );
+define( 'HTN_VERSION', '3.10.5' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -1202,6 +1202,23 @@ function htn_pricing_flags() {
 		$GLOBALS['htn_ev_template']   = true;
 		$GLOBALS['htn_pricing']       = true;
 	}
+}
+
+/*
+ * ListingPro sends signed-out visitors from /pricing-plan/ to the home page, so practitioners
+ * and Google never see the prices. Cancel only that redirect; choosing a plan still asks for login.
+ */
+add_filter( 'wp_redirect', 'htn_pricing_keep_public', 1, 2 );
+function htn_pricing_keep_public( $location, $status ) {
+	if ( is_user_logged_in() || is_admin() || wp_doing_ajax() || 'GET' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) ) {
+		return $location;
+	}
+	$path = trim( (string) wp_parse_url( $_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH ), '/' );
+	if ( 'pricing-plan' !== $path || ! htn_is_active() ) {
+		return $location;
+	}
+	$to = trim( (string) wp_parse_url( $location, PHP_URL_PATH ), '/' );
+	return '' === $to ? false : $location;
 }
 
 function htn_pricing_intro_html() {
