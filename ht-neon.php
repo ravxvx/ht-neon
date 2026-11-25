@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.13.1
+ * Version: 3.13.2
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.13.1' );
+define( 'HTN_VERSION', '3.13.2' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -1856,8 +1856,8 @@ function htn_post_content_seo( $html ) {
 	if ( ! is_singular( 'post' ) && ! ( defined( 'REST_REQUEST' ) && REST_REQUEST ) && ! is_admin() && ! wp_doing_cron() ) {
 		return $html;
 	}
-	$title = html_entity_decode( get_the_title( $post ), ENT_QUOTES, 'UTF-8' );
-	$kw    = trim( explode( ',', (string) get_post_meta( $post->ID, 'rank_math_focus_keyword', true ) )[0] );
+	$title = str_replace( array( '’', '‘' ), "'", html_entity_decode( get_the_title( $post ), ENT_QUOTES, 'UTF-8' ) );
+	$kw    = str_replace( array( '’', '‘' ), "'", trim( explode( ',', (string) get_post_meta( $post->ID, 'rank_math_focus_keyword', true ) )[0] ) );
 	$kw_uc = $kw ? mb_strtoupper( mb_substr( $kw, 0, 1 ) ) . mb_substr( $kw, 1 ) : '';
 
 	// 0. No image in the text: the featured image opens the article (the template then skips its separate hero image).
@@ -1921,7 +1921,7 @@ function htn_post_content_seo( $html ) {
 		}
 		$find = '<a href="' . esc_url( htn_search_url() ) . '">find a holistic therapist near you</a>';
 		$what = $links ? 'browse ' . implode( ' and ', $links ) . ' or ' . $find : $find;
-		$p    = 'If you would like support with ' . esc_html( mb_strtolower( $kw ) ) . ', ' . $what . ' on Holistic Therapists Ireland. You can also see <a href="' . esc_url( home_url( '/events/' ) ) . '">upcoming holistic events</a> near you.';
+		$p    = 'If you would like support with ' . esc_html( $kw ) . ', ' . $what . ' on Holistic Therapists Ireland. You can also see <a href="' . esc_url( home_url( '/events/' ) ) . '">upcoming holistic events</a> near you.';
 		$html .= '<section class="htn-more-on"><h2>More on ' . esc_html( $kw_uc ) . '</h2><p>' . $p . '</p></section>';
 	}
 	return $html;
