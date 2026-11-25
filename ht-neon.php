@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.10.2
+ * Version: 3.10.3
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.10.2' );
+define( 'HTN_VERSION', '3.10.3' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -609,6 +609,9 @@ function htn_inject_header( $html ) {
 	}
 	if ( ! empty( $GLOBALS['htn_pricing'] ) && false !== strpos( $html, 'price-view-default' ) && false === strpos( $html, 'htn-perk' ) ) {
 		$html = htn_pricing_cards( $html );
+	}
+	if ( ! empty( $GLOBALS['htn_pricing'] ) && false === strpos( $html, 'htn-pricing-js' ) ) {
+		$html = str_ireplace( '</body>', htn_pricing_js() . '</body>', $html );
 	}
 	// SEO: LocalBusiness schema on single listings, only when nothing else (e.g. Rank Math) printed JSON-LD.
 	if ( ! empty( $GLOBALS['htn_listing_schema'] ) && false === stripos( $html, 'application/ld+json' ) ) {
@@ -1226,6 +1229,24 @@ function htn_plan_perks() {
 		'standard' => 'Your events shared on our Facebook &amp; LinkedIn',
 		'premium'  => 'Monthly featured post on Facebook, LinkedIn &amp; Instagram',
 	);
+}
+
+/* Plans loaded by the Monthly/Annually switch (AJAX) get the same perk rows, featured card and price order. */
+function htn_pricing_js() {
+	$cfg = array(
+		'perks' => htn_plan_perks(),
+		'icon'  => htn_icon( 'spark' ),
+	);
+	return '<script id="htn-pricing-js">(function(){var C=' . wp_json_encode( $cfg ) . ';'
+		. 'function nm(c){var a=c.querySelector(".lp-plane-top-wrape a");return a?a.textContent.trim().toLowerCase():"";}'
+		. 'function pr(c){var t=c.querySelector(".lp-plane-top-wrape");t=t?t.textContent:"";var m=t.match(/€\s*([\d.,]+)\s*billed/i)||t.match(/€\s*([\d.,]+)/);return m?parseFloat(m[1].replace(",","")):0;}'
+		. 'function run(){var bx=document.querySelectorAll(".elementor-widget-pricing-plans .lp_plan_result_section,.elementor-widget-pricing-plans .page-inner-container");'
+		. 'bx.forEach(function(b){var cs=[].slice.call(b.querySelectorAll(":scope > .price-view-default"));if(!cs.length)return;'
+		. 'var names=cs.map(nm),fk="";["standard","premium"].forEach(function(w){if(!fk&&names.some(function(n){return n.indexOf(w)>-1;}))fk=w;});'
+		. 'cs.forEach(function(c,i){var n=names[i];if(!c.querySelector(".htn-perk")){for(var k in C.perks){if(n.indexOf(k)>-1){var ul=c.querySelector("ul.lp-listprc");if(ul){var li=document.createElement("li");li.className="htn-perk";li.innerHTML="<span class=\"htn-perk__ico\">"+C.icon+"</span><span>"+C.perks[k]+"</span>";ul.insertBefore(li,ul.firstChild);}break;}}}'
+		. 'if(fk&&n.indexOf(fk)>-1)c.classList.add("htn-plan-featured");});'
+		. 'var s=cs.slice().sort(function(x,y){return pr(x)-pr(y);});if(s.some(function(c,i){return c!==cs[i];}))s.forEach(function(c){b.appendChild(c);});});}'
+		. 'run();new MutationObserver(function(){clearTimeout(window.__htnP);window.__htnP=setTimeout(run,60);}).observe(document.body,{childList:true,subtree:true});})();</script>';
 }
 
 function htn_pricing_cards( $html ) {

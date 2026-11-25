@@ -388,8 +388,8 @@ body.htn-natural .htn-plan-featured .lp-price-main form.price-plan-button input[
 }
 
 /* Center the plan cards */
-body.htn-natural .elementor-widget-pricing-plans .page-inner-container{display:flex !important;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:24px;float:none;width:100%;margin:0 !important}
-body.htn-natural .elementor-widget-pricing-plans .page-inner-container::before,body.htn-natural .elementor-widget-pricing-plans .page-inner-container::after{display:none}
+body.htn-natural .elementor-widget-pricing-plans .lp_plan_result_section,body.htn-natural .elementor-widget-pricing-plans .page-inner-container{display:flex !important;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:24px;float:none;width:100%;margin:0 !important}
+body.htn-natural .elementor-widget-pricing-plans .lp_plan_result_section::before,body.htn-natural .elementor-widget-pricing-plans .lp_plan_result_section::after,body.htn-natural .elementor-widget-pricing-plans .page-inner-container::before,body.htn-natural .elementor-widget-pricing-plans .page-inner-container::after{display:none}
 body.htn-natural .elementor-widget-pricing-plans .price-view-default{float:none !important;flex:1 1 300px;width:auto !important;max-width:350px;margin:0 !important;padding:0 !important}
 body.htn-natural .elementor-widget-pricing-plans .col-md-10.col-md-offset-1{float:none;width:100%;max-width:1160px;margin:0 auto !important;padding-left:15px;padding-right:15px}
 
