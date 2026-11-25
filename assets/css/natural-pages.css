@@ -367,8 +367,7 @@ body.htn-natural .lp-price-main ul.lp-listprc li img.icon{width:20px;height:20px
   body.htn-natural .lp-price-main ul.lp-listprc li:not(:first-child):has(img.icons8-Cancel)>span:first-child::before{content:"\2715";background:#f3f1ea;color:#a8aca3}
   body.htn-natural .lp-price-main ul.lp-listprc li:not(:first-child):has(img.icons8-Cancel)>span+span{color:#9aa096 !important}
 }
-}
-body.htn-natural .lp-price-main form.price-plan-button{padding:16px 26px 28px !important}
+body.htn-natural .lp-price-main form.price-plan-button{margin:0 !important;padding:16px 26px 28px !important;background:transparent !important;border-radius:0 !important;box-shadow:none !important}
 body.htn-natural .lp-price-main form.price-plan-button input[type="submit"],body.htn-natural .lp-price-main .lp-price-free.btn{display:block;width:100%;min-height:52px;padding:0 24px !important;border:0 !important;border-radius:999px !important;background:#3f7a3a !important;color:#fff !important;font-family:"Cabin","Helvetica Neue",Arial,sans-serif !important;font-size:16.5px !important;font-weight:700;letter-spacing:.02em;box-shadow:0 8px 20px rgba(63,122,58,.25) !important;outline:0;transition:background-color .2s ease,transform .2s ease}
 body.htn-natural .lp-price-main form.price-plan-button input[type="submit"]:hover{background:#2f5f2c !important;transform:translateY(-1px);box-shadow:0 12px 26px rgba(63,122,58,.3) !important}
 
