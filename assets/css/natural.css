@@ -561,3 +561,5 @@ body.htn-natural .htn-post-find__links a:hover{background:#f1e3bd}
 .htn-more-on h2{margin:0 0 8px !important;font-size:22px !important}
 .htn-more-on p{margin:0 !important}
 .htn-more-on a{color:#2f5f2c;font-weight:600;text-decoration:underline}
+.htn-post-lead-img{margin:0 0 28px}
+.htn-post-lead-img img{display:block;width:100%;height:auto;border-radius:18px}

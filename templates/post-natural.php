@@ -39,7 +39,7 @@ get_header();
 		</div>
 	</header>
 
-	<?php if ( $htn_thumb ) : ?>
+	<?php if ( $htn_thumb && false !== stripos( get_post_field( 'post_content', $htn_id ), '<img' ) ) : // Otherwise the image opens the article text (htn_post_content_seo). ?>
 		<figure class="htn-post-hero">
 			<?php echo wp_get_attachment_image( $htn_thumb, 'full', false, array( 'class' => 'htn-post-hero__img', 'loading' => 'eager', 'alt' => get_post_meta( $htn_thumb, '_wp_attachment_image_alt', true ) ? get_post_meta( $htn_thumb, '_wp_attachment_image_alt', true ) : $htn_title, 'sizes' => '(max-width: 1100px) 100vw, 1100px' ) ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 		</figure>

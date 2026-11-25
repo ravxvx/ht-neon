@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.13.0
+ * Version: 3.13.1
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.13.0' );
+define( 'HTN_VERSION', '3.13.1' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -1859,6 +1859,17 @@ function htn_post_content_seo( $html ) {
 	$title = html_entity_decode( get_the_title( $post ), ENT_QUOTES, 'UTF-8' );
 	$kw    = trim( explode( ',', (string) get_post_meta( $post->ID, 'rank_math_focus_keyword', true ) )[0] );
 	$kw_uc = $kw ? mb_strtoupper( mb_substr( $kw, 0, 1 ) ) . mb_substr( $kw, 1 ) : '';
+
+	// 0. No image in the text: the featured image opens the article (the template then skips its separate hero image).
+	if ( false === stripos( $html, '<img' ) && has_post_thumbnail( $post ) ) {
+		$tid  = get_post_thumbnail_id( $post );
+		$alt0 = (string) get_post_meta( $tid, '_wp_attachment_image_alt', true );
+		$alt0 = '' !== trim( $alt0 ) ? $alt0 : $title;
+		if ( $kw && false === mb_stripos( $alt0, $kw ) ) {
+			$alt0 = $kw_uc . ': ' . $alt0;
+		}
+		$html = '<figure class="htn-post-lead-img">' . wp_get_attachment_image( $tid, 'large', false, array( 'alt' => $alt0, 'loading' => 'eager' ) ) . '</figure>' . $html;
+	}
 
 	// 1. Alt text.
 	$has_kw_alt = false;
