@@ -377,6 +377,7 @@ body.htn-natural .htn-plan-featured .lp-price-main::before{content:"Most popular
 body.htn-natural .htn-plan-featured .lp-price-main .lp-title{background:linear-gradient(160deg,#2f5f2c,#3f7a3a) !important;border-bottom:0 !important}
 body.htn-natural .htn-plan-featured .lp-price-main .lp-title p{color:#fff !important}
 body.htn-natural .htn-plan-featured .lp-price-main .lp-title .package-type{color:#e8ecdf !important}
+body.htn-natural .htn-plan-featured .lp-price-main .lp-title p *,body.htn-natural .htn-plan-featured .lp-price-main .lp-title p small,body.htn-natural .htn-plan-featured .lp-price-main .lp-title p span{color:#fff !important;opacity:1 !important}
 body.htn-natural .htn-plan-featured .lp-price-main .lp-title a{background:transparent;border-color:rgba(241,227,189,.8) !important;color:#f1e3bd !important}
 body.htn-natural .htn-plan-featured .lp-price-main form.price-plan-button input[type="submit"]{background:#c99a3c !important;color:#1f2a1e !important;box-shadow:0 8px 20px rgba(201,154,60,.3) !important}
 body.htn-natural .htn-plan-featured .lp-price-main form.price-plan-button input[type="submit"]:hover{background:#b5872f !important}
