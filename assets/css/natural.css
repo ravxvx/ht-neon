@@ -555,3 +555,9 @@ body.htn-natural .htn-post-find__links a:hover{background:#f1e3bd}
   .htn-post-find{padding:22px 20px;border-radius:18px}
   body.htn-natural .htn-post-find__links a{width:100%;justify-content:space-between}
 }
+
+/* "More on <keyword>" section at the end of blog posts */
+.htn-more-on{margin:40px 0 8px;padding:22px 24px;border-radius:16px;background:#f3f6ef;border:1px solid #e1e8d9}
+.htn-more-on h2{margin:0 0 8px !important;font-size:22px !important}
+.htn-more-on p{margin:0 !important}
+.htn-more-on a{color:#2f5f2c;font-weight:600;text-decoration:underline}

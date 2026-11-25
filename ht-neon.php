@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.12.0
+ * Version: 3.13.0
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.12.0' );
+define( 'HTN_VERSION', '3.13.0' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -1838,4 +1838,80 @@ function htn_no_og_overlay( $value, $object_id, $meta_key ) {
 		return array( 'off' );
 	}
 	return $value;
+}
+
+/*
+ * Blog post content (shown on the post and used by SEO audits):
+ * - images with no alt text get one built from the focus keyword and title;
+ * - an H1 written inside the text becomes H2 (the page title is the only H1);
+ * - when the text has no internal link or no subheading with the focus keyword,
+ *   a short "More on <keyword>" section links to matching practitioners, the directory and related posts.
+ */
+add_filter( 'the_content', 'htn_post_content_seo', 30 );
+function htn_post_content_seo( $html ) {
+	$post = get_post();
+	if ( ! $post || 'post' !== $post->post_type || is_feed() || ! htn_is_active() || false !== strpos( $html, 'htn-more-on' ) ) {
+		return $html;
+	}
+	if ( ! is_singular( 'post' ) && ! ( defined( 'REST_REQUEST' ) && REST_REQUEST ) && ! is_admin() && ! wp_doing_cron() ) {
+		return $html;
+	}
+	$title = html_entity_decode( get_the_title( $post ), ENT_QUOTES, 'UTF-8' );
+	$kw    = trim( explode( ',', (string) get_post_meta( $post->ID, 'rank_math_focus_keyword', true ) )[0] );
+	$kw_uc = $kw ? mb_strtoupper( mb_substr( $kw, 0, 1 ) ) . mb_substr( $kw, 1 ) : '';
+
+	// 1. Alt text.
+	$has_kw_alt = false;
+	$html       = preg_replace_callback(
+		'/<img\b[^>]*>/i',
+		function ( $m ) use ( $kw, $kw_uc, $title, &$has_kw_alt ) {
+			$tag = $m[0];
+			if ( preg_match( '/\balt\s*=\s*(["\'])(.*?)\1/is', $tag, $a ) && '' !== trim( $a[2] ) ) {
+				if ( $kw && false !== mb_stripos( $a[2], $kw ) ) {
+					$has_kw_alt = true;
+				}
+				return $tag;
+			}
+			$alt = ( $kw && false === mb_stripos( $title, $kw ) ) ? $kw_uc . ': ' . $title : $title;
+			if ( $kw && false !== mb_stripos( $alt, $kw ) ) {
+				$has_kw_alt = true;
+			}
+			$tag = preg_replace( '/\salt\s*=\s*(["\'])\s*\1/i', '', $tag );
+			return preg_replace( '/^<img\b/i', '<img alt="' . esc_attr( $alt ) . '"', $tag );
+		},
+		$html
+	);
+	if ( $kw && ! $has_kw_alt ) {
+		// No image mentions the keyword yet: add it to the first image's alt text.
+		$html = preg_replace_callback(
+			'/<img\b[^>]*\balt\s*=\s*(["\'])(.*?)\1[^>]*>/is',
+			function ( $m ) use ( $kw_uc ) {
+				$alt = html_entity_decode( wp_strip_all_tags( $m[2] ), ENT_QUOTES, 'UTF-8' ) . ' – ' . $kw_uc;
+				return preg_replace( '/\balt\s*=\s*(["\']).*?\1/is', 'alt="' . esc_attr( $alt ) . '"', $m[0], 1 );
+			},
+			$html,
+			1
+		);
+	}
+
+	// 2. H1 inside the text.
+	$html = preg_replace( '#<h1(\s[^>]*)?>(.*?)</h1>#is', '<h2$1>$2</h2>', $html );
+
+	// 3. "More on <keyword>" section.
+	$host         = preg_quote( preg_replace( '/^www\./', '', (string) wp_parse_url( home_url(), PHP_URL_HOST ) ), '#' );
+	$has_internal = (bool) preg_match( '#<a\b[^>]*href=["\'](?:/(?!/)|https?://(?:www\.)?' . $host . ')#i', $html );
+	$kw_heading   = $kw && preg_match( '#<h[2-6][^>]*>(?:(?!</h).)*' . preg_quote( $kw, '#' ) . '#isu', $html );
+	if ( $kw && ( ! $has_internal || ! $kw_heading ) ) {
+		$links = array();
+		if ( function_exists( 'htn_post_therapy_links' ) ) {
+			foreach ( htn_post_therapy_links( $post->ID, 2 ) as $l ) {
+				$links[] = '<a href="' . esc_url( $l['url'] ) . '">' . esc_html( $l['name'] ) . '</a>';
+			}
+		}
+		$find = '<a href="' . esc_url( htn_search_url() ) . '">find a holistic therapist near you</a>';
+		$what = $links ? 'browse ' . implode( ' and ', $links ) . ' or ' . $find : $find;
+		$p    = 'If you would like support with ' . esc_html( mb_strtolower( $kw ) ) . ', ' . $what . ' on Holistic Therapists Ireland. You can also see <a href="' . esc_url( home_url( '/events/' ) ) . '">upcoming holistic events</a> near you.';
+		$html .= '<section class="htn-more-on"><h2>More on ' . esc_html( $kw_uc ) . '</h2><p>' . $p . '</p></section>';
+	}
+	return $html;
 }
