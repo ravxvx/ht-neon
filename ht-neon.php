@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.11.5
+ * Version: 3.12.0
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.11.5' );
+define( 'HTN_VERSION', '3.12.0' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -132,7 +132,11 @@ function htn_join_url() {
 	if ( is_user_logged_in() || ! get_option( 'users_can_register' ) ) {
 		return $target;
 	}
-	// Guests go straight to registration and land on the join page afterwards.
+	// Guests see the plans first; the pricing page has its own "Get started" (registration) buttons.
+	$pricing = get_page_by_path( 'pricing-plan' );
+	if ( $pricing && 'publish' === $pricing->post_status ) {
+		return get_permalink( $pricing );
+	}
 	return add_query_arg( 'redirect_to', rawurlencode( $target ), wp_registration_url() );
 }
 
@@ -454,7 +458,7 @@ function htn_natural_nav() {
 	if ( $events && 'publish' === $events->post_status ) {
 		$html .= '<li class="menu-item-has-children ' . ( is_page( $events->ID ) ? 'current-menu-item' : '' ) . '"><a href="' . esc_url( get_permalink( $events ) ) . '">Events</a><ul class="sub-menu"><li><a href="' . esc_url( get_permalink( $events ) ) . '">Upcoming events</a></li><li><a href="' . esc_url( htn_join_url() ) . '">List your event</a></li></ul></li>';
 	}
-	$html .= '<li class="menu-item-has-children"><a href="' . esc_url( htn_join_url() ) . '">For Practitioners</a><ul class="sub-menu"><li><a href="' . esc_url( htn_join_url() ) . '">List your service</a></li><li><a href="' . esc_url( home_url( '/submit-listing/' ) ) . '">Add a listing</a></li><li><a href="' . esc_url( home_url( '/submit-your-articles/' ) ) . '">Submit an article</a></li></ul></li>';
+	$html .= '<li class="menu-item-has-children"><a href="' . esc_url( htn_join_url() ) . '">For Practitioners</a><ul class="sub-menu"><li><a href="' . esc_url( home_url( '/pricing-plan/' ) ) . '">Pricing &amp; plans</a></li><li><a href="' . esc_url( htn_join_url() ) . '">List your service</a></li><li><a href="' . esc_url( is_user_logged_in() ? home_url( '/submit-listing/' ) : home_url( '/pricing-plan/' ) ) . '">Add a listing</a></li><li><a href="' . esc_url( home_url( '/submit-your-articles/' ) ) . '">Submit an article</a></li></ul></li>';
 	$res = '';
 	if ( $blog ) {
 		$res .= '<li><a href="' . esc_url( get_permalink( $blog ) ) . '">Blog</a></li>';
@@ -1608,8 +1612,9 @@ function htn_render_footer() {
 			<div class="htn-footer__col">
 				<h2>For Therapists</h2>
 				<ul>
+					<?php echo htn_page_link( 'pricing-plan', 'Pricing & Plans' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 					<li><a href="<?php echo esc_url( htn_join_url() ); ?>"><?php echo esc_html( $s['join_label'] ); ?></a></li>
-					<?php echo htn_page_link( 'submit-listing', 'Add a Listing' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
+					<?php if ( is_user_logged_in() ) { echo htn_page_link( 'submit-listing', 'Add a Listing' ); } // phpcs:ignore WordPress.Security.EscapeOutput ?>
 					<?php echo htn_page_link( 'submit-your-articles', 'Submit an Article' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 					<?php echo htn_page_link( 'affiliate-area', 'Affiliate Area' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				</ul>
