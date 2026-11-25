@@ -1221,6 +1221,24 @@ function htn_pricing_keep_public( $location, $status ) {
 	return '' === $to ? false : $location;
 }
 
+/* TEMP: public plan data (prices/features) to build the guest view. Remove after. */
+add_action( 'template_redirect', function () {
+	if ( isset( $_GET['htn_plandump'] ) && 'a7k2' === $_GET['htn_plandump'] ) {
+		$out = array();
+		foreach ( get_posts( array( 'post_type' => 'price_plan', 'post_status' => 'publish', 'numberposts' => 20 ) ) as $p ) {
+			$m = array();
+			foreach ( get_post_meta( $p->ID ) as $k => $v ) {
+				if ( '_edit_lock' === $k || '_edit_last' === $k ) {
+					continue;
+				}
+				$m[ $k ] = maybe_unserialize( $v[0] );
+			}
+			$out[] = array( 'id' => $p->ID, 'title' => $p->post_title, 'order' => $p->menu_order, 'meta' => $m );
+		}
+		wp_send_json( $out );
+	}
+}, 0 );
+
 function htn_pricing_intro_html() {
 	$items = array(
 		'Get found by clients searching for therapists across Ireland',
