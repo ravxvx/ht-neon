@@ -563,3 +563,23 @@ body.htn-natural .htn-post-find__links a:hover{background:#f1e3bd}
 .htn-more-on a{color:#2f5f2c;font-weight:600;text-decoration:underline}
 .htn-post-lead-img{margin:0 0 28px}
 .htn-post-lead-img img{display:block;width:100%;height:auto;border-radius:18px}
+
+/* Share bar (blog posts, events, listings) */
+body.htn-natural .htn-share{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:26px 0 0;padding:18px 0 0;border-top:1px solid var(--ht-line,#e6e3d8)}
+body.htn-natural .htn-share__lbl{font-family:var(--htn-sans);font-size:13px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--htn-gold,#c99a3c)}
+body.htn-natural .htn-share__btns{display:flex;flex-wrap:wrap;gap:8px}
+body.htn-natural .htn-share a,body.htn-natural .htn-share button{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;padding:0;border-radius:50%;border:1px solid var(--htn-line-strong,#d9d5c7);background:#fff;color:var(--htn-green,#2f5f2c);cursor:pointer;text-decoration:none !important;transition:transform .15s,background .15s,border-color .15s,color .15s}
+body.htn-natural .htn-share svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+body.htn-natural .htn-share svg.f{fill:currentColor;stroke:none}
+body.htn-natural .htn-share a:hover,body.htn-natural .htn-share button:hover{transform:translateY(-2px);color:#fff}
+body.htn-natural .htn-share__li:hover{background:#0a66c2 !important;border-color:#0a66c2 !important}
+body.htn-natural .htn-share__fb:hover{background:#1877f2 !important;border-color:#1877f2 !important}
+body.htn-natural .htn-share__xx:hover{background:#111 !important;border-color:#111 !important}
+body.htn-natural .htn-share__wa:hover{background:#25d366 !important;border-color:#25d366 !important}
+body.htn-natural .htn-share__em:hover,body.htn-natural .htn-share__cp:hover{background:var(--htn-green-2,#3f7a3a) !important;border-color:var(--htn-green-2,#3f7a3a) !important}
+body.htn-natural .htn-share__msg{font-size:14px;color:var(--htn-green,#2f5f2c)}
+body.htn-natural .htn-share--top{margin:18px 0 0;padding:0;border-top:0}
+body.htn-natural .htn-share--compact{margin:18px 0 0;padding:16px 0 0;gap:8px 10px}
+body.htn-natural .htn-share--compact a,body.htn-natural .htn-share--compact button{width:38px;height:38px}
+body.htn-natural .htn-share--listing{margin:0 0 30px;padding:18px 22px;border:1px solid var(--htn-line-strong,#d9d5c7);border-radius:18px;background:#fff}
+@media (max-width:520px){body.htn-natural .htn-share a,body.htn-natural .htn-share button{width:40px;height:40px}}

@@ -51,12 +51,7 @@ get_header();
 			<div class="htn-evs-content">
 				<?php the_content(); ?>
 			</div>
-			<div class="htn-evs-share">
-				<span>Share</span>
-				<a href="<?php echo esc_url( 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode( $htn_ev['url'] ) ); ?>" target="_blank" rel="noopener">Facebook</a>
-				<a href="<?php echo esc_url( 'https://wa.me/?text=' . rawurlencode( $htn_ev['title'] . ' ' . $htn_ev['url'] ) ); ?>" target="_blank" rel="noopener">WhatsApp</a>
-				<a href="<?php echo esc_url( 'mailto:?subject=' . rawurlencode( $htn_ev['title'] ) . '&body=' . rawurlencode( $htn_ev['url'] ) ); ?>">Email</a>
-			</div>
+			<?php echo htn_share_bar( $htn_ev['url'], $htn_ev['title'], 'Share this event' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 		</article>
 
 		<aside class="htn-evs-side">
@@ -81,6 +76,7 @@ get_header();
 						<a class="htn-nbtn <?php echo $htn_ev['ticket'] ? 'htn-nbtn--ghost' : ''; ?>" href="<?php echo esc_url( $htn_ev['gcal'] ); ?>" target="_blank" rel="noopener nofollow"><?php echo htn_icon( 'calendar' ); // phpcs:ignore WordPress.Security.EscapeOutput ?> Add to calendar</a>
 					<?php endif; ?>
 				</div>
+				<?php echo htn_share_bar( $htn_ev['url'], $htn_ev['title'], 'Share', 'htn-share--compact' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 				<p class="htn-evs-note">Run by an independent organiser. Please check the details with them before you go.</p>
 			</div>
 			<?php if ( $htn_ev['map'] ) : ?>

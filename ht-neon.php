@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.13.2
+ * Version: 3.14.0
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.13.2' );
+define( 'HTN_VERSION', '3.14.0' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -587,6 +587,18 @@ function htn_inject_header( $html ) {
 		$logo_html = '<div class="lp-listing-title htn-listing-logo"><div class="lp-listing-logo"><img src="' . esc_url( $GLOBALS['htn_listing_logo'] ) . '" alt=""></div></div>';
 		$html      = preg_replace( '/(<div class="post-meta-left-box[^"]*">)(.*?)(<h1)/s', '$1$2' . str_replace( '$', '\$', $logo_html ) . '$3', $html, 1 );
 	}
+	// Listings: a visible share bar under the description (ListingPro keeps its share menu in a small dropdown).
+	if ( is_singular( 'listing' ) && false === strpos( $html, 'htn-share--listing' ) ) {
+		$anchor = strpos( $html, '<div id="submitreview"' );
+		if ( false === $anchor ) {
+			$anchor = strpos( $html, '<div class="review-form"' );
+		}
+		if ( false !== $anchor ) {
+			$lid  = get_queried_object_id();
+			$html = substr_replace( $html, htn_share_bar( get_permalink( $lid ), get_the_title( $lid ), 'Share this practitioner', 'htn-share--listing' ), $anchor, 0 );
+		}
+	}
+
 	// Footer social icons with no address (href="#"): Instagram, YouTube/Twitter, Tumblr.
 	if ( false !== strpos( $html, 'icons8-' ) ) {
 		$clean = preg_replace( '#<li>\s*<a href="\#"[^>]*>\s*<img class="icon icons8-[a-z0-9_-]+"[^>]*>\s*</a>\s*</li>#i', '', $html );
@@ -1925,4 +1937,44 @@ function htn_post_content_seo( $html ) {
 		$html .= '<section class="htn-more-on"><h2>More on ' . esc_html( $kw_uc ) . '</h2><p>' . $p . '</p></section>';
 	}
 	return $html;
+}
+
+/*
+ * One share bar for blog posts, events and listings: LinkedIn, Facebook, X, WhatsApp, Email, Copy link.
+ * Icons from WP Share Bar (ravxvx/wp-share-bar, GPL); colours from the Natural look. No tracking, no external scripts.
+ */
+function htn_share_icon( $name ) {
+	$i = array(
+		'linkedin' => '<svg class="f" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="9" width="4" height="12"/><circle cx="5" cy="5" r="2.2"/><path d="M10 9h3.8v1.8c.7-1.3 2.1-2.1 3.9-2.1 3.4 0 4.3 2.2 4.3 5.3V21h-4v-6c0-1.4-.4-2.4-1.8-2.4-1.5 0-2.2 1-2.2 2.5V21h-4z"/></svg>',
+		'facebook' => '<svg class="f" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8V6.5c0-.8.3-1.2 1.3-1.2H17V2h-2.7C11.5 2 10 3.7 10 6.2V8H7.5v3.3H10V22h4V11.3h2.7L17 8z"/></svg>',
+		'x'        => '<svg class="f" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.8 3h3.1l-6.8 7.8L22 21h-6.3l-4.9-6.4L5.2 21H2.1l7.3-8.3L1.8 3h6.4l4.4 5.9zM16.7 19.2h1.7L7.2 4.7H5.4z"/></svg>',
+		'whatsapp' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2-5.4A8.5 8.5 0 1 1 21 11.5z"/><path d="M9 9c0 3 3 6 6 6l1.2-1.5-2-1-1 .7c-.8-.4-1.5-1.1-1.9-1.9l.7-1-1-2z"/></svg>',
+		'email'    => '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>',
+		'link'     => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
+	);
+	return isset( $i[ $name ] ) ? $i[ $name ] : '';
+}
+
+function htn_share_bar( $url, $title, $label = 'Share', $extra_class = '' ) {
+	$u     = rawurlencode( $url );
+	$t     = rawurlencode( html_entity_decode( wp_strip_all_tags( $title ), ENT_QUOTES, 'UTF-8' ) );
+	$links = array(
+		array( 'li', 'LinkedIn', 'https://www.linkedin.com/sharing/share-offsite/?url=' . $u, 'linkedin', true ),
+		array( 'fb', 'Facebook', 'https://www.facebook.com/sharer/sharer.php?u=' . $u, 'facebook', true ),
+		array( 'xx', 'X', 'https://x.com/intent/post?url=' . $u . '&text=' . $t, 'x', true ),
+		array( 'wa', 'WhatsApp', 'https://wa.me/?text=' . $t . '%20' . $u, 'whatsapp', true ),
+		array( 'em', 'Email', 'mailto:?subject=' . $t . '&body=' . $u, 'email', false ),
+	);
+	$out = '<div class="htn-share ' . esc_attr( $extra_class ) . '" data-ss-share><span class="htn-share__lbl">' . esc_html( $label ) . '</span><div class="htn-share__btns">';
+	foreach ( $links as $l ) {
+		$out .= '<a class="htn-share__' . $l[0] . '" href="' . esc_url( $l[2] ) . '"' . ( $l[4] ? ' target="_blank" rel="noopener noreferrer"' : '' ) . ' aria-label="Share on ' . esc_attr( $l[1] ) . '" title="' . esc_attr( $l[1] ) . '">' . htn_share_icon( $l[3] ) . '</a>';
+	}
+	$out .= '<button class="htn-share__cp" type="button" data-htn-copy="' . esc_url( $url ) . '" aria-label="Copy link" title="Copy link">' . htn_share_icon( 'link' ) . '</button>';
+	$out .= '</div><span class="htn-share__msg" aria-live="polite"></span></div>';
+	static $js = false;
+	if ( ! $js ) {
+		$js   = true;
+		$out .= '<script>(function(){document.addEventListener("click",function(e){var b=e.target.closest("[data-htn-copy]");if(!b)return;var u=b.getAttribute("data-htn-copy"),m=b.closest(".htn-share").querySelector(".htn-share__msg");var ok=function(){if(m){m.textContent="Link copied";setTimeout(function(){m.textContent=""},2200);}};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(u).then(ok,function(){window.prompt("Copy this link",u);});}else{window.prompt("Copy this link",u);}});})();</script>';
+	}
+	return $out;
 }

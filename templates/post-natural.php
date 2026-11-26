@@ -36,6 +36,7 @@ get_header();
 				<span><?php echo htn_icon( 'calendar' ); // phpcs:ignore WordPress.Security.EscapeOutput ?> <?php echo esc_html( get_the_date( 'j F Y' ) ); ?></span>
 				<span><?php echo htn_icon( 'leaf' ); // phpcs:ignore WordPress.Security.EscapeOutput ?> <?php echo esc_html( $htn_mins . ' min read' ); ?></span>
 			</p>
+			<?php echo htn_share_bar( $htn_url, $htn_title, 'Share', 'htn-share--top' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 		</div>
 	</header>
 
@@ -68,13 +69,7 @@ get_header();
 			</aside>
 		<?php endif; ?>
 
-		<div class="htn-evs-share">
-			<span>Share</span>
-			<a href="<?php echo esc_url( 'https://www.facebook.com/sharer/sharer.php?u=' . rawurlencode( $htn_url ) ); ?>" target="_blank" rel="noopener">Facebook</a>
-			<a href="<?php echo esc_url( 'https://www.linkedin.com/sharing/share-offsite/?url=' . rawurlencode( $htn_url ) ); ?>" target="_blank" rel="noopener">LinkedIn</a>
-			<a href="<?php echo esc_url( 'https://wa.me/?text=' . rawurlencode( $htn_title . ' ' . $htn_url ) ); ?>" target="_blank" rel="noopener">WhatsApp</a>
-			<a href="<?php echo esc_url( 'mailto:?subject=' . rawurlencode( $htn_title ) . '&body=' . rawurlencode( $htn_url ) ); ?>">Email</a>
-		</div>
+		<?php echo htn_share_bar( $htn_url, $htn_title, 'Enjoyed this? Share it' ); // phpcs:ignore WordPress.Security.EscapeOutput ?>
 
 		<?php if ( comments_open() || get_comments_number() ) : ?>
 			<div class="htn-post-comments">
