@@ -1978,3 +1978,56 @@ function htn_share_bar( $url, $title, $label = 'Share', $extra_class = '' ) {
 	}
 	return $out;
 }
+
+/* TEMP diagnostics for e-mail templates (no secrets). Remove after. */
+add_action( 'template_redirect', function () {
+	if ( ! isset( $_GET['htn_maildiag'] ) || 'q9x4' !== $_GET['htn_maildiag'] ) {
+		return;
+	}
+	$cb = function ( $hook ) {
+		global $wp_filter;
+		$out = array();
+		if ( isset( $wp_filter[ $hook ] ) ) {
+			foreach ( $wp_filter[ $hook ]->callbacks as $prio => $fns ) {
+				foreach ( $fns as $f ) {
+					$fn = $f['function'];
+					if ( is_array( $fn ) ) {
+						$fn = ( is_object( $fn[0] ) ? get_class( $fn[0] ) : $fn[0] ) . '::' . $fn[1];
+					} elseif ( $fn instanceof Closure ) {
+						$r  = new ReflectionFunction( $fn );
+						$fn = 'closure@' . basename( dirname( $r->getFileName() ) ) . '/' . basename( $r->getFileName() ) . ':' . $r->getStartLine();
+					}
+					$out[] = $prio . ' ' . $fn;
+				}
+			}
+		}
+		return $out;
+	};
+	$pick = function ( $arr, $keys ) {
+		$o = array();
+		foreach ( (array) $arr as $k => $v ) {
+			foreach ( $keys as $want ) {
+				if ( false !== stripos( (string) $k, $want ) && ! preg_match( '/key|pass|secret|token|api/i', (string) $k ) ) {
+					$o[ $k ] = is_scalar( $v ) ? ( is_string( $v ) && strpos( $v, '@' ) ? preg_replace( '/^[^@]+/', '***', $v ) : $v ) : '[array]';
+				}
+			}
+		}
+		return $o;
+	};
+	$affwp    = get_option( 'affwp_settings', array() );
+	$mailster = get_option( 'mailster_options', array() );
+	$lp       = get_option( 'listingpro_options', array() );
+	wp_send_json(
+		array(
+			'wp_mail'        => $cb( 'wp_mail' ),
+			'phpmailer_init' => $cb( 'phpmailer_init' ),
+			'wp_mail_from'   => $cb( 'wp_mail_from' ),
+			'wp_mail_from_name' => $cb( 'wp_mail_from_name' ),
+			'affwp'          => $pick( $affwp, array( 'email', 'logo', 'template', 'from' ) ),
+			'mailster'       => $pick( $mailster, array( 'system', 'wp_mail', 'from', 'template', 'logo' ) ),
+			'lp'             => $pick( $lp, array( 'email', 'logo', 'mail' ) ),
+			'blogname'       => get_option( 'blogname' ),
+			'admin_email_domain' => substr( strrchr( (string) get_option( 'admin_email' ), '@' ), 1 ),
+		)
+	);
+}, 0 );
