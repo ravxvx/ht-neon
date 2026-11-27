@@ -583,3 +583,4 @@ body.htn-natural .htn-share--compact{margin:18px 0 0;padding:16px 0 0;gap:8px 10
 body.htn-natural .htn-share--compact a,body.htn-natural .htn-share--compact button{width:38px;height:38px}
 body.htn-natural .htn-share--listing{margin:0 0 30px;padding:18px 22px;border:1px solid var(--htn-line-strong,#d9d5c7);border-radius:18px;background:#fff}
 @media (max-width:520px){body.htn-natural .htn-share a,body.htn-natural .htn-share button{width:40px;height:40px}}
+body.htn-natural .htn-credit a{font-weight:700;text-decoration:underline;text-underline-offset:3px}
