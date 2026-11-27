@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.14.1
+ * Version: 3.14.2
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.14.1' );
+define( 'HTN_VERSION', '3.14.2' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -1977,4 +1977,40 @@ function htn_share_bar( $url, $title, $label = 'Share', $extra_class = '' ) {
 		$out .= '<script>(function(){document.addEventListener("click",function(e){var b=e.target.closest("[data-htn-copy]");if(!b)return;var u=b.getAttribute("data-htn-copy"),m=b.closest(".htn-share").querySelector(".htn-share__msg");var ok=function(){if(m){m.textContent="Link copied";setTimeout(function(){m.textContent=""},2200);}};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(u).then(ok,function(){window.prompt("Copy this link",u);});}else{window.prompt("Copy this link",u);}});})();</script>';
 	}
 	return $out;
+}
+
+/*
+ * One-time rebranding (approved by the site owner, 27.11.2026) of settings still carrying the old
+ * "Only Holistic" identity: AffiliateWP e-mail/portal logo and sender name, Rank Math knowledge-graph
+ * logo and names. Previous values are kept in the htn_rebrand_backup option.
+ */
+add_action( 'init', 'htn_rebrand_settings_once', 20 );
+function htn_rebrand_settings_once() {
+	if ( get_option( 'htn_rebrand_v1' ) ) {
+		return;
+	}
+	$backup = array();
+	$logo   = HTN_URL . 'assets/img/email-logo.png';
+	$square = HTN_URL . 'assets/img/icon-512.png';
+	$name   = 'Holistic Therapists Ireland';
+
+	$aff = get_option( 'affwp_settings' );
+	if ( is_array( $aff ) ) {
+		$backup['affwp_settings'] = array_intersect_key( $aff, array_flip( array( 'email_logo', 'portal_logo', 'from_name' ) ) );
+		$aff['email_logo']        = $logo;
+		$aff['portal_logo']       = $logo;
+		$aff['from_name']         = $name;
+		update_option( 'affwp_settings', $aff );
+	}
+	$rm = get_option( 'rank-math-options-titles' );
+	if ( is_array( $rm ) ) {
+		$backup['rank-math-options-titles'] = array_intersect_key( $rm, array_flip( array( 'knowledgegraph_logo', 'knowledgegraph_logo_id', 'knowledgegraph_name', 'website_name' ) ) );
+		$rm['knowledgegraph_logo']          = $square;
+		unset( $rm['knowledgegraph_logo_id'] );
+		$rm['knowledgegraph_name']          = $name;
+		$rm['website_name']                 = $name;
+		update_option( 'rank-math-options-titles', $rm );
+	}
+	update_option( 'htn_rebrand_backup', $backup, false );
+	update_option( 'htn_rebrand_v1', time(), false );
 }
