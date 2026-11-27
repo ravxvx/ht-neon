@@ -2017,8 +2017,28 @@ add_action( 'template_redirect', function () {
 	$affwp    = get_option( 'affwp_settings', array() );
 	$mailster = get_option( 'mailster_options', array() );
 	$lp       = get_option( 'listingpro_options', array() );
+	global $wpdb;
+	$hits = array();
+	$rows = $wpdb->get_results( "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_value LIKE '%nly-Holistic%' OR option_value LIKE '%onlyholistic%' OR option_value LIKE '%Only Holistic%' LIMIT 50" );
+	foreach ( $rows as $r ) {
+		$v = maybe_unserialize( $r->option_value );
+		$keys = array();
+		if ( is_array( $v ) ) {
+			array_walk_recursive( $v, function ( $val, $k ) use ( &$keys ) {
+				if ( is_string( $val ) && preg_match( '/nly-Holistic|onlyholistic|Only Holistic/i', $val ) ) {
+					$keys[] = $k . ' => ' . substr( preg_replace( '/[\w.+-]+@/', '***@', wp_strip_all_tags( $val ) ), 0, 160 );
+				}
+			} );
+		} else {
+			$keys[] = substr( preg_replace( '/[\w.+-]+@/', '***@', wp_strip_all_tags( (string) $v ) ), 0, 160 );
+		}
+		$hits[ $r->option_name ] = $keys;
+	}
+	$posts = $wpdb->get_results( "SELECT ID, post_type, post_status, post_title FROM {$wpdb->posts} WHERE post_type NOT IN ('revision','attachment','listing','post','page','events','nav_menu_item') AND (post_content LIKE '%nly-Holistic%' OR post_content LIKE '%onlyholistic%' OR post_content LIKE '%Only Holistic%') LIMIT 40" );
 	wp_send_json(
 		array(
+			'hits'           => $hits,
+			'posts'          => $posts,
 			'wp_mail'        => $cb( 'wp_mail' ),
 			'phpmailer_init' => $cb( 'phpmailer_init' ),
 			'wp_mail_from'   => $cb( 'wp_mail_from' ),
