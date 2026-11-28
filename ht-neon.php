@@ -2015,3 +2015,29 @@ function htn_rebrand_settings_once() {
 	update_option( 'htn_rebrand_backup', $backup, false );
 	update_option( 'htn_rebrand_v1', time(), false );
 }
+
+/* TEMP: find ListingPro e-mail template source (code only). Remove after. */
+add_action( 'template_redirect', function () {
+	if ( ! isset( $_GET['htn_lpmail'] ) || 'z7m3' !== $_GET['htn_lpmail'] ) {
+		return;
+	}
+	$dirs = array( get_template_directory(), WP_PLUGIN_DIR . '/listingpro-plugin' );
+	$out  = array();
+	foreach ( $dirs as $d ) {
+		$it = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $d, FilesystemIterator::SKIP_DOTS ) );
+		foreach ( $it as $f ) {
+			if ( 'php' !== $f->getExtension() ) {
+				continue;
+			}
+			$src = file_get_contents( $f->getPathname() );
+			foreach ( array( 'Details are Following', 'lp_email_header', 'listingpro_email_template', 'email_logo', 'mail_logo', 'function lp_mail_headers', 'function listingpro_mail' ) as $needle ) {
+				$pos = stripos( $src, $needle );
+				while ( false !== $pos && count( $out ) < 60 ) {
+					$out[] = array( str_replace( ABSPATH, '', $f->getPathname() ), $needle, substr( $src, max( 0, $pos - 700 ), 1600 ) );
+					$pos   = stripos( $src, $needle, $pos + 1600 );
+				}
+			}
+		}
+	}
+	wp_send_json( $out );
+}, 0 );
