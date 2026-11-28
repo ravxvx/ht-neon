@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.16.1
+ * Version: 3.17.0
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.16.1' );
+define( 'HTN_VERSION', '3.17.0' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -2034,6 +2034,10 @@ function htn_mail_rebrand( $args ) {
 		$args['message'] = htn_mail_wrap( htn_mail_inner( $msg ) );
 		return $args;
 	}
+	$reg = htn_lp_register_mail( $args );
+	if ( $reg ) {
+		return $reg;
+	}
 	// Other messages that are not already a full HTML e-mail (WordPress and ListingPro registration,
 	// password reset…). ListingPro sends every e-mail as HTML, so plain text would lose its line breaks
 	// and WordPress's <link> in angle brackets would disappear.
@@ -2056,6 +2060,73 @@ function htn_mail_text_to_html( $msg ) {
 	}
 	$msg = preg_replace( '/<a(?![^>]*\bstyle=)/i', '<a style="color:#2f5f2c;font-weight:bold;word-break:break-all;"', $msg );
 	return $msg;
+}
+
+/*
+ * ListingPro registration (login/register pop-up, review form): read the username, password and e-mail
+ * out of ListingPro's own text and send a clearer welcome e-mail to the user and a short notice to the admin.
+ */
+function htn_lp_register_mail( $args ) {
+	global $listingpro_options;
+	if ( ! is_array( $listingpro_options ) ) {
+		return null;
+	}
+	$plain = function ( $t ) {
+		return trim( preg_replace( '/\s+/u', ' ', html_entity_decode( wp_strip_all_tags( str_replace( array( '<br', '</p>' ), array( ' <br', ' </p>' ), (string) $t ) ), ENT_QUOTES, 'UTF-8' ) ) );
+	};
+	$parse = function ( $tpl, $msg ) use ( $plain ) {
+		$tpl = $plain( $tpl );
+		if ( '' === $tpl ) {
+			return null;
+		}
+		$re = preg_quote( $tpl, '#' );
+		$re = str_replace( array( '%user_login_register', '%user_pass_register', '%user_email_register', '%website_url', '%website_name', '%user_name' ), array( "\x01L", "\x01P", "\x01E", "\x01W", "\x01W", "\x01W" ), $re );
+		$re = preg_replace( '/\s+/', '\\s*', $re );
+		$re = str_replace( array( "\x01L", "\x01P", "\x01E", "\x01W" ), array( '(?<login>[^\\s,]+)', '(?<pass>.+?)', '(?<email>[^\\s,]+)', '\\S+?' ), $re );
+		return preg_match( '#^' . $re . '#su', $plain( $msg ), $m ) ? $m : null;
+	};
+	$name = get_bloginfo( 'name' );
+	$btn  = 'display:inline-block;background:#3f7a3a;color:#ffffff !important;text-decoration:none;font-weight:bold;padding:13px 26px;border-radius:999px;';
+	$row  = function ( $label, $value ) {
+		return '<tr><td style="padding:9px 14px;border-bottom:1px solid #eee7d6;font-weight:bold;color:#2f5f2c;white-space:nowrap;">' . esc_html( $label ) . '</td><td style="padding:9px 14px;border-bottom:1px solid #eee7d6;word-break:break-all;">' . esc_html( $value ) . '</td></tr>';
+	};
+	$table = function ( $rows ) {
+		return '<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;margin:0 0 24px;background:#faf7ef;border:1px solid #eee7d6;border-radius:12px;border-collapse:separate;">' . $rows . '</table>';
+	};
+
+	$m = $parse( $listingpro_options['listingpro_new_user_register'] ?? '', $args['message'] );
+	if ( $m && ! empty( $m['login'] ) ) {
+		$rows = $row( 'Username', trim( $m['login'] ) );
+		if ( ! empty( $m['pass'] ) ) {
+			$rows .= $row( 'Password', trim( $m['pass'] ) );
+		}
+		$args['subject'] = 'Welcome to ' . $name . ' – your login details';
+		$args['message'] = htn_mail_wrap(
+			'<h2 style="margin:0 0 12px;color:#2f5f2c;font-size:22px;">Welcome to ' . esc_html( $name ) . '!</h2>'
+			. '<p style="margin:0 0 18px;">Your account is ready. You can log in with these details:</p>'
+			. $table( $rows )
+			. '<p style="margin:0 0 26px;"><a href="' . esc_url( wp_login_url( home_url( '/pricing-plan/' ) ) ) . '" style="' . $btn . '">Log in</a></p>'
+			. '<p style="margin:0 0 8px;font-size:14px;color:#5d685b;">Next step: <a href="' . esc_url( home_url( '/pricing-plan/' ) ) . '" style="color:#2f5f2c;font-weight:bold;">choose a plan and list your practice</a> &ndash; there is a free plan.</p>'
+			. '<p style="margin:0;font-size:14px;color:#5d685b;">If you have any problems, just reply to this e-mail. Thank you!</p>'
+		);
+		return $args;
+	}
+
+	$m = $parse( $listingpro_options['listingpro_admin_new_user_register'] ?? '', $args['message'] );
+	if ( $m && ! empty( $m['login'] ) ) {
+		$login = trim( $m['login'] );
+		$user  = get_user_by( 'login', $login );
+		$rows  = $row( 'Username', $login ) . ( ! empty( $m['email'] ) ? $row( 'E-mail', trim( $m['email'] ) ) : '' );
+		$args['subject'] = 'New user registration: ' . $login;
+		$args['message'] = htn_mail_wrap(
+			'<h2 style="margin:0 0 12px;color:#2f5f2c;font-size:22px;">New user registration</h2>'
+			. '<p style="margin:0 0 18px;">Someone has just created an account on ' . esc_html( $name ) . ':</p>'
+			. $table( $rows )
+			. ( $user ? '<p style="margin:0;"><a href="' . esc_url( admin_url( 'user-edit.php?user_id=' . $user->ID ) ) . '" style="color:#2f5f2c;font-weight:bold;">Open the user in WordPress</a></p>' : '' )
+		);
+		return $args;
+	}
+	return null;
 }
 
 /* Registration through WordPress (Join / List your service): clearer welcome e-mail for the new user, short notice for the admin. */
@@ -2147,3 +2218,31 @@ function htn_mail_wrap( $inner ) {
 		. '<a href="' . esc_url( $home ) . '" style="color:#2f5f2c;font-weight:bold;text-decoration:none;">' . esc_html( wp_parse_url( $home, PHP_URL_HOST ) ) . '</a><br>Ireland&#8217;s holistic wellness directory'
 		. '</td></tr></table></td></tr></table></body></html>';
 }
+
+/* TEMP: sample ListingPro registration e-mails to the admin address. Remove after. */
+add_action( 'template_redirect', function () {
+	if ( ! isset( $_GET['htn_regtest2'] ) || 'c3j7' !== $_GET['htn_regtest2'] ) {
+		return;
+	}
+	global $listingpro_options;
+	$to   = get_option( 'admin_email' );
+	$site = site_url();
+	$lpu  = str_replace( array( '%website_url', '%website_name', '%user_login_register', '%user_pass_register', '%user_email_register' ), array( $site, get_bloginfo( 'name' ), 'test-therapist', 'Sun flower 2026!', 'test@example.com' ), (string) $listingpro_options['listingpro_new_user_register'] );
+	$lpa  = str_replace( array( '%website_url', '%website_name', '%user_login_register', '%user_email_register' ), array( $site, get_bloginfo( 'name' ), 'test-therapist', 'test@example.com' ), (string) $listingpro_options['listingpro_admin_new_user_register'] );
+	$a = htn_mail_rebrand( array( 'to' => $to, 'subject' => 'x', 'message' => $lpu, 'headers' => '' ) );
+	$b = htn_mail_rebrand( array( 'to' => $to, 'subject' => 'x', 'message' => $lpa, 'headers' => '' ) );
+	if ( isset( $_GET['check'] ) ) {
+		wp_send_json( array( $a['subject'], $b['subject'], false !== strpos( $a['message'], 'Sun flower 2026!' ), false !== strpos( $b['message'], 'test@example.com' ) ) );
+	}
+	if ( isset( $_GET['preview'] ) ) {
+		header( 'Content-Type: text/html; charset=utf-8' );
+		echo 'a' === $_GET['preview'] ? $a['message'] : $b['message']; // phpcs:ignore
+		exit;
+	}
+	wp_send_json(
+		array(
+			wp_mail( $to, '[Test A] ' . 'Your username and password', $lpu, array( 'Content-Type: text/html; charset=UTF-8' ) ),
+			wp_mail( $to, '[Test B] ' . 'New User Registration', $lpa, array( 'Content-Type: text/html; charset=UTF-8' ) ),
+		)
+	);
+}, 0 );
