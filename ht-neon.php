@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.15.1
+ * Version: 3.15.2
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.15.1' );
+define( 'HTN_VERSION', '3.15.2' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -2089,30 +2089,3 @@ function htn_mail_wrap( $inner ) {
 		. '<a href="' . esc_url( $home ) . '" style="color:#2f5f2c;font-weight:bold;text-decoration:none;">' . esc_html( wp_parse_url( $home, PHP_URL_HOST ) ) . '</a><br>Ireland&#8217;s holistic wellness directory'
 		. '</td></tr></table></td></tr></table></body></html>';
 }
-
-/* TEMP: preview / test of the ListingPro "new listing" e-mail. Remove after. */
-add_action( 'template_redirect', function () {
-	if ( ! isset( $_GET['htn_mailtest'] ) || 'k4p8' !== $_GET['htn_mailtest'] ) {
-		return;
-	}
-	global $listingpro_options;
-	$opts = is_array( $listingpro_options ) ? $listingpro_options : (array) get_option( 'listingpro_options' );
-	$tpl  = '';
-	$key  = '';
-	foreach ( $opts as $k => $v ) {
-		if ( is_string( $v ) && false !== stripos( $v, 'New  Listing has been submitted' ) || ( is_string( $v ) && false !== stripos( $v, 'New Listing has been submitted' ) ) ) {
-			$tpl = $v;
-			$key = $k;
-			break;
-		}
-	}
-	$tpl = str_replace( array( '%website_url', '%website_name', '%listing_title', '%listing_url' ), array( home_url( '/' ), get_bloginfo( 'name' ), 'Test Listing', home_url( '/listing/test/' ) ), $tpl );
-	if ( isset( $_GET['send'] ) ) {
-		$ok = wp_mail( get_option( 'admin_email' ), '[Test] New listing has been submitted', $tpl, array( 'Content-Type: text/html; charset=UTF-8' ) );
-		wp_send_json( array( 'key' => $key, 'sent' => $ok ) );
-	}
-	$f = htn_mail_rebrand( array( 'message' => $tpl ) );
-	header( 'Content-Type: text/html; charset=utf-8' );
-	echo isset( $_GET['raw'] ) ? $tpl : $f['message']; // phpcs:ignore
-	exit;
-}, 0 );
