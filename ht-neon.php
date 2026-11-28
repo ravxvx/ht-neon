@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.14.3
+ * Version: 3.15.0
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.14.3' );
+define( 'HTN_VERSION', '3.15.0' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -2016,28 +2016,102 @@ function htn_rebrand_settings_once() {
 	update_option( 'htn_rebrand_v1', time(), false );
 }
 
-/* TEMP: find ListingPro e-mail template source (code only). Remove after. */
-add_action( 'template_redirect', function () {
-	if ( ! isset( $_GET['htn_lpmail'] ) || 'z7m3' !== $_GET['htn_lpmail'] ) {
-		return;
+/*
+ * ListingPro e-mails (new listing, approval, payment, leads, reviews…) are stored as HTML in the theme
+ * options, each with the old logo and a narrow 45% box. HT Neon keeps their text and puts it in the
+ * site's own e-mail layout: new logo, cream background, white card, green headings, footer.
+ */
+add_filter( 'wp_mail', 'htn_mail_rebrand', 20 );
+function htn_mail_rebrand( $args ) {
+	if ( empty( $args['message'] ) || ! is_string( $args['message'] ) || ! htn_is_active() ) {
+		return $args;
 	}
-	$dirs = array( get_template_directory(), WP_PLUGIN_DIR . '/listingpro-plugin' );
-	$out  = array();
-	foreach ( $dirs as $d ) {
-		$it = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $d, FilesystemIterator::SKIP_DOTS ) );
-		foreach ( $it as $f ) {
-			if ( 'php' !== $f->getExtension() ) {
-				continue;
-			}
-			$src = file_get_contents( $f->getPathname() );
-			foreach ( array( 'Details are Following', 'lp_email_header', 'listingpro_email_template', 'email_logo', 'mail_logo', 'function lp_mail_headers', 'function listingpro_mail' ) as $needle ) {
-				$pos = stripos( $src, $needle );
-				while ( false !== $pos && count( $out ) < 60 ) {
-					$out[] = array( str_replace( ABSPATH, '', $f->getPathname() ), $needle, substr( $src, max( 0, $pos - 700 ), 1600 ) );
-					$pos   = stripos( $src, $needle, $pos + 1600 );
+	$msg = $args['message'];
+	if ( false !== strpos( $msg, 'htn-mail' ) || ! preg_match( '/background:\s*#f0f1f3|width:\s*45%/i', $msg ) ) {
+		return $args;
+	}
+	$args['message'] = htn_mail_wrap( htn_mail_inner( $msg ) );
+	return $args;
+}
+
+/* The text of a ListingPro message: the white card if there is one, without the old logo. */
+function htn_mail_inner( $html ) {
+	$inner = '';
+	if ( class_exists( 'DOMDocument' ) ) {
+		$doc  = new DOMDocument();
+		$prev = libxml_use_internal_errors( true );
+		$doc->loadHTML( '<?xml encoding="utf-8"?><div id="htn-root">' . $html . '</div>' );
+		libxml_clear_errors();
+		libxml_use_internal_errors( $prev );
+		$xp = new DOMXPath( $doc );
+		foreach ( $xp->query( '//img' ) as $img ) {
+			// Logos and spacer images go; pictures inside the text stay.
+			$src = strtolower( $img->getAttribute( 'src' ) );
+			if ( false !== strpos( $src, 'logo' ) || 'image' === strtolower( $img->getAttribute( 'alt' ) ) ) {
+				$parent = $img->parentNode;
+				if ( $parent && 'a' === strtolower( $parent->nodeName ) && 1 === $parent->childNodes->length ) {
+					$parent->parentNode->removeChild( $parent );
+				} else {
+					$parent->removeChild( $img );
 				}
 			}
 		}
+		$cards = $xp->query( '//div[contains(translate(@style,"FEF ","fef"),"background:#fff")]' );
+		$node  = $cards->length ? $cards->item( 0 ) : $doc->getElementById( 'htn-root' );
+		foreach ( $node->childNodes as $c ) {
+			$inner .= $doc->saveHTML( $c );
+		}
 	}
-	wp_send_json( $out );
+	if ( '' === trim( wp_strip_all_tags( $inner ) ) ) {
+		$inner = preg_replace( '#<a[^>]*>\s*<img[^>]*>\s*</a>#i', '', $html, 1 );
+	}
+	// Theme colours instead of ListingPro blue; no fixed widths.
+	$inner = preg_replace( '/color:\s*#2a6ad4/i', 'color:#2f5f2c', $inner );
+	$inner = preg_replace( '/width:\s*45%;?/i', '', $inner );
+	return $inner;
+}
+
+function htn_mail_wrap( $inner ) {
+	$logo = HTN_URL . 'assets/img/email-logo.png';
+	$home = home_url( '/' );
+	$name = get_bloginfo( 'name' );
+	return '<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light only"><title>' . esc_html( $name ) . '</title></head>'
+		. '<body class="htn-mail" style="margin:0;padding:0;background:#f4efe3;">'
+		. '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4efe3;"><tr><td align="center" style="padding:28px 12px;">'
+		. '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;">'
+		. '<tr><td align="center" style="padding:6px 0 22px;"><a href="' . esc_url( $home ) . '" style="text-decoration:none;"><img src="' . esc_url( $logo ) . '" width="300" alt="' . esc_attr( $name ) . '" style="display:block;width:300px;max-width:80%;height:auto;border:0;"></a></td></tr>'
+		. '<tr><td style="background:#ffffff;border:1px solid #e6dfcc;border-radius:16px;padding:32px 30px;font-family:Helvetica,Arial,sans-serif;font-size:15px;line-height:1.6;color:#2b3a2a;">'
+		. '<div style="height:4px;width:56px;background:#c99a3c;border-radius:4px;margin:0 0 22px;"></div>'
+		. $inner
+		. '</td></tr>'
+		. '<tr><td align="center" style="padding:22px 10px 0;font-family:Helvetica,Arial,sans-serif;font-size:12px;line-height:1.6;color:#6b7566;">'
+		. '<a href="' . esc_url( $home ) . '" style="color:#2f5f2c;font-weight:bold;text-decoration:none;">' . esc_html( wp_parse_url( $home, PHP_URL_HOST ) ) . '</a><br>Ireland&#8217;s holistic wellness directory'
+		. '</td></tr></table></td></tr></table></body></html>';
+}
+
+/* TEMP: preview / test of the ListingPro "new listing" e-mail. Remove after. */
+add_action( 'template_redirect', function () {
+	if ( ! isset( $_GET['htn_mailtest'] ) || 'k4p8' !== $_GET['htn_mailtest'] ) {
+		return;
+	}
+	global $listingpro_options;
+	$opts = is_array( $listingpro_options ) ? $listingpro_options : (array) get_option( 'listingpro_options' );
+	$tpl  = '';
+	$key  = '';
+	foreach ( $opts as $k => $v ) {
+		if ( is_string( $v ) && false !== stripos( $v, 'New  Listing has been submitted' ) || ( is_string( $v ) && false !== stripos( $v, 'New Listing has been submitted' ) ) ) {
+			$tpl = $v;
+			$key = $k;
+			break;
+		}
+	}
+	$tpl = str_replace( array( '%website_url', '%website_name', '%listing_title', '%listing_url' ), array( home_url( '/' ), get_bloginfo( 'name' ), 'Test Listing', home_url( '/listing/test/' ) ), $tpl );
+	if ( isset( $_GET['send'] ) ) {
+		$ok = wp_mail( get_option( 'admin_email' ), '[Test] New listing has been submitted', $tpl, array( 'Content-Type: text/html; charset=UTF-8' ) );
+		wp_send_json( array( 'key' => $key, 'sent' => $ok ) );
+	}
+	$f = htn_mail_rebrand( array( 'message' => $tpl ) );
+	header( 'Content-Type: text/html; charset=utf-8' );
+	echo isset( $_GET['raw'] ) ? $tpl : $f['message']; // phpcs:ignore
+	exit;
 }, 0 );
