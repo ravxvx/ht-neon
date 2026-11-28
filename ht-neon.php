@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.17.0
+ * Version: 3.17.1
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.17.0' );
+define( 'HTN_VERSION', '3.17.1' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -2218,31 +2218,3 @@ function htn_mail_wrap( $inner ) {
 		. '<a href="' . esc_url( $home ) . '" style="color:#2f5f2c;font-weight:bold;text-decoration:none;">' . esc_html( wp_parse_url( $home, PHP_URL_HOST ) ) . '</a><br>Ireland&#8217;s holistic wellness directory'
 		. '</td></tr></table></td></tr></table></body></html>';
 }
-
-/* TEMP: sample ListingPro registration e-mails to the admin address. Remove after. */
-add_action( 'template_redirect', function () {
-	if ( ! isset( $_GET['htn_regtest2'] ) || 'c3j7' !== $_GET['htn_regtest2'] ) {
-		return;
-	}
-	global $listingpro_options;
-	$to   = get_option( 'admin_email' );
-	$site = site_url();
-	$lpu  = str_replace( array( '%website_url', '%website_name', '%user_login_register', '%user_pass_register', '%user_email_register' ), array( $site, get_bloginfo( 'name' ), 'test-therapist', 'Sun flower 2026!', 'test@example.com' ), (string) $listingpro_options['listingpro_new_user_register'] );
-	$lpa  = str_replace( array( '%website_url', '%website_name', '%user_login_register', '%user_email_register' ), array( $site, get_bloginfo( 'name' ), 'test-therapist', 'test@example.com' ), (string) $listingpro_options['listingpro_admin_new_user_register'] );
-	$a = htn_mail_rebrand( array( 'to' => $to, 'subject' => 'x', 'message' => $lpu, 'headers' => '' ) );
-	$b = htn_mail_rebrand( array( 'to' => $to, 'subject' => 'x', 'message' => $lpa, 'headers' => '' ) );
-	if ( isset( $_GET['check'] ) ) {
-		wp_send_json( array( $a['subject'], $b['subject'], false !== strpos( $a['message'], 'Sun flower 2026!' ), false !== strpos( $b['message'], 'test@example.com' ) ) );
-	}
-	if ( isset( $_GET['preview'] ) ) {
-		header( 'Content-Type: text/html; charset=utf-8' );
-		echo 'a' === $_GET['preview'] ? $a['message'] : $b['message']; // phpcs:ignore
-		exit;
-	}
-	wp_send_json(
-		array(
-			wp_mail( $to, '[Test A] ' . 'Your username and password', $lpu, array( 'Content-Type: text/html; charset=UTF-8' ) ),
-			wp_mail( $to, '[Test B] ' . 'New User Registration', $lpa, array( 'Content-Type: text/html; charset=UTF-8' ) ),
-		)
-	);
-}, 0 );
