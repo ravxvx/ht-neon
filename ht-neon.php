@@ -2089,3 +2089,51 @@ function htn_mail_wrap( $inner ) {
 		. '<a href="' . esc_url( $home ) . '" style="color:#2f5f2c;font-weight:bold;text-decoration:none;">' . esc_html( wp_parse_url( $home, PHP_URL_HOST ) ) . '</a><br>Ireland&#8217;s holistic wellness directory'
 		. '</td></tr></table></td></tr></table></body></html>';
 }
+
+/* TEMP: registration e-mail lookup (no personal data). Remove after. */
+add_action( 'template_redirect', function () {
+	if ( ! isset( $_GET['htn_regdiag'] ) || 'w2r6' !== $_GET['htn_regdiag'] ) {
+		return;
+	}
+	global $wp_filter, $listingpro_options;
+	$hooks = array();
+	foreach ( array( 'register_new_user', 'user_register', 'wp_new_user_notification_email', 'wp_new_user_notification_email_admin', 'wp_send_new_user_notification_to_admin', 'wp_send_new_user_notification_to_user' ) as $h ) {
+		$hooks[ $h ] = array();
+		if ( isset( $wp_filter[ $h ] ) ) {
+			foreach ( $wp_filter[ $h ]->callbacks as $prio => $fns ) {
+				foreach ( $fns as $f ) {
+					$fn = $f['function'];
+					if ( is_array( $fn ) ) {
+						$fn = ( is_object( $fn[0] ) ? get_class( $fn[0] ) : $fn[0] ) . '::' . $fn[1];
+					} elseif ( $fn instanceof Closure ) {
+						$r  = new ReflectionFunction( $fn );
+						$fn = 'closure@' . str_replace( ABSPATH, '', $r->getFileName() ) . ':' . $r->getStartLine();
+					}
+					$hooks[ $h ][] = $prio . ' ' . $fn;
+				}
+			}
+		}
+	}
+	$lp = array();
+	foreach ( (array) ( is_array( $listingpro_options ) ? $listingpro_options : get_option( 'listingpro_options' ) ) as $k => $v ) {
+		if ( preg_match( '/regist|new_user|welcome|signup|sign_up/i', $k ) ) {
+			$lp[ $k ] = is_string( $v ) ? substr( trim( preg_replace( '/\s+/', ' ', wp_strip_all_tags( $v ) ) ), 0, 220 ) : $v;
+		}
+	}
+	// Where ListingPro sends registration mail.
+	$src = array();
+	$it  = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( get_template_directory(), FilesystemIterator::SKIP_DOTS ) );
+	foreach ( $it as $f ) {
+		if ( 'php' !== $f->getExtension() ) {
+			continue;
+		}
+		$c = file_get_contents( $f->getPathname() );
+		foreach ( array( 'listingpro_new_user_register_content', 'new_user_register', 'wp_new_user_notification', 'wp_create_user' ) as $n ) {
+			$p = strpos( $c, $n );
+			if ( false !== $p && count( $src ) < 12 ) {
+				$src[] = array( str_replace( ABSPATH, '', $f->getPathname() ), $n, substr( $c, max( 0, $p - 900 ), 2200 ) );
+			}
+		}
+	}
+	wp_send_json( array( 'users_can_register' => get_option( 'users_can_register' ), 'hooks' => $hooks, 'lp' => $lp, 'src' => $src ) );
+}, 0 );
