@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.15.0
+ * Version: 3.15.1
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.15.0' );
+define( 'HTN_VERSION', '3.15.1' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -2068,6 +2068,7 @@ function htn_mail_inner( $html ) {
 	// Theme colours instead of ListingPro blue; no fixed widths.
 	$inner = preg_replace( '/color:\s*#2a6ad4/i', 'color:#2f5f2c', $inner );
 	$inner = preg_replace( '/width:\s*45%;?/i', '', $inner );
+	$inner = preg_replace( '/<a(?![^>]*\bstyle=)/i', '<a style="color:#2f5f2c;font-weight:bold;"', $inner );
 	return $inner;
 }
 
