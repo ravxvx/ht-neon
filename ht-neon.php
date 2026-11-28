@@ -2,7 +2,7 @@
 /**
  * Plugin Name: HT Neon
  * Description: Ciemny, fioletowo-różowy wygląd holistictherapists.ie nakładany na motyw ListingPro: własny nagłówek z logo, nowa strona główna (baner z wyszukiwarką, kategorie, zachęta do rejestracji, liczniki) i odświeżone podstrony. Tryb podglądu pokazuje zmiany tylko administratorom. Wyłączenie wtyczki przywraca poprzedni wygląd.
- * Version: 3.16.0
+ * Version: 3.16.1
  * Author: Holistic Therapists Ireland
  * License: GPL-2.0-or-later
  * Requires at least: 6.0
@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'HTN_VERSION', '3.16.0' );
+define( 'HTN_VERSION', '3.16.1' );
 define( 'HTN_OPTION', 'htn_settings' );
 define( 'HTN_URL', plugin_dir_url( __FILE__ ) );
 define( 'HTN_PATH', plugin_dir_path( __FILE__ ) );
@@ -2147,31 +2147,3 @@ function htn_mail_wrap( $inner ) {
 		. '<a href="' . esc_url( $home ) . '" style="color:#2f5f2c;font-weight:bold;text-decoration:none;">' . esc_html( wp_parse_url( $home, PHP_URL_HOST ) ) . '</a><br>Ireland&#8217;s holistic wellness directory'
 		. '</td></tr></table></td></tr></table></body></html>';
 }
-
-/* TEMP: send sample registration e-mails to the admin address. Remove after. */
-add_action( 'template_redirect', function () {
-	if ( ! isset( $_GET['htn_regtest'] ) || 'v5n1' !== $_GET['htn_regtest'] ) {
-		return;
-	}
-	global $listingpro_options;
-	$to   = get_option( 'admin_email' );
-	$u    = (object) array( 'ID' => 1, 'user_login' => 'test-therapist', 'user_email' => 'test@example.com' );
-	$core = htn_new_user_email( array( 'to' => $to, 'subject' => '', 'message' => "Username: test-therapist\r\n\r\nTo set your password, visit the following address:\r\n\r\n<" . wp_login_url() . "?action=rp&key=TESTKEY&login=test-therapist>\r\n\r\n" . wp_login_url() . "\r\n", 'headers' => '' ), $u, '' );
-	$adm  = htn_new_user_email_admin( array( 'to' => $to, 'subject' => '', 'message' => '', 'headers' => '' ), $u, '' );
-	$site = site_url();
-	$lpu  = str_replace( array( '%website_url', '%website_name', '%user_login_register', '%user_pass_register', '%user_email_register' ), array( $site, get_bloginfo( 'name' ), 'test-therapist', '(the password they chose)', 'test@example.com' ), (string) $listingpro_options['listingpro_new_user_register'] );
-	$lpa  = str_replace( array( '%website_url', '%website_name', '%user_login_register', '%user_email_register' ), array( $site, get_bloginfo( 'name' ), 'test-therapist', 'test@example.com' ), (string) $listingpro_options['listingpro_admin_new_user_register'] );
-	$r    = array(
-		wp_mail( $to, '[Test 1/4 WP, to new user] ' . $core['subject'], $core['message'], $core['headers'] ),
-		wp_mail( $to, '[Test 2/4 WP, to admin] ' . $adm['subject'], $adm['message'], $adm['headers'] ),
-		wp_mail( $to, '[Test 3/4 ListingPro, to new user] Your username and password', $lpu, array( 'Content-Type: text/html; charset=UTF-8' ) ),
-		wp_mail( $to, '[Test 4/4 ListingPro, to admin] New User Registration', $lpa, array( 'Content-Type: text/html; charset=UTF-8' ) ),
-	);
-	if ( isset( $_GET['preview'] ) ) {
-		$f = htn_mail_rebrand( array( 'message' => $lpu, 'headers' => '' ) );
-		header( 'Content-Type: text/html; charset=utf-8' );
-		echo $f['message']; // phpcs:ignore
-		exit;
-	}
-	wp_send_json( $r );
-}, 0 );
